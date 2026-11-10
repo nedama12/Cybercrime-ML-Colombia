@@ -17,3 +17,7 @@ htmlcov/
 
 .DS_Store
 Thumbs.db
+
+data/raw/PhiUSIIL_Phishing_URL_Dataset.csv
+
+data/processed/phishing_procesado.csv
