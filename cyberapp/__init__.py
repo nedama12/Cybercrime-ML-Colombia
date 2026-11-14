@@ -1,8 +1,10 @@
 """Cybercrime Analytics Colombia - Flask application factory."""
 import logging
+import os
 from pathlib import Path
 
 from flask import Flask, render_template
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from .config import Config
 
@@ -11,6 +13,9 @@ def create_app(config_class=Config):
     app = Flask(__name__, template_folder="../templates", static_folder="../static")
     app.config.from_object(config_class)
     _configure_logging(app)
+    if os.environ.get("BEHIND_PROXY") == "1":
+        # Render terminates HTTPS at its proxy: trust one level of X-Forwarded-* headers.
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
     Path(app.instance_path).mkdir(parents=True, exist_ok=True)
 
     from .extensions import csrf, db, login_manager
