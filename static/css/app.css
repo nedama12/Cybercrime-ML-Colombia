@@ -151,3 +151,20 @@ a.method-step:hover h3 { color: var(--cyan); }
     .page { padding-top: 36px; }
     .nav-sep { display: none; }
 }
+
+/* Responsive navigation: the operational menu has more links than the public one,
+   so it collapses into the menu button earlier than the home page layout. */
+.navbar { position: relative; }
+.nav-links { gap: 22px; }
+.nav-links a, .nav-links .link-button, .nav-links .nav-user { white-space: nowrap; }
+@media (max-width: 1180px) {
+    .menu-checkbox { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); clip-path: inset(50%); white-space: nowrap; }
+    .menu-toggle { width: 40px; height: 40px; display: grid; align-content: center; justify-items: center; gap: 5px; border: 1px solid var(--border); border-radius: 5px; cursor: pointer; }
+    .menu-checkbox:focus-visible + .menu-toggle { outline: 2px solid var(--cyan); outline-offset: 3px; }
+    .menu-toggle span { width: 16px; height: 1px; background: var(--text); }
+    .nav-links { position: absolute; top: calc(100% - 6px); right: 0; left: auto; width: min(320px, 100%); display: none; flex-direction: column; align-items: stretch; gap: 0; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: #101216; }
+    .menu-checkbox:checked ~ .nav-links, .nav-links:focus-within { display: flex; }
+    .nav-links a, .nav-links .link-button, .nav-links .nav-user { padding: 10px; text-align: left; }
+    .nav-links .nav-cta { margin-top: 5px; }
+    .nav-sep { display: none; }
+}
