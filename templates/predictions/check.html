@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field, risk_badge, label_badge %}
+{% block title %}Check a URL | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="page-header">
+        <div><p class="eyebrow">Machine Learning</p><h1>Check a URL</h1>
+        <p>For links received outside the system (phone call, ticket). The result is stored in the inference history and can be turned into a case.</p></div>
+    </div>
+    <div class="grid-2">
+        <div class="panel">
+            {% if not model_ready %}
+            <p class="callout"><strong>No model deployed.</strong> See the <a href="{{ url_for('model.card') }}">model card</a>.</p>
+            {% endif %}
+            <form method="post" novalidate>
+                {{ form.hidden_tag() }}
+                {{ field(form.url, placeholder="https://example.com/login", class="mono", autofocus=true, hint="Must start with http:// or https://") }}
+                <div class="form-actions"><button class="button button-primary" type="submit" {{ 'disabled' if not model_ready }}>Classify</button></div>
+            </form>
+        </div>
+        {% if prediction %}
+        <div class="panel result-card risk-{{ prediction.risk_level }}">
+            <h2>Result</h2>
+            <p class="result-score">{{ '%.0f' % (prediction.probability * 100) }}<span class="muted small"> % phishing probability</span></p>
+            <div class="meter" aria-hidden="true"><span style="width: {{ '%.1f' % (prediction.probability * 100) }}%"></span></div>
+            <dl class="kv stacked-card">
+                <dt>URL</dt><dd class="mono">{{ prediction.url }}</dd>
+                <dt>Classification</dt><dd>{{ label_badge(prediction.label) }} {{ risk_badge(prediction.risk_level) }}</dd>
+                <dt>What it means</dt><dd>{{ recommendation.meaning }}</dd>
+                <dt>Recommended action</dt><dd><strong>{{ recommendation.title }}.</strong> {{ recommendation.action }}</dd>
+                <dt>Model</dt><dd>v{{ prediction.model_version }} · {{ '%.0f' % prediction.latency_ms }} ms</dd>
+            </dl>
+            <p class="small muted">{{ limitations }}</p>
+            <form method="post" action="{{ url_for('predictions.open_case', prediction_id=prediction.id) }}" class="form-actions">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="button button-secondary" type="submit">Open a case with this result</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    {% if explanation %}
+    <div class="panel stacked-card">
+        <h2>Why this result?</h2>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Feature</th><th class="num">This URL</th><th class="num">Legitimate median</th><th class="num">Phishing median</th><th>Closer to</th></tr></thead>
+                <tbody>
+                {% for row in explanation %}
+                <tr><td>{{ row.feature }}</td><td class="num">{{ row.value | round(3) }}</td><td class="num">{{ row.median_legitimate | round(3) }}</td><td class="num">{{ row.median_phishing | round(3) }}</td>
+                    <td>{% if row.closer_to == 'neutral' %}<span class="muted">-</span>{% else %}{{ label_badge(row.closer_to) }}{% endif %}</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

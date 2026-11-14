@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import risk_badge, label_badge, sim_badge, pager %}
+{% block title %}Inference history | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="page-header">
+        <div><p class="eyebrow">Machine Learning</p><h1>Inference history</h1>
+        <p>Every prediction made by the system, with date, user, result and model version. Records cannot be edited or deleted.</p></div>
+        <a class="button button-primary" href="{{ url_for('predictions.check') }}">Check a URL</a>
+    </div>
+    <form class="panel" method="get">
+        <div class="grid-3">
+            <div class="field"><label for="risk">Risk</label><select id="risk" name="risk"><option value="">Any</option>{% for r in ['high', 'medium', 'low'] %}<option value="{{ r }}" {{ 'selected' if filters.risk == r }}>{{ r | capitalize }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="label">Result</label><select id="label" name="label"><option value="">Any</option>{% for r in ['phishing', 'legitimate'] %}<option value="{{ r }}" {{ 'selected' if filters.label == r }}>{{ r | capitalize }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="version">Model version</label><select id="version" name="version"><option value="">Any</option>{% for v in versions %}<option value="{{ v }}" {{ 'selected' if filters.version == v }}>{{ v }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="user">User</label><select id="user" name="user"><option value="">Any</option>{% for u in users %}<option value="{{ u.id }}" {{ 'selected' if filters.user == u.id | string }}>{{ u.username }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="start">From</label><input id="start" name="start" type="date" value="{{ filters.start }}"></div>
+            <div class="field"><label for="end">To</label><input id="end" name="end" type="date" value="{{ filters.end }}"></div>
+        </div>
+        <div class="form-actions"><button class="button button-secondary" type="submit">Filter</button><a class="muted small" href="{{ url_for('predictions.history') }}">Clear</a></div>
+    </form>
+    <div class="table-wrap stacked-card">
+        <table>
+            <thead><tr><th>Date (UTC)</th><th>User</th><th>URL</th><th class="num">Probability</th><th>Result</th><th>Risk</th><th>Model</th><th class="num">ms</th><th>Case</th></tr></thead>
+            <tbody>
+            {% for p in pagination.items %}
+            <tr>
+                <td>{{ p.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td>{{ p.user.username }}</td>
+                <td class="mono">{{ p.url | truncate(60, True) }} {{ sim_badge(p) }}</td>
+                <td class="num">{{ '%.3f' % p.probability }}</td>
+                <td>{{ label_badge(p.label) }}</td>
+                <td>{{ risk_badge(p.risk_level) }}</td>
+                <td>{{ p.model_version }}</td>
+                <td class="num">{{ '%.0f' % p.latency_ms }}</td>
+                <td>{% if p.case_id %}<a href="{{ url_for('cases.detail', case_id=p.case_id) }}">#{{ p.case_id }}</a>{% else %}<span class="muted">-</span>{% endif %}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="9" class="empty">No predictions match these filters.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {{ pager(pagination, 'predictions.history', **filters) }}
+</div>
+{% endblock %}

@@ -24,9 +24,9 @@ def create_app(config_class=Config):
 
     init_model_service(app)
 
-    from .blueprints import account, admin, auth, cases, docs, model
+    from .blueprints import account, admin, auth, cases, docs, model, predictions
 
-    for module in (docs, auth, account, admin, model, cases):
+    for module in (docs, auth, account, admin, model, cases, predictions):
         app.register_blueprint(module.bp)
     _register_error_handlers(app)
 

@@ -48,3 +48,7 @@ class CaseForm(FlaskForm):
     url = StringField("Suspicious URL", validators=[DataRequired(), Length(max=2048)])
     channel = SelectField("Where did you receive it?", choices=[])  # set from CHANNELS in the view
     description = TextAreaField("Description (optional)", validators=[Optional(), Length(max=2000)])
+
+
+class QuickCheckForm(FlaskForm):
+    url = StringField("URL to check", validators=[DataRequired(), Length(max=2048)])
