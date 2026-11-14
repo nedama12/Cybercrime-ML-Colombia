@@ -1,4 +1,4 @@
-﻿__pycache__/
+__pycache__/
 *.py[cod]
 *$py.class
 
@@ -23,3 +23,9 @@ data/raw/PhiUSIIL_Phishing_URL_Dataset.csv
 data/processed/phishing_processed.csv
 
 data/raw/PPED-AreaMun-2018-2042_VP.xlsx
+
+# Flask application
+instance/
+*.db
+*.sqlite3
+logs/
