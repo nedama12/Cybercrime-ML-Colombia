@@ -1,3 +1,14 @@
 <a href="{{ url_for('docs.home') }}#about">Project</a>
 <a href="{{ url_for('docs.phase', slug=phases[0].slug) }}">CRISP-ML</a>
 <a href="{{ url_for('docs.home') }}#team">Team</a>
+<span class="nav-sep" aria-hidden="true"></span>
+{% if current_user.is_authenticated %}
+<span class="nav-user"><strong>{{ current_user.username }}</strong> · {{ current_user.role_label }}</span>
+<form class="inline-form" method="post" action="{{ url_for('auth.logout') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="link-button" type="submit">Log out</button>
+</form>
+{% else %}
+<a href="{{ url_for('auth.login') }}">Log in</a>
+<a class="nav-cta" href="{{ url_for('auth.register') }}">Create account <span aria-hidden="true">↗</span></a>
+{% endif %}

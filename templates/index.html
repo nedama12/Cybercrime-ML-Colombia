@@ -10,6 +10,9 @@
         <p class="hero-description">A web information system that receives reports of suspicious URLs, classifies them with a Machine Learning model and supports analysts in deciding what to do. The full process is documented with the six CRISP-ML phases.</p>
         <div class="hero-actions">
             <a class="button button-primary" href="#about">Explore the project <span aria-hidden="true">↓</span></a>
+            {% if not current_user.is_authenticated %}
+            <a class="button button-secondary" href="{{ url_for('auth.login') }}">Log in to the system</a>
+            {% endif %}
         </div>
     </div>
     <div class="hero-visual" aria-hidden="true">

@@ -50,6 +50,7 @@ button.button-secondary, button.button-danger { border: 1px solid var(--border);
 .flash-info, .flash-message { border-left-color: var(--cyan); }
 
 /* Forms */
+.form-title { margin: 0 0 14px; font-size: 30px; letter-spacing: -.035em; }
 .form-card { max-width: 460px; margin: 0 auto; }
 .form-wide { max-width: 760px; }
 .field { margin-bottom: 16px; }

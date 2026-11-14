@@ -20,9 +20,10 @@ def create_app(config_class=Config):
     csrf.init_app(app)
     from . import models  # noqa: F401  (registers the tables)
 
-    from .blueprints import docs
+    from .blueprints import auth, docs
 
     app.register_blueprint(docs.bp)
+    app.register_blueprint(auth.bp)
 
     @app.context_processor
     def inject_project():

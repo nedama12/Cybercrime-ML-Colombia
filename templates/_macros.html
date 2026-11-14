@@ -1,0 +1,12 @@
+{% macro field(f, hint=None) -%}
+<div class="field{% if f.type == 'BooleanField' %} field-check{% endif %}">
+    {% if f.type == 'BooleanField' %}
+        {{ f(**kwargs) }} {{ f.label }}
+    {% else %}
+        {{ f.label }}
+        {{ f(**kwargs) }}
+    {% endif %}
+    {% if hint %}<p class="hint">{{ hint }}</p>{% endif %}
+    {% for error in f.errors %}<p class="error">{{ error }}</p>{% endfor %}
+</div>
+{%- endmacro %}

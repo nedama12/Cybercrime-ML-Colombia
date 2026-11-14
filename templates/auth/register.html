@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Create account | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="panel form-card">
+        <p class="eyebrow">New reporter account</p>
+        <h1 class="form-title">Create an account</h1>
+        <p class="muted small">New accounts get the <strong>Reporter</strong> role: you can report suspicious links and follow their status. Analyst and administrator roles are assigned by an administrator.</p>
+        <form method="post" novalidate>
+            {{ form.hidden_tag() }}
+            {{ field(form.username, autocomplete="username", autofocus=true) }}
+            {{ field(form.email, autocomplete="email", type="email") }}
+            {{ field(form.password, autocomplete="new-password", hint="At least 8 characters, with letters and numbers.") }}
+            {{ field(form.confirm, autocomplete="new-password") }}
+            <div class="form-actions">
+                <button class="button button-primary" type="submit">Create account</button>
+                <a class="muted small" href="{{ url_for('auth.login') }}">I already have an account</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
