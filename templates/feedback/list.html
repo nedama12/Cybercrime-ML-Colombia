@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Incidents and feedback' if manage else 'My reports' }} | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="page-header">
+        <div><p class="eyebrow">Incidents and feedback</p><h1>{{ 'Incidents and feedback' if manage else 'My problem reports' }}</h1>
+        <p>{{ 'Reports sent by users. Answer them and mark them as resolved.' if manage else 'Problems and suggestions you sent, with the administrator answer.' }}</p></div>
+        <div class="hero-actions">
+            {% if manage %}
+            <form method="get"><select name="status" onchange="this.form.submit()" aria-label="Status" class="button button-secondary button-small">
+                <option value="">All statuses</option>{% for k in ['open', 'in_progress', 'resolved'] %}<option value="{{ k }}" {{ 'selected' if status_filter == k }}>{{ k | replace('_', ' ') | capitalize }}</option>{% endfor %}
+            </select></form>
+            {% endif %}
+            <a class="button button-primary" href="{{ url_for('feedback.create') }}">New report</a>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Date</th>{% if manage %}<th>User</th>{% endif %}<th>Type</th><th>Message</th><th>Case</th><th>Status</th><th>Answer</th>{% if manage %}<th></th>{% endif %}</tr></thead>
+            <tbody>
+            {% for f in items %}
+            <tr>
+                <td>{{ f.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                {% if manage %}<td>{{ f.user.username }}</td>{% endif %}
+                <td><span class="badge badge-{{ 'danger' if f.kind == 'incident' else 'warning' if f.kind in ('false_positive', 'false_negative') else 'info' }}">{{ f.kind_label }}</span></td>
+                <td>{{ f.message | truncate(120) }}</td>
+                <td>{% if f.case_id %}<a href="{{ url_for('cases.detail', case_id=f.case_id) }}">#{{ f.case_id }}</a>{% else %}-{% endif %}</td>
+                <td><span class="badge badge-{{ {'open': 'danger', 'in_progress': 'warning', 'resolved': 'success'}[f.status] }}">{{ f.status_label }}</span></td>
+                <td>{{ f.admin_response or '-' }}</td>
+                {% if manage %}<td><a class="button button-secondary button-small" href="{{ url_for('feedback.respond', item_id=f.id) }}">Answer</a></td>{% endif %}
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="empty">No reports yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

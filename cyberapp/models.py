@@ -232,3 +232,40 @@ class RequestLog(db.Model):
     latency_ms = db.Column(db.Float, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="SET NULL"))
     error = db.Column(db.Text)
+
+
+FEEDBACK_KINDS = {
+    "false_positive": "Wrong result: a safe link was marked as phishing",
+    "false_negative": "Wrong result: a phishing link was marked as safe",
+    "incident": "System incident (error, page not working)",
+    "suggestion": "Suggestion or comment",
+}
+FEEDBACK_SHORT = {"false_positive": "False positive", "false_negative": "False negative",
+                  "incident": "Incident", "suggestion": "Suggestion"}
+FEEDBACK_STATUS = {"open": "Open", "in_progress": "In progress", "resolved": "Resolved"}
+
+
+class Feedback(db.Model):
+    """Incident reports and user feedback, answered by the administrator."""
+    __tablename__ = "feedback"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    case_id = db.Column(db.Integer, db.ForeignKey("url_cases.id", ondelete="SET NULL"))
+    prediction_id = db.Column(db.Integer, db.ForeignKey("predictions.id", ondelete="SET NULL"))
+    kind = db.Column(db.String(20), nullable=False, index=True)
+    message = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), nullable=False, default="open", index=True)
+    admin_response = db.Column(db.Text)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow)
+    resolved_at = db.Column(db.DateTime(timezone=True))
+
+    user = db.relationship("User")
+
+    @property
+    def kind_label(self):
+        return FEEDBACK_SHORT.get(self.kind, self.kind)
+
+    @property
+    def status_label(self):
+        return FEEDBACK_STATUS.get(self.status, self.status)

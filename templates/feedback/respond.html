@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Answer report #{{ item.id }} | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="panel form-card form-wide">
+        <p class="eyebrow">Report #{{ item.id }} · {{ item.kind_label }}</p>
+        <h1 class="form-title">Answer the report</h1>
+        <dl class="kv">
+            <dt>From</dt><dd>{{ item.user.username }} ({{ item.user.role_label }})</dd>
+            <dt>Sent</dt><dd>{{ item.created_at.strftime('%Y-%m-%d %H:%M UTC') }}</dd>
+            {% if item.case_id %}<dt>Case</dt><dd><a href="{{ url_for('cases.detail', case_id=item.case_id) }}">#{{ item.case_id }}</a></dd>{% endif %}
+        </dl>
+        <p class="stacked-card">{{ item.message }}</p>
+        <form method="post" novalidate>
+            {{ form.hidden_tag() }}
+            {{ field(form.status) }}
+            {{ field(form.admin_response, placeholder="Answer visible to the user") }}
+            <div class="form-actions">
+                <button class="button button-primary" type="submit">Save</button>
+                <a class="muted small" href="{{ url_for('feedback.manage') }}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

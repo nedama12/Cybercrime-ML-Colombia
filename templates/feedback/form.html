@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Report a problem | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="panel form-card form-wide">
+        <p class="eyebrow">Incidents and feedback</p>
+        <h1 class="form-title">Report a problem or send feedback</h1>
+        <p class="muted small">Use this form for wrong model results, errors of the system or suggestions. The administrator reviews every report.</p>
+        {% if case %}<p class="small">About case <a href="{{ url_for('cases.detail', case_id=case.id) }}">#{{ case.id }}</a>: <span class="mono">{{ case.url }}</span></p>{% endif %}
+        <form method="post" novalidate>
+            {{ form.hidden_tag() }}
+            {{ field(form.kind) }}
+            {{ field(form.message, placeholder="What happened? What did you expect? Steps to reproduce if it is an error.") }}
+            <div class="form-actions">
+                <button class="button button-primary" type="submit">Send</button>
+                <a class="muted small" href="{{ url_for('feedback.mine') }}">My reports</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,6 +1,6 @@
 """WTForms definitions. Every form is CSRF-protected by Flask-WTF."""
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, PasswordField, SelectField, StringField, TextAreaField
+from wtforms import BooleanField, HiddenField, PasswordField, SelectField, StringField, TextAreaField
 from wtforms.validators import DataRequired, EqualTo, Length, Optional, Regexp, ValidationError
 
 EMAIL_PATTERN = r"^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$"
@@ -59,3 +59,14 @@ class ResolveCaseForm(FlaskForm):
         ("phishing", "Phishing (confirmed malicious)"), ("legitimate", "Legitimate (safe)")])
     action_taken = SelectField("Action taken", choices=[])  # set from ACTIONS in the view
     resolution_notes = TextAreaField("Resolution notes", validators=[Optional(), Length(max=4000)])
+
+
+class FeedbackForm(FlaskForm):
+    kind = SelectField("Type", choices=[])  # set from FEEDBACK_KINDS in the view
+    message = TextAreaField("Message", validators=[DataRequired(), Length(10, 4000)])
+    case_id = HiddenField()
+
+
+class FeedbackResponseForm(FlaskForm):
+    status = SelectField("Status", choices=[])
+    admin_response = TextAreaField("Answer", validators=[Optional(), Length(max=4000)])

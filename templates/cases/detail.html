@@ -73,7 +73,7 @@
                 <dt>Classified</dt><dd>{{ latest.created_at.strftime('%Y-%m-%d %H:%M UTC') }} by {{ latest.user.username }} · {{ '%.0f' % latest.latency_ms }} ms</dd>
             </dl>
             {% if latest.used_manual_inputs %}<p class="callout stacked-card"><strong>Manual inputs.</strong> Some features were typed by the analyst instead of computed from the URL.</p>{% endif %}
-            <p class="small muted stacked-card">{{ limitations }}</p>
+            <p class="small muted stacked-card">{{ limitations }} <a href="{{ url_for('feedback.create', case_id=case.id, kind='false_positive' if latest.label == 'phishing' else 'false_negative') }}">Report a wrong result</a></p>
             {% else %}
             <p>The case is waiting to be classified by an analyst.</p>
             {% endif %}
