@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Additional inputs | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="panel form-card form-wide">
+        <p class="eyebrow">Case #{{ case.id }} / classification</p>
+        <h1 class="form-title">Additional inputs required</h1>
+        <p class="muted small">The deployed model uses features that cannot be computed from the URL text. Inspect the page safely (sandbox) and type the values. The prediction will be marked as using manual inputs.</p>
+        <p class="mono">{{ case.url }}</p>
+        <form method="post" action="{{ url_for('cases.classify', case_id=case.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="feature-grid">
+                {% for name in missing %}
+                <div class="field"><label for="{{ name }}">{{ name }}</label><input id="{{ name }}" name="{{ name }}" type="number" step="any" required></div>
+                {% endfor %}
+            </div>
+            <div class="form-actions">
+                <button class="button button-primary" type="submit">Classify</button>
+                <a class="muted small" href="{{ url_for('cases.detail', case_id=case.id) }}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

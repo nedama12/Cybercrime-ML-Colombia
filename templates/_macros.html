@@ -33,3 +33,7 @@
 </nav>
 {% endif %}
 {%- endmacro %}
+
+{% macro label_badge(label) -%}
+{% if label %}<span class="badge badge-{{ label }}">{{ label | capitalize }}</span>{% else %}<span class="muted">-</span>{% endif %}
+{%- endmacro %}

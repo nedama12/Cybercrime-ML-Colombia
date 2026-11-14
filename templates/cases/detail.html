@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import status_badge, risk_badge, sim_badge %}
+{% from "_macros.html" import status_badge, risk_badge, sim_badge, label_badge %}
 {% block title %}Case #{{ case.id }} | {{ project.short_title }}{% endblock %}
 {% block content %}
 <div class="container page">
@@ -35,13 +35,67 @@
             </dl>
             {% if case.description %}<h3>Description</h3><p>{{ case.description }}</p>{% endif %}
         </div>
-        {% block case_side %}
-        <div class="panel">
-            <h2>Next step</h2>
+        <div class="panel result-card {{ 'risk-' ~ latest.risk_level if latest }}">
+            <h2>Model result</h2>
+            {% if latest %}
+            <p class="result-score">{{ '%.0f' % (latest.probability * 100) }}<span class="muted small"> % phishing probability</span></p>
+            <div class="meter" aria-hidden="true"><span style="width: {{ '%.1f' % (latest.probability * 100) }}%"></span></div>
+            <dl class="kv stacked-card">
+                <dt>Classification</dt><dd>{{ label_badge(latest.label) }}</dd>
+                <dt>Risk level</dt><dd>{{ risk_badge(latest.risk_level) }}</dd>
+                <dt>What it means</dt><dd>{{ recommendation.meaning }}</dd>
+                <dt>Recommended action</dt><dd><strong>{{ recommendation.title }}.</strong> {{ recommendation.action }}</dd>
+                <dt>Model</dt><dd>{{ latest.model_name }} v{{ latest.model_version }} · threshold {{ '%.2f' % latest.threshold }}</dd>
+                <dt>Classified</dt><dd>{{ latest.created_at.strftime('%Y-%m-%d %H:%M UTC') }} by {{ latest.user.username }} · {{ '%.0f' % latest.latency_ms }} ms</dd>
+            </dl>
+            {% if latest.used_manual_inputs %}<p class="callout stacked-card"><strong>Manual inputs.</strong> Some features were typed by the analyst instead of computed from the URL.</p>{% endif %}
+            <p class="small muted stacked-card">{{ limitations }}</p>
+            {% else %}
             <p>The case is waiting to be classified by an analyst.</p>
+            {% endif %}
+            {% if current_user.is_analyst and case.is_open %}
+                {% if model_ready %}
+                <form method="post" action="{{ url_for('cases.classify', case_id=case.id) }}" class="form-actions">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="button button-primary" type="submit">{{ 'Classify again' if latest else 'Classify with the model' }}</button>
+                </form>
+                {% else %}
+                <p class="callout stacked-card"><strong>No model deployed.</strong> See the <a href="{{ url_for('model.card') }}">model card</a>.</p>
+                {% endif %}
+            {% endif %}
         </div>
-        {% endblock %}
     </div>
-    {% block case_extra %}{% endblock %}
+    {% if current_user.is_analyst and explanation %}
+    <div class="panel stacked-card">
+        <h2>Why this result?</h2>
+        <p class="small">Each feature of this URL compared with the median of legitimate and phishing URLs in the training data{% if explanation[0].importance is not none %}, ordered by the feature importance reported by Model Engineering{% endif %}. It describes the input; it is not a causal explanation.</p>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Feature</th><th class="num">This URL</th><th class="num">Legitimate median</th><th class="num">Phishing median</th><th>Closer to</th></tr></thead>
+                <tbody>
+                {% for row in explanation %}
+                <tr><td>{{ row.feature }}</td><td class="num">{{ row.value | round(3) }}</td><td class="num">{{ row.median_legitimate | round(3) }}</td><td class="num">{{ row.median_phishing | round(3) }}</td>
+                    <td>{% if row.closer_to == 'neutral' %}<span class="muted">-</span>{% else %}{{ label_badge(row.closer_to) }}{% endif %}</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+    {% if case.predictions %}
+    <div class="panel stacked-card">
+        <h2>Prediction history of this case</h2>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Date</th><th>User</th><th class="num">Probability</th><th>Result</th><th>Risk</th><th>Model version</th></tr></thead>
+                <tbody>
+                {% for p in case.predictions %}
+                <tr><td>{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</td><td>{{ p.user.username }}</td><td class="num">{{ '%.3f' % p.probability }}</td><td>{{ label_badge(p.label) }}</td><td>{{ risk_badge(p.risk_level) }}</td><td>{{ p.model_version }}</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

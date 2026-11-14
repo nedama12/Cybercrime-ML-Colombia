@@ -1,4 +1,5 @@
 """Database models (SQLAlchemy). SQLite locally, PostgreSQL on Render."""
+import json
 from datetime import datetime, timezone
 
 from flask_login import UserMixin
@@ -113,6 +114,10 @@ class UrlCase(db.Model):
     reporter = db.relationship("User", foreign_keys=[reporter_id], backref="reported_cases")
 
     @property
+    def latest_prediction(self):
+        return self.predictions[0] if self.predictions else None
+
+    @property
     def status_label(self):
         return CaseStatus.LABELS.get(self.status, self.status)
 
@@ -136,3 +141,40 @@ class UrlCase(db.Model):
     def can_delete(self, user):
         # Classified cases are kept for traceability; only administrators may remove them.
         return user.is_admin or (user.id == self.reporter_id and self.status == CaseStatus.NEW)
+
+
+class Prediction(db.Model):
+    """Inference history: every model output with date, user, result and model version."""
+    __tablename__ = "predictions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    case_id = db.Column(db.Integer, db.ForeignKey("url_cases.id", ondelete="SET NULL"), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    url = db.Column(db.String(2048), nullable=False)
+    probability = db.Column(db.Float, nullable=False)
+    label = db.Column(db.String(20), nullable=False)
+    risk_level = db.Column(db.String(10), nullable=False, index=True)
+    threshold = db.Column(db.Float, nullable=False)
+    model_name = db.Column(db.String(80), nullable=False)
+    model_version = db.Column(db.String(40), nullable=False, index=True)
+    features_json = db.Column(db.Text, nullable=False)
+    sources_json = db.Column(db.Text)
+    latency_ms = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
+    is_simulated = db.Column(db.Boolean, nullable=False, default=False)
+
+    case = db.relationship("UrlCase", backref=db.backref(
+        "predictions", order_by="Prediction.created_at.desc()", passive_deletes=True))
+    user = db.relationship("User")
+
+    @property
+    def features(self):
+        return json.loads(self.features_json or "{}")
+
+    @property
+    def sources(self):
+        return json.loads(self.sources_json or "{}")
+
+    @property
+    def used_manual_inputs(self):
+        return "manual" in self.sources.values()
