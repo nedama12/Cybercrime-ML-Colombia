@@ -43,9 +43,15 @@ def main():
     features = {}
     for col in COMPUTABLE_FEATURES:
         s = train[col]
-        edges = np.unique(np.quantile(s, np.linspace(0, 1, N_BINS + 1)))
+        inner = list(np.unique(np.quantile(s, np.linspace(0, 1, N_BINS + 1)))[1:-1])
+        if not inner:
+            # Sparse or almost constant features (e.g. NoOfEqualsInURL, IsHTTPS) give identical
+            # quantiles. Split the dominant value from the rest so that a change in the share of
+            # the minority value is still detected.
+            median = float(s.median())
+            inner = [(float(s.min()) + median) / 2 if median == float(s.max()) else median + 1e-9]
         # Open-ended outer bins so production values outside the training range still count.
-        edges = [-np.inf] + list(edges[1:-1]) + [np.inf]
+        edges = [-np.inf] + inner + [np.inf]
         counts, _ = np.histogram(s, bins=edges)
         features[col] = {
             "mean": round(float(s.mean()), 4),

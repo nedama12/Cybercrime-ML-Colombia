@@ -82,10 +82,12 @@
    "p99": 0.0,
    "bin_edges": [
     null,
+    1e-09,
     null
    ],
    "bin_proportions": [
-    1.0
+    0.997208,
+    0.002792
    ]
   },
   "TLDLength": {
@@ -136,10 +138,12 @@
    "p99": 0.0,
    "bin_edges": [
     null,
+    1e-09,
     null
    ],
    "bin_proportions": [
-    1.0
+    0.997984,
+    0.002016
    ]
   },
   "NoOfObfuscatedChar": {
@@ -152,10 +156,12 @@
    "p99": 0.0,
    "bin_edges": [
     null,
+    1e-09,
     null
    ],
    "bin_proportions": [
-    1.0
+    0.997984,
+    0.002016
    ]
   },
   "ObfuscationRatio": {
@@ -168,10 +174,12 @@
    "p99": 0.0,
    "bin_edges": [
     null,
+    1e-09,
     null
    ],
    "bin_proportions": [
-    1.0
+    0.997984,
+    0.002016
    ]
   },
   "NoOfLettersInURL": {
@@ -292,10 +300,12 @@
    "p99": 2.0,
    "bin_edges": [
     null,
+    1e-09,
     null
    ],
    "bin_proportions": [
-    1.0
+    0.975579,
+    0.024421
    ]
   },
   "NoOfQMarkInURL": {
@@ -308,10 +318,12 @@
    "p99": 1.0,
    "bin_edges": [
     null,
+    1e-09,
     null
    ],
    "bin_proportions": [
-    1.0
+    0.972351,
+    0.027649
    ]
   },
   "NoOfAmpersandInURL": {
@@ -324,10 +336,12 @@
    "p99": 0.0,
    "bin_edges": [
     null,
+    1e-09,
     null
    ],
    "bin_proportions": [
-    1.0
+    0.996373,
+    0.003627
    ]
   },
   "NoOfOtherSpecialCharsInURL": {
@@ -398,10 +412,12 @@
    "p99": 1.0,
    "bin_edges": [
     null,
+    0.5,
     null
    ],
    "bin_proportions": [
-    1.0
+    0.21746,
+    0.78254
    ]
   },
   "TLDLegitimateProb": {
