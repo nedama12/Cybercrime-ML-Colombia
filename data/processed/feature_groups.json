@@ -1,5 +1,5 @@
 {
-  "solo_url": [
+  "url_only": [
     "URLLength",
     "DomainLength",
     "IsDomainIP",
@@ -19,13 +19,13 @@
     "SpacialCharRatioInURL",
     "IsHTTPS"
   ],
-  "derivadas": [
+  "derived": [
     "URLSimilarityIndex",
     "CharContinuationRate",
     "TLDLegitimateProb",
     "URLCharProb"
   ],
-  "pagina": [
+  "page": [
     "LineOfCode",
     "LargestLineLength",
     "HasTitle",
@@ -55,5 +55,5 @@
     "NoOfEmptyRef",
     "NoOfExternalRef"
   ],
-  "objetivo": "es_phishing"
+  "target": "is_phishing"
 }

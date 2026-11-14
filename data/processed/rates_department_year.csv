@@ -1,4 +1,4 @@
-cod_dpto,departamento_norm,ano_denuncia,total_procesos,poblacion,tasa_100k
+dept_code,department_norm,report_year,total_cases,population,rate_100k
 91,AMAZONAS,2018,15,76573,19.589150222663342
 91,AMAZONAS,2019,15,78065,19.214756933324793
 91,AMAZONAS,2020,13,79583,16.335146953495094

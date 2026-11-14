@@ -1,4 +1,4 @@
-cod_mpio,departamento_norm,municipio_norm,ano_denuncia,total_procesos,poblacion,tasa_100k
+mun_code,department_norm,municipality_norm,report_year,total_cases,population,rate_100k
 91263,AMAZONAS,EL ENCANTO,2021,1,2174.0,45.998160073597056
 91263,AMAZONAS,EL ENCANTO,2024,1,2211.0,45.22840343735866
 91405,AMAZONAS,LA CHORRERA,2025,1,3156.0,31.685678073510772
