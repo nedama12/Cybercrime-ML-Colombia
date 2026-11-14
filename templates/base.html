@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cybercrime Analytics Colombia: phishing URL classification and case management system documented with CRISP-ML.">
+    <title>{% block title %}Cybercrime Analytics Colombia{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body id="top" class="{% block body_class %}app-page{% endblock %}">
+    <header class="site-header">
+        <nav class="navbar container" aria-label="Main navigation">
+            <a class="brand" href="{{ url_for('docs.home') }}"><span class="brand-mark" aria-hidden="true">⌁</span> Cybercrime Analytics <span>Colombia</span></a>
+            <input class="menu-checkbox" type="checkbox" id="menu-toggle-checkbox" aria-label="Toggle navigation menu"><label class="menu-toggle" for="menu-toggle-checkbox" aria-label="Toggle navigation menu"><span></span><span></span><span></span></label>
+            <div class="nav-links" id="nav-links">
+                {% include "_nav.html" %}
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="container flash-stack" role="status">
+            {% for category, message in messages %}
+            <p class="flash flash-{{ category }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <a class="brand footer-brand" href="{{ url_for('docs.home') }}"><span class="brand-mark" aria-hidden="true">⌁</span> Cybercrime Analytics <span>Colombia</span></a>
+            <p>{{ project.title }}</p>
+            <a class="back-top" href="#top">Back to top ↑</a>
+        </div>
+        <div class="container footer-bottom"><span>{{ project.university }}</span><span>PGC <i class="footer-dot"></i> CRISP-ML <i class="footer-dot"></i> {{ project.period }}</span></div>
+    </footer>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

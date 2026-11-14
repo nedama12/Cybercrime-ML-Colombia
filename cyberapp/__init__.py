@@ -14,6 +14,12 @@ def create_app(config_class=Config):
     from .blueprints import docs
 
     app.register_blueprint(docs.bp)
+
+    @app.context_processor
+    def inject_project():
+        from .content import PHASES, PROJECT
+        return {"project": PROJECT, "phases": PHASES}
+
     return app
 
 
