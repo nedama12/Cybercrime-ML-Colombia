@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block head %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>{% endblock %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading"><p class="eyebrow">Data Engineering · Exploración</p><h1>Dataset <span>procesado.</span></h1><p>Resumen leído desde <code>data/processed/delitos_procesado.csv</code>.</p></div>
+  {% if not data.available %}<div class="portal-alert error">No se encontró el CSV procesado.</div>{% else %}
+  <div class="portal-stat-grid three"><article class="portal-stat"><span>Registros</span><strong>{{ '{:,}'.format(data.rows).replace(',', '.') }}</strong></article><article class="portal-stat"><span>Columnas</span><strong>{{ data.column_count }}</strong></article><article class="portal-stat"><span>Duplicados exactos</span><strong>{{ data.duplicates }}</strong></article></div>
+  <div class="portal-grid two-col"><article class="portal-panel"><p class="eyebrow">Clases del objetivo</p><h2>Distribución de {{ data.target }}</h2><div class="chart-wrap"><canvas id="classChart" aria-label="Distribución por categoría"></canvas></div></article><article class="portal-panel"><p class="eyebrow">Calidad de datos</p><h2>Valores faltantes</h2><p class="panel-note">Suma de valores nulos del archivo: <strong>{{ data.missing_total }}</strong></p><div class="table-wrap"><table class="portal-table"><thead><tr><th>Variable</th><th>Tipo</th><th>Faltantes</th><th>Valores únicos</th></tr></thead><tbody>{% for col in data.columns if col.missing > 0 %}<tr><td>{{ col.name }}</td><td>{{ col.dtype }}</td><td>{{ col.missing }}</td><td>{{ col.unique }}</td></tr>{% else %}<tr><td colspan="4">No se encontraron valores faltantes.</td></tr>{% endfor %}</tbody></table></div></article></div>
+  <div class="portal-panel"><p class="eyebrow">Diccionario observado</p><h2>Columnas y tipos</h2><div class="table-wrap"><table class="portal-table"><thead><tr><th>Columna</th><th>Tipo leído</th><th>Faltantes</th><th>Valores únicos</th></tr></thead><tbody>{% for col in data.columns %}<tr><td><code>{{ col.name }}</code></td><td>{{ col.dtype }}</td><td>{{ col.missing }}</td><td>{{ col.unique }}</td></tr>{% endfor %}</tbody></table></div></div>
+  <div class="portal-panel"><p class="eyebrow">Muestra real</p><h2>Primeros 10 registros</h2><div class="table-wrap"><table class="portal-table"><thead><tr>{% for col in data.columns %}<th>{{ col.name }}</th>{% endfor %}</tr></thead><tbody>{% for row in data.sample %}<tr>{% for col in data.columns %}<td>{{ row[col.name] }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div></div>
+  {% endif %}
+</section>
+{% endblock %}
+{% block scripts %}{% if data.available %}<script>
+const distribution = {{ data.distribution|tojson }};
+new Chart(document.getElementById('classChart'), {type:'bar',data:{labels:distribution.map(x=>x.category),datasets:[{label:'Registros',data:distribution.map(x=>x.count),backgroundColor:'#39d9e8',borderRadius:4}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{color:'#252a31'},ticks:{color:'#aeb5be'}},y:{grid:{display:false},ticks:{color:'#d8dde3'}}}}});
+</script>{% endif %}{% endblock %}

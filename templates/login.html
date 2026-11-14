@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="portal-page container auth-page" id="top">
+  <div class="portal-panel auth-panel">
+    <p class="eyebrow">Acceso a la plataforma</p><h1>Iniciar <span>sesión.</span></h1>
+    <p>Ingresa para registrar incidentes, recibir su categoría estimada y consultar tu historial.</p>
+    {% for category,message in get_flashed_messages(with_categories=true) %}<div class="portal-alert {{ category }}">{{ message }}</div>{% endfor %}
+    {% if retry_after %}<div class="portal-alert error" role="alert">Demasiados intentos recientes. Vuelve a intentarlo en {{ retry_after }} segundos.</div>{% endif %}
+    <form method="post" action="{{ url_for('login', next=request.args.get('next','')) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div class="portal-field"><label for="email">Correo electrónico</label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required></div>
+      <div class="portal-field"><label for="password">Contraseña</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+      <button class="button button-primary" type="submit">Ingresar <span aria-hidden="true">↗</span></button>
+    </form>
+    <p class="auth-switch">¿Aún no tienes cuenta? <a href="{{ url_for('register') }}">Regístrate</a></p>
+  </div>
+</section>
+{% endblock %}
