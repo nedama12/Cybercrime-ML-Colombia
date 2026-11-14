@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% macro pct(v) %}{{ '%.1f%%' % (v * 100) if v is not none else '-' }}{% endmacro %}
+{% macro num(v, f='%.3f') %}{{ f % v if v is not none else '-' }}{% endmacro %}
+{% block title %}Monitoring | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="page-header">
+        <div><p class="eyebrow">CRISP-ML phase 6</p><h1>Model and system monitoring</h1>
+        <p>Requests, errors, response times, input drift and the model's performance against analyst verdicts.</p></div>
+        <form method="get" class="hero-actions">
+            <select name="days" onchange="this.form.submit()" aria-label="Period" class="button button-secondary button-small">
+                {% for d in [1, 7, 30, 90] %}<option value="{{ d }}" {{ 'selected' if r.days == d }}>Last {{ d }} day{{ 's' if d > 1 }}</option>{% endfor %}
+            </select>
+            <label class="field-check small"><input type="checkbox" name="real_only" value="1" onchange="this.form.submit()" {{ 'checked' if not r.include_simulated }}> Exclude simulated data</label>
+        </form>
+    </div>
+
+    {% if r.simulated_predictions %}
+    <p class="callout"><strong>Simulated data included.</strong> {{ r.simulated_predictions }} of {{ r.predictions }} predictions in this period were generated with <code>flask seed-demo</code> for demonstration and are labeled SIMULATED everywhere.</p>
+    {% endif %}
+
+    <div class="panel stacked-card">
+        <h2>Alerts</h2>
+        {% for level, message in r.alerts %}<p class="flash flash-{{ level }}">{{ message }}</p>
+        {% else %}<p class="flash flash-success">No alert rule was triggered in this period.</p>{% endfor %}
+    </div>
+
+    <div class="grid-4 stacked-card">
+        <div class="kpi"><span>Model</span><strong>{{ 'Ready' if r.model.ready else 'Not deployed' }}</strong><small>{{ r.model.model_name or '' }} {{ 'v' ~ r.model.model_version if r.model.model_version }}</small></div>
+        <div class="kpi"><span>Requests</span><strong>{{ r.requests }}</strong><small>{{ r.errors }} server errors ({{ pct(r.error_rate) }})</small></div>
+        <div class="kpi"><span>Response time p50 / p95</span><strong>{{ num(r.p50, '%.0f') }} / {{ num(r.p95, '%.0f') }} ms</strong><small>target p95 &lt; 500 ms</small></div>
+        <div class="kpi"><span>Predictions</span><strong>{{ r.predictions }}</strong><small>inference p95 {{ num(r.inference_p95, '%.0f') }} ms</small></div>
+    </div>
+
+    <div class="grid-2 stacked-card">
+        <div class="panel"><h2>Requests and p95 response time per day</h2><div class="chart-box"><canvas id="chart-latency"></canvas></div></div>
+        <div class="panel"><h2>Predictions per day by risk level</h2><div class="chart-box"><canvas id="chart-predictions"></canvas></div></div>
+    </div>
+
+    <div class="grid-2 stacked-card">
+        <div class="panel">
+            <h2>Live performance vs. test set</h2>
+            <p class="small">Latest prediction of each closed case compared with the analyst verdict (actual outcome).</p>
+            {% if r.performance %}
+            <div class="table-wrap"><table>
+                <thead><tr><th>Metric</th><th class="num">In operation (n={{ r.performance.n }})</th><th class="num">Test set</th></tr></thead>
+                <tbody>
+                {% for m in ['accuracy', 'precision', 'recall', 'f1'] %}
+                <tr><td>{{ m | capitalize }}</td><td class="num">{{ num(r.performance[m]) }}</td><td class="num">{{ num((r.offline or {}).get(m)) }}</td></tr>
+                {% endfor %}
+                </tbody>
+            </table></div>
+            <p class="small muted">Confusion matrix in operation [[TN, FP], [FN, TP]]: {{ r.performance.confusion }}</p>
+            {% else %}<p class="muted">No closed cases with a verdict yet.</p>{% endif %}
+        </div>
+        <div class="panel">
+            <h2>Prediction drift</h2>
+            {% if r.prediction_drift %}
+            <dl class="kv">
+                <dt>Predicted phishing (last {{ r.prediction_drift.n }})</dt><dd>{{ pct(r.prediction_drift.recent_rate) }}</dd>
+                <dt>Phishing rate in training</dt><dd>{{ pct(r.prediction_drift.training_rate) }}</dd>
+                <dt>Model versions in period</dt><dd>{{ r.versions | join(', ') or '-' }}</dd>
+            </dl>
+            <p class="small muted">A large gap may come from a different mix of reported URLs (users report suspicious links) or from concept drift. Review it together with the analyst agreement.</p>
+            {% else %}<p class="muted">No predictions yet.</p>{% endif %}
+        </div>
+    </div>
+
+    <div class="panel stacked-card">
+        <h2>Input drift (PSI, last {{ r.window }} predictions)</h2>
+        <p class="small">Population Stability Index of each feature against the training partition. &lt; 0.10 stable, 0.10-0.25 moderate, &gt; 0.25 significant. At least 30 observations are needed.</p>
+        <div class="table-wrap"><table>
+            <thead><tr><th>Feature</th><th class="num">n</th><th class="num">Training mean</th><th class="num">Recent mean</th><th class="num">PSI</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for row in r.drift %}
+            <tr><td>{{ row.feature }}</td><td class="num">{{ row.n }}</td><td class="num">{{ num(row.train_mean) }}</td><td class="num">{{ num(row.recent_mean) }}</td><td class="num">{{ num(row.psi) }}</td>
+                <td><span class="badge badge-{{ {'stable': 'success', 'moderate': 'warning', 'significant': 'danger'}.get(row.status, '') }}">{{ row.status }}</span></td></tr>
+            {% else %}<tr><td colspan="6" class="empty">Reference statistics not found (models/reference_stats.json).</td></tr>{% endfor %}
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="panel stacked-card">
+        <h2>Recent server errors</h2>
+        <div class="table-wrap"><table>
+            <thead><tr><th>Date (UTC)</th><th>Request</th><th class="num">Status</th><th>Error</th></tr></thead>
+            <tbody>
+            {% for e in r.recent_errors %}<tr><td>{{ e.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td><td class="mono">{{ e.method }} {{ e.path }}</td><td class="num">{{ e.status_code }}</td><td class="mono">{{ e.error or '-' }}</td></tr>
+            {% else %}<tr><td colspan="4" class="empty">No server errors in this period.</td></tr>{% endfor %}
+            </tbody>
+        </table></div>
+    </div>
+</div>
+<script id="report-data" type="application/json">{{ {'monitoring': r.chart} | tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

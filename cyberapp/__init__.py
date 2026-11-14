@@ -24,11 +24,15 @@ def create_app(config_class=Config):
 
     init_model_service(app)
 
-    from .blueprints import account, admin, auth, cases, docs, model, predictions, reports
+    from .blueprints import account, admin, auth, cases, docs, model, monitoring, predictions, reports
 
-    for module in (docs, auth, account, admin, model, cases, predictions, reports):
+    for module in (docs, auth, account, admin, model, cases, predictions, reports, monitoring):
         app.register_blueprint(module.bp)
     _register_error_handlers(app)
+
+    from .monitoring import init_request_logging
+
+    init_request_logging(app)
 
     @app.context_processor
     def inject_project():

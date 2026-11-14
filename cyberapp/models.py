@@ -217,3 +217,18 @@ class Prediction(db.Model):
     @property
     def used_manual_inputs(self):
         return "manual" in self.sources.values()
+
+
+class RequestLog(db.Model):
+    """One row per HTTP request: endpoint, status, response time, user and error (if any)."""
+    __tablename__ = "request_logs"
+
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
+    method = db.Column(db.String(10), nullable=False)
+    path = db.Column(db.String(255), nullable=False)
+    endpoint = db.Column(db.String(80), index=True)
+    status_code = db.Column(db.Integer, nullable=False, index=True)
+    latency_ms = db.Column(db.Float, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="SET NULL"))
+    error = db.Column(db.Text)

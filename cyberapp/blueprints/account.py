@@ -23,6 +23,8 @@ MODULES = [
      "Cases, risk levels, model-analyst agreement, CSV exports and Colombian context."),
     ("model.card", ("analyst", "admin"), "Machine Learning", "⌘", "Model card",
      "Version, features and evaluation results of the deployed model."),
+    ("monitoring.dashboard", ("admin",), "Monitoring", "◷", "Monitoring",
+     "Requests, errors, response times, drift and live model performance."),
     ("account.profile", None, "Account", "◎", "My account",
      "See your details and change your password."),
     ("docs.phase", None, "Documentation", "⌁", "CRISP-ML documentation",

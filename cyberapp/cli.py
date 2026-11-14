@@ -3,6 +3,7 @@ import click
 
 from .extensions import db
 from .models import Role, User
+from .monitoring import operational_review
 
 
 def register(app):
@@ -25,3 +26,28 @@ def register(app):
         db.session.add(user)
         db.session.commit()
         click.echo(f"Administrator '{username}' created.")
+
+    @app.cli.command("monitoring-report")
+    @click.option("--days", default=7, show_default=True)
+    @click.option("--real-only", is_flag=True, help="Exclude simulated data.")
+    def monitoring_report(days, real_only):
+        """Print the operational review (evidence for CRISP-ML phase 6)."""
+        from .ml.features import load_json
+        from .ml.service import get_model_service
+
+        reference = load_json(app.config["MODEL_DIR"] / "reference_stats.json")
+        r = operational_review(get_model_service(), reference, days=days, include_simulated=not real_only)
+        fmt = lambda v, f="{:.3f}": "-" if v is None else f.format(v)  # noqa: E731
+        click.echo(f"Operational review - last {days} days ({'real data only' if real_only else 'includes simulated data'})")
+        click.echo(f"Model: ready={r['model']['ready']} version={r['model']['model_version']}")
+        click.echo(f"Requests: {r['requests']}  errors: {r['errors']}  error rate: {fmt(r['error_rate'], '{:.2%}')}")
+        click.echo(f"Response time p50/p95 (ms): {fmt(r['p50'], '{:.0f}')} / {fmt(r['p95'], '{:.0f}')}")
+        click.echo(f"Predictions: {r['predictions']} (simulated: {r['simulated_predictions']})")
+        if r["performance"]:
+            p = r["performance"]
+            click.echo(f"Live performance (n={p['n']}): accuracy={fmt(p['accuracy'])} precision={fmt(p['precision'])} "
+                       f"recall={fmt(p['recall'])} f1={fmt(p['f1'])}")
+        drifting = [d for d in r["drift"] if d["status"] in ("moderate", "significant")]
+        click.echo(f"Features with drift: {', '.join(d['feature'] + '=' + fmt(d['psi']) for d in drifting) or 'none'}")
+        for level, message in r["alerts"] or [("ok", "No alert rule triggered.")]:
+            click.echo(f"[{level.upper()}] {message}")
