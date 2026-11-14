@@ -83,6 +83,22 @@ class CaseStatus:
     CLOSED = "closed"
     LABELS = {NEW: "New", CLASSIFIED: "Classified", UNDER_REVIEW: "Under review", CLOSED: "Closed"}
     OPEN = (NEW, CLASSIFIED, UNDER_REVIEW)
+    # Allowed transitions (business rule enforced in UrlCase.move_to).
+    TRANSITIONS = {
+        NEW: {CLASSIFIED},
+        CLASSIFIED: {UNDER_REVIEW, CLOSED},
+        UNDER_REVIEW: {CLOSED},
+        CLOSED: {UNDER_REVIEW},  # reopen
+    }
+
+
+ACTIONS = {
+    "blocked": "URL blocked and affected users warned",
+    "escalated": "Escalated to the security team or the authorities",
+    "dismissed": "Dismissed: no action needed",
+}
+# Which final actions are coherent with each verdict.
+ACTIONS_BY_VERDICT = {"phishing": ("blocked", "escalated"), "legitimate": ("dismissed",)}
 
 
 CHANNELS = [
@@ -107,11 +123,34 @@ class UrlCase(db.Model):
     status = db.Column(db.String(20), nullable=False, default=CaseStatus.NEW, index=True)
     priority = db.Column(db.String(10), nullable=False, default="pending", index=True)
     reporter_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    assignee_id = db.Column(db.Integer, db.ForeignKey("users.id"), index=True)
+    actual_label = db.Column(db.String(20))      # analyst verdict: phishing / legitimate
+    action_taken = db.Column(db.String(20))
+    resolution_notes = db.Column(db.Text)
+    closed_at = db.Column(db.DateTime(timezone=True))
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
     updated_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow)
     is_simulated = db.Column(db.Boolean, nullable=False, default=False)
 
     reporter = db.relationship("User", foreign_keys=[reporter_id], backref="reported_cases")
+    assignee = db.relationship("User", foreign_keys=[assignee_id])
+
+    def move_to(self, status):
+        if status not in CaseStatus.TRANSITIONS.get(self.status, set()):
+            raise ValueError(f"A {self.status_label.lower()} case cannot move to "
+                             f"{CaseStatus.LABELS[status].lower()}.")
+        self.status = status
+
+    @property
+    def action_label(self):
+        return ACTIONS.get(self.action_taken, "-")
+
+    @property
+    def model_agrees(self):
+        """Did the model's latest prediction match the analyst's verdict? None if unknown."""
+        if not self.actual_label or not self.latest_prediction:
+            return None
+        return self.latest_prediction.label == self.actual_label
 
     @property
     def latest_prediction(self):

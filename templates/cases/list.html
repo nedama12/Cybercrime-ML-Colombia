@@ -19,6 +19,7 @@
                 <select id="status" name="status"><option value="">Any</option>{% for k, v in statuses.items() %}<option value="{{ k }}" {{ 'selected' if filters.status == k }}>{{ v }}</option>{% endfor %}</select></div>
             <div class="field"><label for="priority">Risk / priority</label>
                 <select id="priority" name="priority"><option value="">Any</option>{% for k in ['high', 'medium', 'low', 'pending'] %}<option value="{{ k }}" {{ 'selected' if filters.priority == k }}>{{ k | capitalize }}</option>{% endfor %}</select></div>
+            {% if current_user.is_analyst %}<label class="field-check small"><input type="checkbox" name="mine" value="1" {{ 'checked' if filters.mine }}> Assigned to me</label>{% endif %}
             <div class="form-actions"><button class="button button-secondary" type="submit">Filter</button><a class="muted small" href="{{ url_for('cases.index') }}">Clear</a></div>
         </div>
     </form>

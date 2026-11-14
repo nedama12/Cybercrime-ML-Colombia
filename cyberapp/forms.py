@@ -52,3 +52,10 @@ class CaseForm(FlaskForm):
 
 class QuickCheckForm(FlaskForm):
     url = StringField("URL to check", validators=[DataRequired(), Length(max=2048)])
+
+
+class ResolveCaseForm(FlaskForm):
+    actual_label = SelectField("Analyst verdict", choices=[
+        ("phishing", "Phishing (confirmed malicious)"), ("legitimate", "Legitimate (safe)")])
+    action_taken = SelectField("Action taken", choices=[])  # set from ACTIONS in the view
+    resolution_notes = TextAreaField("Resolution notes", validators=[Optional(), Length(max=4000)])

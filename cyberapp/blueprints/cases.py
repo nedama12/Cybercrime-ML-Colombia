@@ -3,12 +3,12 @@ from flask import Blueprint, abort, current_app, flash, redirect, render_templat
 from flask_login import current_user, login_required
 
 from ..extensions import db
-from ..forms import CaseForm
+from ..forms import CaseForm, ResolveCaseForm
 from ..ml.features import InvalidURL, domain_of, normalize_url
 from ..ml.inference import LIMITATIONS, RECOMMENDATIONS, MissingFeatures, explain
 from ..ml.inference import classify as run_classification
 from ..ml.service import get_model_service
-from ..models import CHANNELS, CaseStatus, Role, UrlCase
+from ..models import ACTIONS, ACTIONS_BY_VERDICT, CHANNELS, CaseStatus, Role, UrlCase, utcnow
 from ..security import role_required
 
 bp = Blueprint("cases", __name__, url_prefix="/cases")
@@ -35,6 +35,8 @@ def index():
     query = UrlCase.query
     if not current_user.is_analyst:
         query = query.filter_by(reporter_id=current_user.id)  # reporters only see their own cases
+    if request.args.get("mine") and current_user.is_analyst:
+        query = query.filter_by(assignee_id=current_user.id)
     status = request.args.get("status")
     priority = request.args.get("priority")
     search = (request.args.get("q") or "").strip()
@@ -46,7 +48,8 @@ def index():
         query = query.filter(UrlCase.url.ilike(f"%{search}%"))
     pagination = query.order_by(UrlCase.created_at.desc()).paginate(
         page=request.args.get("page", 1, type=int), per_page=PER_PAGE, error_out=False)
-    filters = {"status": status or "", "priority": priority or "", "q": search}
+    filters = {"status": status or "", "priority": priority or "", "q": search,
+               "mine": request.args.get("mine", "")}
     return render_template("cases/list.html", pagination=pagination, filters=filters,
                            statuses=CaseStatus.LABELS)
 
@@ -153,3 +156,62 @@ def classify(case_id):
         flash(f"Classified as {prediction.label.upper()} ({prediction.probability:.0%} phishing "
               f"probability, {prediction.risk_level} risk).", "success")
     return redirect(url_for("cases.detail", case_id=case.id))
+
+
+@bp.route("/<int:case_id>/review", methods=["POST"])
+@role_required(Role.ANALYST, Role.ADMIN)
+def start_review(case_id):
+    """The analyst takes the case (classified -> under review) or reopens a closed one."""
+    case = _get_case(case_id)
+    try:
+        case.move_to(CaseStatus.UNDER_REVIEW)
+    except ValueError as exc:
+        flash(str(exc), "warning")
+    else:
+        reopened = case.closed_at is not None
+        case.assignee_id = current_user.id
+        case.closed_at = None
+        db.session.commit()
+        current_app.logger.info("Case %s %s by %s", case.id, "reopened" if reopened else "taken",
+                                current_user.username)
+        flash("Case reopened." if reopened else "You are now reviewing this case.", "info")
+    return redirect(url_for("cases.detail", case_id=case.id))
+
+
+@bp.route("/<int:case_id>/resolve", methods=["GET", "POST"])
+@role_required(Role.ANALYST, Role.ADMIN)
+def resolve(case_id):
+    """Record the actual outcome and the action taken, then close the case."""
+    case = _get_case(case_id)
+    if CaseStatus.CLOSED not in CaseStatus.TRANSITIONS.get(case.status, set()):
+        flash("Only classified cases can be resolved. Classify the case with the model first.", "warning")
+        return redirect(url_for("cases.detail", case_id=case.id))
+    form = ResolveCaseForm(obj=case)
+    form.action_taken.choices = list(ACTIONS.items())
+    latest = case.latest_prediction
+    if request.method == "GET" and latest and not case.actual_label:
+        form.actual_label.data = latest.label  # start from the model's suggestion
+    if form.validate_on_submit():
+        verdict, action = form.actual_label.data, form.action_taken.data
+        notes = (form.resolution_notes.data or "").strip()
+        disagrees = latest is not None and latest.label != verdict
+        if action not in ACTIONS_BY_VERDICT[verdict]:
+            form.action_taken.errors.append(
+                "This action is not coherent with the verdict: phishing must be blocked or "
+                "escalated, legitimate URLs are dismissed.")
+        elif disagrees and len(notes) < 10:
+            form.resolution_notes.errors.append(
+                "Explain why you disagree with the model (at least 10 characters). This feedback "
+                "is used to evaluate and retrain the model.")
+        else:
+            case.move_to(CaseStatus.CLOSED)
+            case.actual_label, case.action_taken = verdict, action
+            case.resolution_notes = notes or None
+            case.assignee_id = case.assignee_id or current_user.id
+            case.closed_at = utcnow()
+            db.session.commit()
+            current_app.logger.info("Case %s closed by %s: verdict=%s action=%s model_agrees=%s",
+                                    case.id, current_user.username, verdict, action, not disagrees)
+            flash("Case closed. The verdict was recorded to monitor the model's real performance.", "success")
+            return redirect(url_for("cases.detail", case_id=case.id))
+    return render_template("cases/resolve.html", form=form, case=case, latest=latest)

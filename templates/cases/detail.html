@@ -31,9 +31,33 @@
                 <dt>Reported by</dt><dd>{{ case.reporter.username }}</dd>
                 <dt>Reported at</dt><dd>{{ case.created_at.strftime('%Y-%m-%d %H:%M UTC') }}</dd>
                 <dt>Last update</dt><dd>{{ case.updated_at.strftime('%Y-%m-%d %H:%M UTC') }}</dd>
+                <dt>Assigned to</dt><dd>{{ case.assignee.username if case.assignee else '-' }}</dd>
                 {% if same_url %}<dt>Same URL</dt><dd>Reported in {{ same_url }} other case(s)</dd>{% endif %}
             </dl>
             {% if case.description %}<h3>Description</h3><p>{{ case.description }}</p>{% endif %}
+            {% if case.status == 'closed' %}
+            <h3>Resolution</h3>
+            <dl class="kv">
+                <dt>Analyst verdict</dt><dd>{{ label_badge(case.actual_label) }}
+                    {% if case.model_agrees is not none %}<span class="badge badge-{{ 'success' if case.model_agrees else 'danger' }}">{{ 'Model agreed' if case.model_agrees else 'Model disagreed' }}</span>{% endif %}</dd>
+                <dt>Action taken</dt><dd>{{ case.action_label }}</dd>
+                <dt>Closed</dt><dd>{{ case.closed_at.strftime('%Y-%m-%d %H:%M UTC') }}</dd>
+            </dl>
+            {% if case.resolution_notes %}<p>{{ case.resolution_notes }}</p>{% endif %}
+            {% endif %}
+            {% if current_user.is_analyst %}
+            <div class="form-actions">
+                {% if case.status == 'classified' or case.status == 'closed' %}
+                <form method="post" action="{{ url_for('cases.start_review', case_id=case.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="button button-secondary button-small" type="submit">{{ 'Reopen case' if case.status == 'closed' else 'Take for review' }}</button>
+                </form>
+                {% endif %}
+                {% if case.status in ('classified', 'under_review') %}
+                <a class="button button-primary button-small" href="{{ url_for('cases.resolve', case_id=case.id) }}">Resolve and close</a>
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
         <div class="panel result-card {{ 'risk-' ~ latest.risk_level if latest }}">
             <h2>Model result</h2>
