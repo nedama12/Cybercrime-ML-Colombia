@@ -1,5 +1,6 @@
 """Cybercrime Analytics Colombia - Flask application factory."""
 import logging
+from pathlib import Path
 
 from flask import Flask
 
@@ -10,6 +11,14 @@ def create_app(config_class=Config):
     app = Flask(__name__, template_folder="../templates", static_folder="../static")
     app.config.from_object(config_class)
     _configure_logging(app)
+    Path(app.instance_path).mkdir(parents=True, exist_ok=True)
+
+    from .extensions import csrf, db, login_manager
+
+    db.init_app(app)
+    login_manager.init_app(app)
+    csrf.init_app(app)
+    from . import models  # noqa: F401  (registers the tables)
 
     from .blueprints import docs
 
@@ -20,6 +29,9 @@ def create_app(config_class=Config):
         from .content import PHASES, PROJECT
         return {"project": PROJECT, "phases": PHASES}
 
+    from . import cli
+
+    cli.register(app)
     return app
 
 
