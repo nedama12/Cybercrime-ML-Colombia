@@ -77,7 +77,7 @@ def login():
                 login_user(user, remember=form.remember.data)
                 current_app.logger.info("Login: %s", user.username)
                 flash(f"Welcome, {user.username}.", "success")
-                return redirect(_safe_next(request.args.get("next")) or url_for("docs.home"))
+                return redirect(_safe_next(request.args.get("next")) or url_for("account.dashboard"))
         else:
             if user:
                 user.failed_logins = (user.failed_logins or 0) + 1

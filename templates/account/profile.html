@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}My account | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="page-header"><div><p class="eyebrow">My account</p><h1>{{ current_user.username }}</h1></div></div>
+    <div class="grid-2">
+        <div class="panel">
+            <h2>Account details</h2>
+            <dl class="kv">
+                <dt>Email</dt><dd>{{ current_user.email }}</dd>
+                <dt>Role</dt><dd>{{ current_user.role_label }}</dd>
+                <dt>Member since</dt><dd>{{ current_user.created_at.strftime('%Y-%m-%d') }}</dd>
+                <dt>Last login</dt><dd>{{ current_user.last_login_at.strftime('%Y-%m-%d %H:%M UTC') if current_user.last_login_at else '-' }}</dd>
+            </dl>
+        </div>
+        <div class="panel">
+            <h2>Change password</h2>
+            <form method="post" novalidate>
+                {{ form.hidden_tag() }}
+                {{ field(form.current, autocomplete="current-password") }}
+                {{ field(form.password, autocomplete="new-password", hint="At least 8 characters, with letters and numbers.") }}
+                {{ field(form.confirm, autocomplete="new-password") }}
+                <div class="form-actions"><button class="button button-primary" type="submit">Update password</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Users | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="page-header">
+        <div><p class="eyebrow">Administration</p><h1>Users and roles</h1>
+        <p>Only administrators can change roles. New accounts always start as reporters.</p></div>
+        <form method="get" class="hero-actions">
+            <select name="role" onchange="this.form.submit()" aria-label="Filter by role" class="button button-secondary button-small">
+                <option value="">All roles</option>
+                {% for r in roles.ALL %}<option value="{{ r }}" {{ 'selected' if role_filter == r }}>{{ roles.LABELS[r] }}</option>{% endfor %}
+            </select>
+        </form>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Created</th><th>Last login</th><th></th></tr></thead>
+            <tbody>
+            {% for u in users %}
+                <tr>
+                    <td>{{ u.username }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.role_label }}</td>
+                    <td>{% if u.active %}<span class="badge badge-success">Active</span>{% else %}<span class="badge badge-danger">Inactive</span>{% endif %}</td>
+                    <td>{{ u.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ u.last_login_at.strftime('%Y-%m-%d %H:%M') if u.last_login_at else '-' }}</td>
+                    <td><a class="button button-secondary button-small" href="{{ url_for('admin.edit_user', user_id=u.id) }}">Edit</a></td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="empty">No users found.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

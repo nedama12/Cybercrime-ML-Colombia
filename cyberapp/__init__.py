@@ -2,7 +2,7 @@
 import logging
 from pathlib import Path
 
-from flask import Flask
+from flask import Flask, render_template
 
 from .config import Config
 
@@ -20,10 +20,11 @@ def create_app(config_class=Config):
     csrf.init_app(app)
     from . import models  # noqa: F401  (registers the tables)
 
-    from .blueprints import auth, docs
+    from .blueprints import account, admin, auth, docs
 
-    app.register_blueprint(docs.bp)
-    app.register_blueprint(auth.bp)
+    for module in (docs, auth, account, admin):
+        app.register_blueprint(module.bp)
+    _register_error_handlers(app)
 
     @app.context_processor
     def inject_project():
@@ -42,3 +43,20 @@ def _configure_logging(app):
         logging.basicConfig(level=logging.INFO,
                             format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
     app.logger.setLevel(logging.INFO)
+
+
+ERRORS = {
+    403: ("Access denied", "Your role does not have permission to open this page."),
+    404: ("Page not found", "The page you are looking for does not exist."),
+    500: ("Something went wrong", "The error was logged. Please try again or report the incident."),
+}
+
+
+def _register_error_handlers(app):
+    def handler(error):
+        code = getattr(error, "code", 500) or 500
+        title, message = ERRORS.get(code, ERRORS[500])
+        return render_template("errors/error.html", code=code, title=title, message=message), code
+
+    for code in ERRORS:
+        app.register_error_handler(code, handler)

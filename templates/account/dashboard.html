@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Operational area</p>
+            <h1>Hello, {{ current_user.username }}</h1>
+            <p>You are signed in as <strong>{{ current_user.role_label }}</strong>. These are the modules your role can use.</p>
+        </div>
+    </div>
+    <div class="grid-3">
+        {% for module in modules if module.allowed %}
+        <a class="card objective-tile" href="{{ module.url }}">
+            <span class="tile-number">{{ module.kicker }}</span>
+            <span class="tile-icon" aria-hidden="true">{{ module.icon }}</span>
+            <h3>{{ module.title }}</h3>
+            <p>{{ module.text }}</p>
+            <span class="tile-accent"></span>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

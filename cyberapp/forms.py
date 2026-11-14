@@ -1,6 +1,6 @@
 """WTForms definitions. Every form is CSRF-protected by Flask-WTF."""
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, PasswordField, StringField
+from wtforms import BooleanField, PasswordField, SelectField, StringField
 from wtforms.validators import DataRequired, EqualTo, Length, Regexp, ValidationError
 
 EMAIL_PATTERN = r"^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$"
@@ -29,3 +29,16 @@ class LoginForm(FlaskForm):
     username = StringField("Username or email", validators=[DataRequired(), Length(max=120)])
     password = PasswordField("Password", validators=[DataRequired(), Length(max=128)])
     remember = BooleanField("Keep me signed in")
+
+
+class ChangePasswordForm(FlaskForm):
+    current = PasswordField("Current password", validators=[DataRequired(), Length(max=128)])
+    password = PasswordField("New password", validators=[DataRequired(), Length(8, 128), strong_password])
+    confirm = PasswordField("Confirm new password", validators=[
+        DataRequired(), EqualTo("password", message="Passwords must match."),
+    ])
+
+
+class UserAdminForm(FlaskForm):
+    role = SelectField("Role", choices=[])  # choices are set in the view from Role.ALL
+    active = BooleanField("Account active")

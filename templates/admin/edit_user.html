@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Edit {{ user.username }} | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="panel form-card">
+        <p class="eyebrow">Administration</p>
+        <h1 class="form-title">{{ user.username }}</h1>
+        <p class="muted small">{{ user.email }}</p>
+        <form method="post" novalidate>
+            {{ form.hidden_tag() }}
+            {{ field(form.role, hint="Reporter: reports links. Security analyst: classifies and resolves cases. Administrator: full access.") }}
+            {{ field(form.active) }}
+            <div class="form-actions">
+                <button class="button button-primary" type="submit">Save changes</button>
+                <a class="muted small" href="{{ url_for('admin.users') }}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
