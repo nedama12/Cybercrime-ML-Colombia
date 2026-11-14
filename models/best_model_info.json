@@ -1,0 +1,64 @@
+{
+  "algorithm": "logistic_regression",
+  "target": "categoria",
+  "features": [
+    "criminalidad",
+    "departamento_hecho",
+    "municipio_hecho",
+    "seccional",
+    "ano_hechos",
+    "ano_entrada",
+    "ano_denuncia",
+    "anio_parcial"
+  ],
+  "parameters": {
+    "C": 1.0,
+    "class_weight": "balanced",
+    "dual": false,
+    "fit_intercept": true,
+    "intercept_scaling": 1,
+    "l1_ratio": 0.0,
+    "max_iter": 2000,
+    "n_jobs": null,
+    "penalty": "deprecated",
+    "random_state": 42,
+    "solver": "lbfgs",
+    "tol": 0.0001,
+    "verbose": 0,
+    "warm_start": false
+  },
+  "metrics": {
+    "accuracy": 0.1397590361445783,
+    "precision_macro": 0.1512827189694154,
+    "recall_macro": 0.2480809393355818,
+    "f1_macro": 0.1176317835506843,
+    "f1_weighted": 0.1624547620097893,
+    "precision_weighted": 0.2680689639875732,
+    "recall_weighted": 0.1397590361445783,
+    "minority_recall": 0.45680272108843534,
+    "selection_score": 0.21828598929896023
+  },
+  "training_date_utc": "2026-11-13T22:52:58.701403+00:00",
+  "dataset": "data\\processed\\delitos_procesado.csv",
+  "dataset_rows": 66400,
+  "train_rows": 53120,
+  "test_rows": 13280,
+  "random_state": 42,
+  "class_distribution": {
+    "HURTO_ELECTRONICO": 20473,
+    "ACCESO_ABUSIVO": 15990,
+    "DATOS_PERSONALES": 12911,
+    "PHISHING_SUPLANTACION": 5694,
+    "FRAUDE_TRANSFERENCIA": 4921,
+    "ATAQUE_A_SISTEMAS": 4725,
+    "MALWARE": 982,
+    "EQUIPOS_MOVILES": 375,
+    "NO_ESPECIFICADO": 329
+  },
+  "minority_classes": [
+    "MALWARE",
+    "EQUIPOS_MOVILES",
+    "NO_ESPECIFICADO"
+  ],
+  "selection_rule": "0.40*F1 macro + 0.20*precision macro + 0.20*recall macro + 0.20*recall medio clases <2%"
+}

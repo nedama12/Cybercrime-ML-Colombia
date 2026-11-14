@@ -1,0 +1,69 @@
+{
+  "ACCESO_ABUSIVO": {
+    "precision": 0.2661596958174905,
+    "recall": 0.06566604127579738,
+    "f1-score": 0.1053423626787058,
+    "support": 3198.0
+  },
+  "ATAQUE_A_SISTEMAS": {
+    "precision": 0.1111111111111111,
+    "recall": 0.09735449735449736,
+    "f1-score": 0.10377890580936266,
+    "support": 945.0
+  },
+  "DATOS_PERSONALES": {
+    "precision": 0.2705350414468726,
+    "recall": 0.13903950426026337,
+    "f1-score": 0.18367869020209773,
+    "support": 2582.0
+  },
+  "EQUIPOS_MOVILES": {
+    "precision": 0.026041666666666668,
+    "recall": 0.6,
+    "f1-score": 0.04991680532445923,
+    "support": 75.0
+  },
+  "FRAUDE_TRANSFERENCIA": {
+    "precision": 0.1131367292225201,
+    "recall": 0.21443089430894308,
+    "f1-score": 0.14812214812214813,
+    "support": 984.0
+  },
+  "HURTO_ELECTRONICO": {
+    "precision": 0.40278657378087396,
+    "recall": 0.15531135531135531,
+    "f1-score": 0.22418047232992597,
+    "support": 4095.0
+  },
+  "MALWARE": {
+    "precision": 0.03602991162474507,
+    "recall": 0.27040816326530615,
+    "f1-score": 0.0635872825434913,
+    "support": 196.0
+  },
+  "NO_ESPECIFICADO": {
+    "precision": 0.017808958445763627,
+    "recall": 0.5,
+    "f1-score": 0.034392912975508075,
+    "support": 66.0
+  },
+  "PHISHING_SUPLANTACION": {
+    "precision": 0.11793478260869565,
+    "recall": 0.19051799824407376,
+    "f1-score": 0.1456864719704599,
+    "support": 1139.0
+  },
+  "accuracy": 0.13975903614457832,
+  "macro avg": {
+    "precision": 0.15128271896941548,
+    "recall": 0.2480809393355818,
+    "f1-score": 0.11763178355068431,
+    "support": 13280.0
+  },
+  "weighted avg": {
+    "precision": 0.26806896398757324,
+    "recall": 0.13975903614457832,
+    "f1-score": 0.1624547620097893,
+    "support": 13280.0
+  }
+}

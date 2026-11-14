@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading"><p class="eyebrow">Cuenta · historial privado</p><h1>Mis <span>predicciones.</span></h1><p>Solo se muestran registros asociados a tu cuenta.</p></div>
+  <div class="panel-heading"><div><p class="eyebrow">{{ predictions|length }} registros</p><h2>Incidentes clasificados</h2></div><a class="button button-primary" href="{{ url_for('prediction') }}">Nueva predicción <span aria-hidden="true">↗</span></a></div>
+  {% if predictions %}<div class="history-list">{% for item in predictions %}<article class="portal-panel history-card"><div class="history-heading"><div><p class="eyebrow">Predicción #{{ item.id }} · {{ item.created_at }}</p><h3>{{ item.category }}</h3></div><span class="model-badge">Categoría estimada</span></div><details><summary>Ver características enviadas y probabilidades</summary><div class="history-details"><div><h4>Entrada</h4><dl>{% for name,value in item.incident.items() %}<div><dt>{{ name }}</dt><dd>{{ value }}</dd></div>{% endfor %}</dl></div><div><h4>Probabilidades del modelo</h4><dl>{% for probability in item.probabilities %}<div><dt>{{ probability.name }}</dt><dd>{{ '%.1f'|format(probability.value*100) }}%</dd></div>{% endfor %}</dl></div></div></details></article>{% endfor %}</div>{% else %}<div class="portal-panel empty-history"><p class="eyebrow">Aún no hay registros</p><h2>Tu historial está vacío.</h2><p>Las predicciones que realices se guardarán aquí y solo tú podrás consultarlas.</p><a class="portal-text-link" href="{{ url_for('prediction') }}">Registrar un incidente →</a></div>{% endif %}
+</section>
+{% endblock %}
