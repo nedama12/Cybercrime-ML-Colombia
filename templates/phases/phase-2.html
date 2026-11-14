@@ -1,0 +1,80 @@
+{% extends "phases/_layout.html" %}
+{% block phase_content %}
+<h2>Selected sources and features</h2>
+<p>The classification model is trained only with PhiUSIIL, because it is the only source with labeled
+URLs. The Colombian cybercrime data and the DANE population projections are processed for context
+indicators and reports. The 50 PhiUSIIL predictors were organized in three groups
+(<code>data/processed/feature_groups.json</code>):</p>
+<div class="table-wrap">
+    <table>
+        <thead><tr><th>Group</th><th>Count</th><th>Examples</th><th>Available at prediction time?</th></tr></thead>
+        <tbody>
+            <tr><td><code>url_only</code></td><td class="num">18</td><td>URLLength, NoOfSubDomain, IsHTTPS, LetterRatioInURL, NoOfOtherSpecialCharsInURL</td><td>Yes, computed from the URL text</td></tr>
+            <tr><td><code>derived</code></td><td class="num">4</td><td>URLSimilarityIndex, TLDLegitimateProb, URLCharProb, CharContinuationRate</td><td>Partially; some depend on statistics of the original dataset</td></tr>
+            <tr><td><code>page</code></td><td class="num">28</td><td>HasPasswordField, NoOfExternalRef, HasTitle, NoOfJS</td><td>No, they require downloading and parsing the web page</td></tr>
+        </tbody>
+    </table>
+</div>
+<p>Selecting features that the deployed system can compute from the URL alone keeps training and
+production consistent and avoids visiting potentially malicious pages from the server.</p>
+
+<h2>Cleaning: missing values, duplicates, inconsistencies and outliers</h2>
+<h3>PhiUSIIL (analysis/05_prepare_phishing.py)</h3>
+<ol>
+    <li>Label made explicit: <code>is_phishing = 1</code> when the original <code>label = 0</code> (in PhiUSIIL, 1 means legitimate).</li>
+    <li>URLs repeated with contradictory labels were removed; the remaining duplicated URLs were dropped (first occurrence kept).</li>
+    <li>Columns without predictive use were dropped: <code>FILENAME</code>, <code>Title</code> and the original <code>label</code>.</li>
+    <li>No missing values were found. Extreme values (for example very long URLs) were kept because they are a real signal of phishing, and tree models are robust to them.</li>
+</ol>
+<h3>Colombian cybercrime data (analysis/03_cleaning.py)</h3>
+<ol>
+    <li>Years and case totals converted to integers, reporting non-numeric values first.</li>
+    <li>Whitespace stripped and "SIN DATO" (no data) converted to missing values.</li>
+    <li>22 rows without department or municipality removed; empty columns (GRUPO_DELITO, CONSUMADO, PAÍS_HECHO) dropped.</li>
+    <li>Place names normalized (accents and symbols) to merge with DANE population data.</li>
+    <li>Article (269A-269J) extracted from the offense text and mapped to a category; aggravating factor flagged.</li>
+    <li>Spanish YES/NO values encoded as 1/0, partial year 2026 flagged and columns renamed to English.</li>
+</ol>
+
+<h2>Before and after</h2>
+<div class="table-wrap">
+    <table>
+        <thead><tr><th>Dataset</th><th class="num">Rows before</th><th class="num">Rows after</th><th>Main change</th></tr></thead>
+        <tbody>
+            <tr><td>PhiUSIIL phishing URLs</td><td class="num">235,795</td><td class="num">235,359</td><td>Contradictory and duplicated URLs removed, label made explicit</td></tr>
+            <tr><td>Cybercrime cases (datos.gov.co)</td><td class="num">66,422</td><td class="num">66,400</td><td>Rows without location removed, categories added</td></tr>
+        </tbody>
+    </table>
+</div>
+<figure>
+    <img src="{{ url_for('docs.figure', filename='03_trend_by_category.png') }}" alt="Trend of cybercrime cases by category">
+    <figcaption>Processed data: yearly trend by category (analysis/06_eda_crimes.py).</figcaption>
+</figure>
+
+<h2>Transformations and feature engineering</h2>
+<ul>
+    <li><strong>Rates per 100,000 inhabitants</strong> (analysis/08_population_merge.py): cases are divided by DANE population per department and municipality, so large and small territories can be compared.</li>
+    <li><strong>Scaling:</strong> needed only for Logistic Regression. It is fitted inside a scikit-learn <code>Pipeline</code> on the training partition only, so validation and test data never influence it.</li>
+    <li><strong>Encoding:</strong> the URL-based predictors are already numeric or binary; no categorical encoding is required for the model.</li>
+</ul>
+<figure>
+    <img src="{{ url_for('docs.figure', filename='08_department_rates_2024.png') }}" alt="Cybercrime rate per 100,000 inhabitants by department in 2024">
+    <figcaption>Cybercrime rate per 100,000 inhabitants by department, 2024 (analysis/09_rate_charts.py).</figcaption>
+</figure>
+
+<h2>Partitions without data leakage</h2>
+<p>The data was split 70% / 15% / 15% into training, validation and test with
+<code>GroupShuffleSplit</code> grouped by <strong>domain</strong> (random_state = 42). All URLs of the same
+domain fall in the same partition, so the model cannot memorize a domain in training and recognize it
+again in the test set. The overlap of domains between training and test is zero.</p>
+<div class="table-wrap">
+    <table>
+        <thead><tr><th>Partition</th><th class="num">Rows</th><th class="num">% phishing</th><th>Use</th></tr></thead>
+        <tbody>
+            <tr><td>train</td><td class="num">165,143</td><td class="num">42.8%</td><td>Fit preprocessing and models, cross-validation</td></tr>
+            <tr><td>val</td><td class="num">35,318</td><td class="num">42.6%</td><td>Model comparison and hyperparameter tuning</td></tr>
+            <tr><td>test</td><td class="num">34,897</td><td class="num">42.3%</td><td>Final, independent evaluation (used once)</td></tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

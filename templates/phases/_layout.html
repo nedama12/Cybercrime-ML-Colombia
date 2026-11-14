@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Phase {{ phase.number }}: {{ phase.title }} | CRISP-ML{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">CRISP-ML / Phase {{ '%02d' % phase.number }}</p>
+            <h1>{{ phase.title }}</h1>
+            <p>{{ phase.summary }}</p>
+        </div>
+    </div>
+    <div class="phase-layout">
+        <nav class="phase-nav" aria-label="CRISP-ML phases">
+            {% for p in phases %}
+            <a href="{{ url_for('docs.phase', slug=p.slug) }}" class="{{ 'active' if p.number == phase.number }}"><span>{{ '%02d' % p.number }}</span>{{ p.title }}</a>
+            {% endfor %}
+        </nav>
+        <article class="phase-body">
+            {% block phase_content %}{% endblock %}
+            <nav class="phase-pager" aria-label="Phase navigation">
+                {% if prev_phase %}<a href="{{ url_for('docs.phase', slug=prev_phase.slug) }}">← {{ prev_phase.title }}</a>{% else %}<span></span>{% endif %}
+                {% if next_phase %}<a href="{{ url_for('docs.phase', slug=next_phase.slug) }}">{{ next_phase.title }} →</a>{% endif %}
+            </nav>
+        </article>
+    </div>
+</div>
+{% endblock %}

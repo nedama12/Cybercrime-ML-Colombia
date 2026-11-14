@@ -60,7 +60,7 @@
         <div class="section-heading"><p class="eyebrow">03 / Methodology</p><h2>Six phases from <span>data to operation.</span></h2><p class="method-intro">The project follows CRISP-ML (Schmid, Wurst &amp; Wirth, 2020), an evolution of CRISP-DM that adds deployment and continuous monitoring of Machine Learning models.</p></div>
         <div class="method-steps">
             {% for phase in phases %}
-            <article class="method-step"><span class="step-number">{{ '%02d' % phase.number }}</span><div><h3>{{ phase.title }}</h3><p>{{ phase.summary }}</p></div><span class="step-arrow" aria-hidden="true">↗</span></article>
+            <a class="method-step" href="{{ url_for('docs.phase', slug=phase.slug) }}"><span class="step-number">{{ '%02d' % phase.number }}</span><div><h3>{{ phase.title }}</h3><p>{{ phase.summary }}</p></div><span class="step-arrow" aria-hidden="true">↗</span></a>
             {% endfor %}
         </div>
     </div>
