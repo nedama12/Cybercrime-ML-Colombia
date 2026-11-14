@@ -1,0 +1,63 @@
+{% extends "phases/_layout.html" %}
+{% block phase_content %}
+<h2>Monitoring indicators</h2>
+<div class="table-wrap">
+    <table>
+        <thead><tr><th>Area</th><th>Indicator</th><th>Target / alert rule</th></tr></thead>
+        <tbody>
+            <tr><td>Service</td><td>Requests, server error rate</td><td>Error rate ≤ 2%</td></tr>
+            <tr><td>Service</td><td>Response time p50 / p95 per day</td><td>p95 &lt; 500 ms</td></tr>
+            <tr><td>Model</td><td>Predictions per day and per risk level, model version in use</td><td>Visible trend, one version per period</td></tr>
+            <tr><td>Data</td><td>PSI of each input feature vs. the training partition (last 200 predictions)</td><td>&gt; 0.25 significant drift</td></tr>
+            <tr><td>Data</td><td>Share of URLs predicted as phishing vs. training rate</td><td>Reviewed together with agreement</td></tr>
+            <tr><td>Performance</td><td>Accuracy, precision, recall and F1 against analyst verdicts</td><td>Recall ≥ 0.90; F1 drop ≤ 0.05 vs. test</td></tr>
+            <tr><td>Business</td><td>Model-analyst agreement, average resolution time, open high-risk cases</td><td>Agreement ≥ 85%</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h2>How drift and degradation are detected</h2>
+<ul>
+    <li><strong>Data drift:</strong> the Population Stability Index compares the distribution of each feature received in production with the training distribution stored in <code>models/reference_stats.json</code>.</li>
+    <li><strong>Performance degradation:</strong> predictions are compared with actual outcomes when the analyst closes a case. The live metrics are compared with the test metrics of the deployed version.</li>
+    <li><strong>Signals from users:</strong> false positive / false negative reports and incidents.</li>
+</ul>
+<p>The rules run on the monitoring dashboard and in the command <code>flask --app app monitoring-report</code>.</p>
+
+<h2>Review frequency and responsibilities</h2>
+<div class="table-wrap">
+    <table>
+        <thead><tr><th>Activity</th><th>Frequency</th><th>Responsible</th></tr></thead>
+        <tbody>
+            <tr><td>Check alerts, errors and response times</td><td>Daily</td><td>Administrator (Application Engineering)</td></tr>
+            <tr><td>Answer incidents and feedback</td><td>Daily, within 2 business days</td><td>Administrator</td></tr>
+            <tr><td>Operational review report (drift, live performance)</td><td>Weekly</td><td>Administrator + Model Engineering</td></tr>
+            <tr><td>Model review and retraining decision</td><td>Monthly, or immediately when a retraining criterion is met</td><td>Model Engineering, with Data Engineering</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h2>Retraining criteria</h2>
+<ul>
+    <li>Significant drift (PSI &gt; 0.25) in any of the five most important features for two consecutive weekly reviews.</li>
+    <li>Live F1 more than 0.05 below the test F1, or live recall below 0.90, with at least 30 verdicts.</li>
+    <li>Accumulation of 200 new closed cases with verdict (new labeled data).</li>
+    <li>Repeated false negative reports for the same type of URL.</li>
+</ul>
+
+<h2>Risks, quality controls and update procedure</h2>
+<ul>
+    <li><strong>Quality controls:</strong> automated tests (pytest) for authentication, roles, cases and inference; feature parity check between the app and the dataset; the model is validated on load (features, classes, scikit-learn version).</li>
+    <li><strong>Update procedure:</strong> (1) retrain with the original data plus the verdicts of closed cases; (2) evaluate on a new independent test set and compare with the current version; (3) publish only if it improves the selection criterion; (4) increase the version in <code>model_metadata.json</code>, replace the files in <code>models/</code> and redeploy; (5) keep the previous version for rollback.</li>
+    <li><strong>Risks:</strong> concept drift as attackers change techniques; dataset shortcut (legitimate URLs with "www"); excessive trust in the model. Every final decision stays with an analyst.</li>
+</ul>
+
+<h2>Initial monitoring test</h2>
+<p>The command <code>flask --app app seed-demo</code> creates demonstration cases and predictions labeled
+<strong>SIMULATED</strong> in every table and page, so the logging and monitoring can be tested before real use.
+The monitoring dashboard has an option to exclude simulated data, and the operational review can be printed
+with <code>flask --app app monitoring-report --days 7</code>.</p>
+{% if current_user.is_authenticated and current_user.is_admin %}
+<p><a class="button button-primary" href="{{ url_for('monitoring.dashboard') }}">Open the monitoring dashboard</a></p>
+{% endif %}
+{% endblock %}

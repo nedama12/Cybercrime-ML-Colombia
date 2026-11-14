@@ -1,0 +1,66 @@
+{% extends "phases/_layout.html" %}
+{% set meta = model_meta or {} %}
+{% block phase_content %}
+<h2>Saved model and preprocessing components</h2>
+<div class="table-wrap">
+    <table>
+        <thead><tr><th>Artifact</th><th>Content</th><th>Location</th></tr></thead>
+        <tbody>
+            <tr><td>Model pipeline</td><td>scikit-learn Pipeline: preprocessing (scaler when needed) + selected classifier, fitted on the training partition</td><td class="mono">models/{{ meta.artifact or 'phishing_model.joblib' }}</td></tr>
+            <tr><td>Model metadata</td><td>Version, input features in order, decision threshold, evaluation results</td><td class="mono">models/model_metadata.json</td></tr>
+            <tr><td>Feature extraction</td><td>Same definitions as the training dataset (parity checked)</td><td class="mono">cyberapp/ml/features.py</td></tr>
+            <tr><td>Reference statistics</td><td>Training distribution of each feature and TLD lookup table</td><td class="mono">models/reference_stats.json, models/tld_legitimate_prob.json</td></tr>
+        </tbody>
+    </table>
+</div>
+<p>Deployed model: <strong>{{ meta.model_name or 'not deployed yet' }}</strong>{% if meta.version %} version <strong>{{ meta.version }}</strong> ({{ meta.algorithm }}){% endif %}.
+The model card is available to analysts inside the system.</p>
+
+<h2>Flask demonstration integrated in the business process</h2>
+<p>The model is not a standalone form: it is one step of the case management workflow.</p>
+<ol>
+    <li>A <strong>reporter</strong> registers a suspicious URL and where it was received.</li>
+    <li>An <strong>analyst</strong> classifies the case. The server computes the features, runs the Pipeline and stores the prediction (date, user, probability, result, model version, response time).</li>
+    <li>The probability becomes a <strong>risk level</strong> that sets the case priority and a <strong>recommended action</strong>: high = block and escalate, medium = manual review, low = monitor.</li>
+    <li>The analyst reviews the case, records the <strong>actual outcome</strong> (verdict) and the action taken, and closes it. Disagreements with the model require a justification.</li>
+    <li>Verdicts feed the live performance indicators and the retraining set.</li>
+</ol>
+<p>Analysts can also check a URL received outside the system and open a case from the result.</p>
+
+<h2>Inputs and outputs</h2>
+<div class="grid-2">
+    <div class="panel"><h3>Input</h3><p>A URL beginning with <code>http://</code> or <code>https://</code> (max. 2,048 characters, with a domain). The system derives {{ (meta.features | length) if meta.features else 19 }} numeric features. If the model needs features that cannot be computed from the URL, the analyst is asked to type them and the prediction is flagged.</p></div>
+    <div class="panel"><h3>Output</h3><p>Phishing probability (0-1), class (phishing / legitimate, threshold {{ '%.2f' % (meta.threshold or 0.5) }}), risk level, recommended action, comparison of the URL features with the training medians, and the model version used.</p></div>
+</div>
+
+<h2>Dependencies and execution</h2>
+<p>Python 3.13, Flask 3.1, Flask-SQLAlchemy, Flask-Login, Flask-WTF, scikit-learn 1.9.1, pandas, joblib and
+gunicorn (exact versions in <code>requirements.txt</code>). PostgreSQL in production, SQLite locally.</p>
+<pre class="panel mono">python -m venv .venv
+.venv\Scripts\activate          (Windows)   |   source .venv/bin/activate   (Linux/macOS)
+pip install -r requirements.txt
+flask --app app init-db
+flask --app app create-admin
+flask --app app run</pre>
+
+<h2>Initial user instructions</h2>
+<ul>
+    <li><strong>Reporters:</strong> create an account, choose "Report a URL", paste the link without opening it and follow the status in "Cases".</li>
+    <li><strong>Analysts:</strong> open new cases, press "Classify with the model", read the risk and recommendation, take the case, and close it with your verdict and action.</li>
+    <li><strong>Administrators:</strong> assign roles, follow the monitoring dashboard and answer incidents.</li>
+</ul>
+<p>The complete user manual and a training guide are in <code>docs/USER_MANUAL.md</code> and <code>docs/TRAINING_GUIDE.md</code>.</p>
+
+<h2>Integration plan with the information system</h2>
+<p>The model is loaded by a service inside the same Flask application (<code>cyberapp/ml/service.py</code>)
+and used by the case management module. Updating the model means replacing the files in <code>models/</code>
+and redeploying; no code changes are needed while the input contract is respected. Each prediction keeps the
+model version, so results of different versions remain traceable.</p>
+
+<h2>Monitoring, incidents and user feedback</h2>
+<ul>
+    <li><strong>Monitoring:</strong> every request is logged with endpoint, status, response time and user; administrators see the monitoring dashboard (phase 6). <code>/healthz</code> reports database and model status to Render.</li>
+    <li><strong>Incidents:</strong> any user can report a problem ("Report a problem"). Server errors are logged with their traceback and shown to the administrator.</li>
+    <li><strong>Feedback on results:</strong> from a case, a user can report a false positive or false negative; the administrator answers and the case is added to the retraining review.</li>
+</ul>
+{% endblock %}
