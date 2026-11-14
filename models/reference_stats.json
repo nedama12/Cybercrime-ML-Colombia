@@ -1,0 +1,434 @@
+{
+ "source": "PhiUSIIL - data/processed/phishing_processed.csv (split == train)",
+ "created": "2026-11-13",
+ "rows": 165143,
+ "phishing_rate": 0.4282,
+ "features": {
+  "URLLength": {
+   "mean": 34.7941,
+   "std": 43.7928,
+   "median": 27.0,
+   "median_legitimate": 26.0,
+   "median_phishing": 34.0,
+   "p01": 17.0,
+   "p99": 161.0,
+   "bin_edges": [
+    null,
+    21.0,
+    23.0,
+    24.0,
+    26.0,
+    27.0,
+    29.0,
+    32.0,
+    37.0,
+    50.0,
+    null
+   ],
+   "bin_proportions": [
+    0.090903,
+    0.102493,
+    0.058246,
+    0.124292,
+    0.066209,
+    0.113562,
+    0.124813,
+    0.116124,
+    0.100452,
+    0.102905
+   ]
+  },
+  "DomainLength": {
+   "mean": 21.4588,
+   "std": 9.1523,
+   "median": 20.0,
+   "median_legitimate": 19.0,
+   "median_phishing": 22.0,
+   "p01": 7.0,
+   "p99": 57.0,
+   "bin_edges": [
+    null,
+    13.0,
+    15.0,
+    17.0,
+    18.0,
+    20.0,
+    21.0,
+    23.0,
+    26.0,
+    31.0,
+    null
+   ],
+   "bin_proportions": [
+    0.072695,
+    0.089286,
+    0.122772,
+    0.065398,
+    0.139855,
+    0.067348,
+    0.109148,
+    0.123142,
+    0.104951,
+    0.105406
+   ]
+  },
+  "IsDomainIP": {
+   "mean": 0.0028,
+   "std": 0.0528,
+   "median": 0.0,
+   "median_legitimate": 0.0,
+   "median_phishing": 0.0,
+   "p01": 0.0,
+   "p99": 0.0,
+   "bin_edges": [
+    null,
+    null
+   ],
+   "bin_proportions": [
+    1.0
+   ]
+  },
+  "TLDLength": {
+   "mean": 2.7644,
+   "std": 0.6043,
+   "median": 3.0,
+   "median_legitimate": 3.0,
+   "median_phishing": 3.0,
+   "p01": 2.0,
+   "p99": 4.0,
+   "bin_edges": [
+    null,
+    3.0,
+    null
+   ],
+   "bin_proportions": [
+    0.294829,
+    0.705171
+   ]
+  },
+  "NoOfSubDomain": {
+   "mean": 1.1652,
+   "std": 0.6072,
+   "median": 1.0,
+   "median_legitimate": 1.0,
+   "median_phishing": 1.0,
+   "p01": 0.0,
+   "p99": 3.0,
+   "bin_edges": [
+    null,
+    1.0,
+    2.0,
+    null
+   ],
+   "bin_proportions": [
+    0.061026,
+    0.753795,
+    0.185179
+   ]
+  },
+  "HasObfuscation": {
+   "mean": 0.002,
+   "std": 0.0449,
+   "median": 0.0,
+   "median_legitimate": 0.0,
+   "median_phishing": 0.0,
+   "p01": 0.0,
+   "p99": 0.0,
+   "bin_edges": [
+    null,
+    null
+   ],
+   "bin_proportions": [
+    1.0
+   ]
+  },
+  "NoOfObfuscatedChar": {
+   "mean": 0.0262,
+   "std": 1.934,
+   "median": 0.0,
+   "median_legitimate": 0.0,
+   "median_phishing": 0.0,
+   "p01": 0.0,
+   "p99": 0.0,
+   "bin_edges": [
+    null,
+    null
+   ],
+   "bin_proportions": [
+    1.0
+   ]
+  },
+  "ObfuscationRatio": {
+   "mean": 0.0001,
+   "std": 0.0039,
+   "median": 0.0,
+   "median_legitimate": 0.0,
+   "median_phishing": 0.0,
+   "p01": 0.0,
+   "p99": 0.0,
+   "bin_edges": [
+    null,
+    null
+   ],
+   "bin_proportions": [
+    1.0
+   ]
+  },
+  "NoOfLettersInURL": {
+   "mean": 19.5991,
+   "std": 31.088,
+   "median": 14.0,
+   "median_legitimate": 13.0,
+   "median_phishing": 20.0,
+   "p01": 4.0,
+   "p99": 107.0,
+   "bin_edges": [
+    null,
+    8.0,
+    10.0,
+    11.0,
+    13.0,
+    14.0,
+    16.0,
+    19.0,
+    22.0,
+    32.0,
+    null
+   ],
+   "bin_proportions": [
+    0.098642,
+    0.099496,
+    0.060166,
+    0.127907,
+    0.062316,
+    0.114997,
+    0.132703,
+    0.085459,
+    0.112581,
+    0.105733
+   ]
+  },
+  "LetterRatioInURL": {
+   "mean": 0.5163,
+   "std": 0.1236,
+   "median": 0.519,
+   "median_legitimate": 0.48,
+   "median_phishing": 0.579,
+   "p01": 0.231,
+   "p99": 0.787,
+   "bin_edges": [
+    null,
+    0.35,
+    0.409,
+    0.458,
+    0.481,
+    0.519,
+    0.545,
+    0.577,
+    0.618,
+    0.684,
+    null
+   ],
+   "bin_proportions": [
+    0.079077,
+    0.089147,
+    0.119914,
+    0.111655,
+    0.094736,
+    0.104891,
+    0.099272,
+    0.095917,
+    0.104364,
+    0.101028
+   ]
+  },
+  "NoOfDegitsInURL": {
+   "mean": 1.9092,
+   "std": 12.4079,
+   "median": 0.0,
+   "median_legitimate": 0.0,
+   "median_phishing": 0.0,
+   "p01": 0.0,
+   "p99": 26.0,
+   "bin_edges": [
+    null,
+    1.0,
+    6.0,
+    null
+   ],
+   "bin_proportions": [
+    0.779706,
+    0.118146,
+    0.102148
+   ]
+  },
+  "DegitRatioInURL": {
+   "mean": 0.0288,
+   "std": 0.0706,
+   "median": 0.0,
+   "median_legitimate": 0.0,
+   "median_phishing": 0.0,
+   "p01": 0.0,
+   "p99": 0.333,
+   "bin_edges": [
+    null,
+    0.033,
+    0.115,
+    null
+   ],
+   "bin_proportions": [
+    0.799447,
+    0.100428,
+    0.100125
+   ]
+  },
+  "NoOfEqualsInURL": {
+   "mean": 0.0679,
+   "std": 1.0071,
+   "median": 0.0,
+   "median_legitimate": 0.0,
+   "median_phishing": 0.0,
+   "p01": 0.0,
+   "p99": 2.0,
+   "bin_edges": [
+    null,
+    null
+   ],
+   "bin_proportions": [
+    1.0
+   ]
+  },
+  "NoOfQMarkInURL": {
+   "mean": 0.0313,
+   "std": 0.1995,
+   "median": 0.0,
+   "median_legitimate": 0.0,
+   "median_phishing": 0.0,
+   "p01": 0.0,
+   "p99": 1.0,
+   "bin_edges": [
+    null,
+    null
+   ],
+   "bin_proportions": [
+    1.0
+   ]
+  },
+  "NoOfAmpersandInURL": {
+   "mean": 0.0259,
+   "std": 0.8634,
+   "median": 0.0,
+   "median_legitimate": 0.0,
+   "median_phishing": 0.0,
+   "p01": 0.0,
+   "p99": 0.0,
+   "bin_edges": [
+    null,
+    null
+   ],
+   "bin_proportions": [
+    1.0
+   ]
+  },
+  "NoOfOtherSpecialCharsInURL": {
+   "mean": 2.3569,
+   "std": 3.6857,
+   "median": 1.0,
+   "median_legitimate": 1.0,
+   "median_phishing": 3.0,
+   "p01": 1.0,
+   "p99": 13.0,
+   "bin_edges": [
+    null,
+    1.0,
+    2.0,
+    3.0,
+    5.0,
+    null
+   ],
+   "bin_proportions": [
+    1.8e-05,
+    0.554822,
+    0.188207,
+    0.137723,
+    0.11923
+   ]
+  },
+  "SpacialCharRatioInURL": {
+   "mean": 0.0633,
+   "std": 0.0324,
+   "median": 0.05,
+   "median_legitimate": 0.042,
+   "median_phishing": 0.08,
+   "p01": 0.027,
+   "p99": 0.158,
+   "bin_edges": [
+    null,
+    0.033,
+    0.037,
+    0.04,
+    0.043,
+    0.05,
+    0.061,
+    0.077,
+    0.091,
+    0.114,
+    null
+   ],
+   "bin_proportions": [
+    0.086192,
+    0.093701,
+    0.085157,
+    0.091642,
+    0.132679,
+    0.109063,
+    0.096462,
+    0.095426,
+    0.10655,
+    0.103129
+   ]
+  },
+  "IsHTTPS": {
+   "mean": 0.7825,
+   "std": 0.4125,
+   "median": 1.0,
+   "median_legitimate": 1.0,
+   "median_phishing": 0.0,
+   "p01": 0.0,
+   "p99": 1.0,
+   "bin_edges": [
+    null,
+    null
+   ],
+   "bin_proportions": [
+    1.0
+   ]
+  },
+  "TLDLegitimateProb": {
+   "mean": 0.2596,
+   "std": 0.2516,
+   "median": 0.0799628,
+   "median_legitimate": 0.5229071,
+   "median_phishing": 0.0180132,
+   "p01": 3.7e-05,
+   "p99": 0.5229071,
+   "bin_edges": [
+    null,
+    0.0009613,
+    0.0036307,
+    0.0101825,
+    0.0326503,
+    0.0799628,
+    null
+   ],
+   "bin_proportions": [
+    0.095517,
+    0.103044,
+    0.096032,
+    0.102342,
+    0.047486,
+    0.555579
+   ]
+  }
+ }
+}
