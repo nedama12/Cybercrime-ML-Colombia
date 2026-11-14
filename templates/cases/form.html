@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}{{ 'Edit case' if case else 'Report a URL' }} | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="panel form-card form-wide">
+        <p class="eyebrow">{{ 'Case #%d' % case.id if case else 'New report' }}</p>
+        <h1 class="form-title">{{ 'Edit case' if case else 'Report a suspicious URL' }}</h1>
+        {% if not case %}<p class="muted small">Copy the link exactly as you received it, without opening it. An analyst will classify it with the Machine Learning model and decide what to do.</p>{% endif %}
+        <form method="post" novalidate>
+            {{ form.hidden_tag() }}
+            {{ field(form.url, placeholder="https://example.com/login", class="mono", readonly=(case and case.status != 'new'),
+                     hint="Must start with http:// or https://") }}
+            {{ field(form.channel) }}
+            {{ field(form.description, placeholder="Who sent it, what it asked you to do, which entity it imitated...") }}
+            <div class="form-actions">
+                <button class="button button-primary" type="submit">{{ 'Save changes' if case else 'Send report' }}</button>
+                <a class="muted small" href="{{ url_for('cases.detail', case_id=case.id) if case else url_for('cases.index') }}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

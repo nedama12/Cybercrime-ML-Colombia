@@ -10,3 +10,26 @@
     {% for error in f.errors %}<p class="error">{{ error }}</p>{% endfor %}
 </div>
 {%- endmacro %}
+
+{% macro status_badge(case) -%}
+{% set cls = {'new': 'info', 'classified': 'warning', 'under_review': 'warning', 'closed': 'success'}[case.status] %}
+<span class="badge badge-{{ cls }}">{{ case.status_label }}</span>
+{%- endmacro %}
+
+{% macro risk_badge(level) -%}
+{% if level and level != 'pending' %}<span class="badge badge-{{ level }}">{{ level | upper }}</span>{% else %}<span class="badge">PENDING</span>{% endif %}
+{%- endmacro %}
+
+{% macro sim_badge(obj) -%}
+{% if obj.is_simulated %}<span class="badge badge-sim" title="Simulated operational data for demonstration">SIMULATED</span>{% endif %}
+{%- endmacro %}
+
+{% macro pager(pagination, endpoint) -%}
+{% if pagination.pages > 1 %}
+<nav class="phase-pager" aria-label="Pages">
+    {% if pagination.has_prev %}<a href="{{ url_for(endpoint, page=pagination.prev_num, **kwargs) }}">← Previous</a>{% else %}<span></span>{% endif %}
+    <span class="muted small">Page {{ pagination.page }} of {{ pagination.pages }} · {{ pagination.total }} records</span>
+    {% if pagination.has_next %}<a href="{{ url_for(endpoint, page=pagination.next_num, **kwargs) }}">Next →</a>{% else %}<span></span>{% endif %}
+</nav>
+{% endif %}
+{%- endmacro %}

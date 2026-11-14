@@ -72,3 +72,67 @@ class User(UserMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
+
+
+class CaseStatus:
+    """Workflow of a reported URL: new -> classified -> under_review -> closed."""
+    NEW = "new"
+    CLASSIFIED = "classified"
+    UNDER_REVIEW = "under_review"
+    CLOSED = "closed"
+    LABELS = {NEW: "New", CLASSIFIED: "Classified", UNDER_REVIEW: "Under review", CLOSED: "Closed"}
+    OPEN = (NEW, CLASSIFIED, UNDER_REVIEW)
+
+
+CHANNELS = [
+    ("email", "Email"),
+    ("sms", "SMS / text message"),
+    ("messaging", "Messaging app (WhatsApp, Telegram)"),
+    ("social_media", "Social media"),
+    ("website", "Website or search result"),
+    ("other", "Other"),
+]
+
+
+class UrlCase(db.Model):
+    """A suspicious URL reported by a user: the central business entity."""
+    __tablename__ = "url_cases"
+
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String(2048), nullable=False)
+    domain = db.Column(db.String(255), nullable=False, index=True)
+    channel = db.Column(db.String(30), nullable=False)
+    description = db.Column(db.Text)
+    status = db.Column(db.String(20), nullable=False, default=CaseStatus.NEW, index=True)
+    priority = db.Column(db.String(10), nullable=False, default="pending", index=True)
+    reporter_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
+    updated_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow)
+    is_simulated = db.Column(db.Boolean, nullable=False, default=False)
+
+    reporter = db.relationship("User", foreign_keys=[reporter_id], backref="reported_cases")
+
+    @property
+    def status_label(self):
+        return CaseStatus.LABELS.get(self.status, self.status)
+
+    @property
+    def channel_label(self):
+        return dict(CHANNELS).get(self.channel, self.channel)
+
+    @property
+    def is_open(self):
+        return self.status in CaseStatus.OPEN
+
+    def can_view(self, user):
+        return user.is_analyst or user.id == self.reporter_id
+
+    def can_edit(self, user):
+        # Reporters may correct their report only until it has been classified.
+        if user.is_analyst:
+            return self.is_open
+        return user.id == self.reporter_id and self.status == CaseStatus.NEW
+
+    def can_delete(self, user):
+        # Classified cases are kept for traceability; only administrators may remove them.
+        return user.is_admin or (user.id == self.reporter_id and self.status == CaseStatus.NEW)

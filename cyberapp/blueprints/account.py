@@ -9,6 +9,10 @@ bp = Blueprint("account", __name__)
 
 # Module launcher: (endpoint, roles allowed or None for every authenticated user, card text).
 MODULES = [
+    ("cases.create", None, "Report", "+", "Report a suspicious URL",
+     "Send a link you received by email, SMS or social media for review."),
+    ("cases.index", None, "Case management", "⌕", "Cases",
+     "Follow the status of the reported URLs."),
     ("admin.users", ("admin",), "Administration", "⚙", "Users and roles",
      "Activate accounts and assign the analyst or administrator role."),
     ("model.card", ("analyst", "admin"), "Machine Learning", "⌘", "Model card",

@@ -1,7 +1,7 @@
 """WTForms definitions. Every form is CSRF-protected by Flask-WTF."""
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, PasswordField, SelectField, StringField
-from wtforms.validators import DataRequired, EqualTo, Length, Regexp, ValidationError
+from wtforms import BooleanField, PasswordField, SelectField, StringField, TextAreaField
+from wtforms.validators import DataRequired, EqualTo, Length, Optional, Regexp, ValidationError
 
 EMAIL_PATTERN = r"^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$"
 
@@ -42,3 +42,9 @@ class ChangePasswordForm(FlaskForm):
 class UserAdminForm(FlaskForm):
     role = SelectField("Role", choices=[])  # choices are set in the view from Role.ALL
     active = BooleanField("Account active")
+
+
+class CaseForm(FlaskForm):
+    url = StringField("Suspicious URL", validators=[DataRequired(), Length(max=2048)])
+    channel = SelectField("Where did you receive it?", choices=[])  # set from CHANNELS in the view
+    description = TextAreaField("Description (optional)", validators=[Optional(), Length(max=2000)])
