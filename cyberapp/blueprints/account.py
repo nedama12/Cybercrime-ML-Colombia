@@ -11,6 +11,8 @@ bp = Blueprint("account", __name__)
 MODULES = [
     ("admin.users", ("admin",), "Administration", "⚙", "Users and roles",
      "Activate accounts and assign the analyst or administrator role."),
+    ("model.card", ("analyst", "admin"), "Machine Learning", "⌘", "Model card",
+     "Version, features and evaluation results of the deployed model."),
     ("account.profile", None, "Account", "◎", "My account",
      "See your details and change your password."),
     ("docs.phase", None, "Documentation", "⌁", "CRISP-ML documentation",

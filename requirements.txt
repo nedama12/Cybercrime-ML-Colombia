@@ -5,3 +5,8 @@ Flask-Login==0.6.3
 psycopg[binary]==3.3.9
 python-dotenv==1.2.4
 gunicorn==23.0.0
+# Must match the versions used to train the model (see models/model_metadata.json)
+scikit-learn==1.9.1
+pandas==3.1.1
+numpy==2.5.4
+joblib==1.6.0

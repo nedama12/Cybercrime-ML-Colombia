@@ -20,9 +20,13 @@ def create_app(config_class=Config):
     csrf.init_app(app)
     from . import models  # noqa: F401  (registers the tables)
 
-    from .blueprints import account, admin, auth, docs
+    from .ml.service import init_model_service
 
-    for module in (docs, auth, account, admin):
+    init_model_service(app)
+
+    from .blueprints import account, admin, auth, docs, model
+
+    for module in (docs, auth, account, admin, model):
         app.register_blueprint(module.bp)
     _register_error_handlers(app)
 

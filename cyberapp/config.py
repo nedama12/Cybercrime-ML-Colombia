@@ -32,6 +32,9 @@ class Config:
     FIGURES_DIR = BASE_DIR / "analysis" / "figures"
     DATA_DIR = BASE_DIR / "data" / "processed"
 
+    # Folder with the model artifacts delivered by Model Engineering (see models/README.md).
+    MODEL_DIR = Path(os.environ.get("MODEL_DIR") or BASE_DIR / "models")
+
 
 class TestConfig(Config):
     TESTING = True

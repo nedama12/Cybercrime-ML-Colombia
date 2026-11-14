@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Model card | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="page-header">
+        <div><p class="eyebrow">Deployed model</p><h1>Model card</h1>
+        <p>The model used by the classification workflow, loaded from <code>models/</code> when the application starts.</p></div>
+    </div>
+    {% if not service.ready %}
+    <div class="callout"><strong>No model deployed.</strong> {{ service.error }}. Copy <code>model_metadata.json</code> and the <code>.joblib</code> artifact delivered by Model Engineering into <code>models/</code> and restart the application (see <code>models/README.md</code>).</div>
+    {% else %}
+    <div class="grid-4">
+        <div class="kpi"><span>Model</span><strong>{{ service.name }}</strong></div>
+        <div class="kpi"><span>Version</span><strong>{{ service.version }}</strong></div>
+        <div class="kpi"><span>Algorithm</span><strong>{{ meta.algorithm or '-' }}</strong></div>
+        <div class="kpi"><span>Decision threshold</span><strong>{{ '%.2f' % service.threshold }}</strong></div>
+    </div>
+    <div class="grid-2 stacked-card">
+        <div class="panel">
+            <h2>Training</h2>
+            <dl class="kv">
+                <dt>Trained at</dt><dd>{{ meta.trained_at or '-' }}</dd>
+                <dt>scikit-learn</dt><dd>{{ meta.sklearn_version or '-' }}</dd>
+                <dt>Target</dt><dd>{{ meta.target or 'is_phishing' }} (positive class = {{ meta.positive_class if meta.positive_class is not none else 1 }})</dd>
+                <dt>Artifact</dt><dd class="mono">{{ meta.artifact or 'phishing_model.joblib' }}</dd>
+            </dl>
+        </div>
+        <div class="panel">
+            <h2>Test-set metrics</h2>
+            {% set test = (meta.metrics or {}).get('test', {}) %}
+            {% if test %}
+            <dl class="kv">{% for k, v in test.items() %}<dt>{{ k }}</dt><dd>{{ '%.4f' % v if v is number else v }}</dd>{% endfor %}</dl>
+            {% else %}<p class="muted">Not reported in the metadata.</p>{% endif %}
+        </div>
+    </div>
+    <div class="panel stacked-card">
+        <h2>Input features ({{ service.features | length }})</h2>
+        <p class="mono">{{ service.features | join(', ') }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
