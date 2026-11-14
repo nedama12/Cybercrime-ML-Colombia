@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Reports | {{ project.short_title }}{% endblock %}
+{% block content %}
+<div class="container page">
+    <div class="page-header">
+        <div><p class="eyebrow">Reports and indicators</p><h1>Operational report</h1>
+        <p>Indicators of the case management process and of the model in operation.</p></div>
+        <form method="get" class="hero-actions">
+            <select name="period" onchange="this.form.submit()" aria-label="Period" class="button button-secondary button-small">
+                {% for key, label in [('7', 'Last 7 days'), ('30', 'Last 30 days'), ('90', 'Last 90 days'), ('all', 'All time')] %}
+                <option value="{{ key }}" {{ 'selected' if period == key }}>{{ label }}</option>{% endfor %}
+            </select>
+            <a class="button button-secondary button-small" href="{{ url_for('reports.export_cases') }}">Export cases CSV</a>
+            <a class="button button-secondary button-small" href="{{ url_for('reports.export_predictions') }}">Export predictions CSV</a>
+        </form>
+    </div>
+
+    <div class="grid-4">
+        <div class="kpi"><span>Reported cases</span><strong>{{ kpis.cases }}</strong><small>{{ kpis.open }} open</small></div>
+        <div class="kpi"><span>High risk still open</span><strong>{{ kpis.high_open }}</strong><small>resolve these first</small></div>
+        <div class="kpi"><span>Confirmed phishing</span><strong>{{ kpis.confirmed_phishing }}</strong><small>of {{ kpis.closed }} closed cases</small></div>
+        <div class="kpi"><span>Model-analyst agreement</span><strong>{{ '%.0f%%' % (kpis.agreement * 100) if kpis.agreement is not none else '-' }}</strong><small>{{ kpis.judged }} cases with verdict</small></div>
+        <div class="kpi"><span>Predictions</span><strong>{{ kpis.predictions }}</strong><small>in the period</small></div>
+        <div class="kpi"><span>Avg. resolution time</span><strong>{{ '%.1f h' % kpis.avg_resolution_hours if kpis.avg_resolution_hours is not none else '-' }}</strong><small>report to closure</small></div>
+        <div class="kpi"><span>Avg. inference time</span><strong>{{ '%.0f ms' % kpis.avg_latency_ms if kpis.avg_latency_ms is not none else '-' }}</strong><small>model only</small></div>
+        <div class="kpi"><span>Success criterion</span><strong>≥ 85%</strong><small>target agreement (phase 1)</small></div>
+    </div>
+
+    <div class="grid-2 stacked-card">
+        <div class="panel"><h2>Cases reported per week</h2><div class="chart-box"><canvas id="chart-weeks"></canvas></div></div>
+        <div class="panel"><h2>Risk level assigned by the model</h2><div class="chart-box"><canvas id="chart-risk"></canvas></div></div>
+        <div class="panel"><h2>Cases by status</h2><div class="chart-box"><canvas id="chart-status"></canvas></div></div>
+        <div class="panel"><h2>Channel where the link was received</h2><div class="chart-box"><canvas id="chart-channel"></canvas></div></div>
+    </div>
+
+    <div class="panel stacked-card">
+        <h2>Most reported domains</h2>
+        <div class="table-wrap"><table>
+            <thead><tr><th>Domain</th><th class="num">Reports</th></tr></thead>
+            <tbody>{% for domain, n in top_domains %}<tr><td class="mono">{{ domain }}</td><td class="num">{{ n }}</td></tr>{% else %}<tr><td colspan="2" class="empty">No reports in this period.</td></tr>{% endfor %}</tbody>
+        </table></div>
+    </div>
+
+    {% if colombia %}
+    <div class="page-header stacked-card"><div><p class="eyebrow">Context: Colombian open data</p><h2>Cybercrime in Colombia</h2>
+        <p>From the Data Engineering outputs (datos.gov.co and DANE). Not operational data of this system.</p></div></div>
+    <div class="grid-2">
+        <div class="panel"><h2>Cases per year: phishing vs electronic theft</h2><div class="chart-box"><canvas id="chart-colombia"></canvas></div></div>
+        <div class="panel"><h2>Highest rates per 100,000 inhabitants ({{ colombia.year }})</h2>
+            <div class="table-wrap"><table>
+                <thead><tr><th>Department</th><th class="num">Cases</th><th class="num">Rate</th></tr></thead>
+                <tbody>{% for row in colombia.top_departments %}<tr><td>{{ row.department_norm | title }}</td><td class="num">{{ '{:,}'.format(row.total_cases | int) }}</td><td class="num">{{ '%.1f' % row.rate_100k }}</td></tr>{% endfor %}</tbody>
+            </table></div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<script id="report-data" type="application/json">{{ {'charts': charts, 'colombia': colombia} | tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

@@ -19,6 +19,8 @@ MODULES = [
      "Classify a link received outside the system and open a case from the result."),
     ("predictions.history", ("analyst", "admin"), "Machine Learning", "≡", "Inference history",
      "Every prediction with date, user, result and model version."),
+    ("reports.dashboard", ("analyst", "admin"), "Reports", "▤", "Reports and indicators",
+     "Cases, risk levels, model-analyst agreement, CSV exports and Colombian context."),
     ("model.card", ("analyst", "admin"), "Machine Learning", "⌘", "Model card",
      "Version, features and evaluation results of the deployed model."),
     ("account.profile", None, "Account", "◎", "My account",
