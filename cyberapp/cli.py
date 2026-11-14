@@ -51,3 +51,24 @@ def register(app):
         click.echo(f"Features with drift: {', '.join(d['feature'] + '=' + fmt(d['psi']) for d in drifting) or 'none'}")
         for level, message in r["alerts"] or [("ok", "No alert rule triggered.")]:
             click.echo(f"[{level.upper()}] {message}")
+
+    @app.cli.command("seed-demo")
+    @click.option("--cases", default=40, show_default=True)
+    @click.option("--days", default=14, show_default=True)
+    @click.password_option(help="Password for the demo_reporter and demo_analyst accounts.")
+    def seed_demo(cases, days, password):
+        """Create SIMULATED cases and predictions for demonstrations and the monitoring test."""
+        from .demo import seed
+
+        result = seed(password, cases=cases, days=days)
+        click.echo(f"Simulated data created: {result['cases']} cases, {result['classified']} classified, "
+                   f"{result['closed']} closed (model ready: {result['model_ready']}).")
+        click.echo("Accounts: demo_reporter, demo_analyst. Every record is labeled SIMULATED.")
+
+    @app.cli.command("clear-demo")
+    def clear_demo():
+        """Delete every SIMULATED record."""
+        from .demo import clear
+
+        cases, predictions = clear()
+        click.echo(f"Deleted {cases} simulated cases and {predictions} simulated predictions.")
