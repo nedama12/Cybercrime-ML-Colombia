@@ -1,0 +1,94 @@
+{% extends "phases/_layout.html" %}
+{% set meta = model_meta or {} %}
+{% set test = (meta.metrics or {}).get('test', {}) %}
+{% block phase_content %}
+<h2>Evaluation metrics and why</h2>
+<div class="table-wrap">
+    <table>
+        <thead><tr><th>Metric</th><th>Question it answers</th><th>Role in the decision</th></tr></thead>
+        <tbody>
+            <tr><td>Recall (phishing)</td><td>Of all phishing URLs, how many did the model catch?</td><td>Main criterion: a missed phishing link reaches users</td></tr>
+            <tr><td>Precision (phishing)</td><td>Of the URLs flagged as phishing, how many really are?</td><td>Controls analyst workload and blocking of legitimate sites</td></tr>
+            <tr><td>F1-score</td><td>Balance between precision and recall</td><td>Model selection criterion</td></tr>
+            <tr><td>Accuracy</td><td>Share of correct predictions</td><td>Reference only (classes are ~43/57)</td></tr>
+            <tr><td>ROC AUC</td><td>Ranking quality independent of the threshold</td><td>Supports the choice of the decision threshold</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h2>Cross-validation</h2>
+<p>Cross-validation must respect the structure of the data: URLs of the same domain are not independent,
+so folds are grouped by domain (for example <code>StratifiedGroupKFold</code>), and it is run only on the
+training partition. The validation partition is used to compare algorithms and tune hyperparameters;
+the test partition is used once, at the end.</p>
+{% if meta.cross_validation %}<p><strong>Strategy used:</strong> {{ meta.cross_validation.strategy }}{% if meta.cross_validation.folds %}, {{ meta.cross_validation.folds }} folds{% endif %}.</p>{% endif %}
+
+<h2>Comparison of the models</h2>
+{% if meta.comparison %}
+{% for m in ['precision', 'recall', 'f1'] %}
+<h3>{{ m | capitalize }}</h3>
+<div class="stack">
+    {% for row in meta.comparison %}
+    <div><div class="small">{{ row.algorithm }} <span class="muted">{{ '%.4f' % row[m] if row[m] is number else '-' }}</span></div>
+        <div class="meter"><span style="width: {{ '%.1f' % (100 * row[m]) if row[m] is number else 0 }}%"></span></div></div>
+    {% endfor %}
+</div>
+{% endfor %}
+{% else %}
+<div class="pending">Pending: the comparison is read from <code>models/model_metadata.json</code>.</div>
+{% endif %}
+
+<h2>Overfitting, underfitting, bias and risks</h2>
+{% set train_m = (meta.metrics or {}).get('train', {}) %}
+{% set val_m = (meta.metrics or {}).get('validation', {}) %}
+{% if train_m.f1 is number and val_m.f1 is number %}
+<p>F1 on training {{ '%.4f' % train_m.f1 }} vs validation {{ '%.4f' % val_m.f1 }} (gap {{ '%.4f' % (train_m.f1 - val_m.f1) }}).
+{{ 'The small gap indicates no relevant overfitting.' if (train_m.f1 - val_m.f1) < 0.02 else 'The gap suggests overfitting; regularization was reviewed.' }}</p>
+{% endif %}
+<ul>
+    <li><strong>Dataset shortcut:</strong> in PhiUSIIL every legitimate URL starts with <code>https://www.</code>. A model can reach almost perfect test scores by learning this pattern and then flag real legitimate URLs without "www" (for example <code>https://github.com</code>) as phishing. Test-set scores are therefore an optimistic upper bound; the real performance is measured in operation against analyst verdicts (phase 6).</li>
+    <li><strong>Temporal bias:</strong> the dataset is a snapshot (2024). New phishing techniques appear constantly, so drift is monitored.</li>
+    <li><strong>Mitigation:</strong> human review of every case, priority by risk level, outcome tracking and retraining criteria.</li>
+</ul>
+
+<h2>Review with a domain expert</h2>
+{% if meta.expert_review %}
+<dl class="kv">
+    <dt>Reviewer</dt><dd>{{ meta.expert_review.name }} - {{ meta.expert_review.role }}</dd>
+    <dt>Date</dt><dd>{{ meta.expert_review.date }}</dd>
+</dl>
+<p>{{ meta.expert_review.feedback }}</p>
+{% else %}
+<div class="pending">Pending: record the feedback of a person with cybersecurity knowledge (name, role, date and comments) in <code>expert_review</code> of the model metadata.</div>
+{% endif %}
+
+<h2>Selected model and final test performance</h2>
+{% if test %}
+<p>Selected model: <strong>{{ meta.algorithm }}</strong> (version {{ meta.version }}), chosen by F1 on the validation partition. Final performance on the independent test set, never used for selection or tuning:</p>
+<div class="grid-4">
+    {% for m in ['accuracy', 'precision', 'recall', 'f1'] %}
+    <div class="kpi"><span>{{ m }}</span><strong>{{ '%.4f' % test[m] if test[m] is number else '-' }}</strong></div>
+    {% endfor %}
+</div>
+{% set cm = (meta.confusion_matrix or {}).get('test') %}
+{% if cm %}
+<h3>Confusion matrix (test set)</h3>
+<div class="table-wrap" style="max-width: 460px">
+    <table>
+        <thead><tr><th></th><th class="num">Predicted legitimate</th><th class="num">Predicted phishing</th></tr></thead>
+        <tbody>
+            <tr><th>Actual legitimate</th><td class="num">{{ '{:,}'.format(cm[0][0]) }}</td><td class="num">{{ '{:,}'.format(cm[0][1]) }}</td></tr>
+            <tr><th>Actual phishing</th><td class="num">{{ '{:,}'.format(cm[1][0]) }}</td><td class="num">{{ '{:,}'.format(cm[1][1]) }}</td></tr>
+        </tbody>
+    </table>
+</div>
+{% endif %}
+<h3>Success criteria (phase 1)</h3>
+<ul>
+    <li>Recall ≥ 0.90: {{ '✔ met' if test.recall is number and test.recall >= 0.90 else '✘ not met' }}</li>
+    <li>F1 ≥ 0.88: {{ '✔ met' if test.f1 is number and test.f1 >= 0.88 else '✘ not met' }}</li>
+</ul>
+{% else %}
+<div class="pending">Pending: the final test-set results are read from the deployed model metadata.</div>
+{% endif %}
+{% endblock %}

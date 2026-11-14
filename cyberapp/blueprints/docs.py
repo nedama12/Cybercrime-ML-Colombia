@@ -2,6 +2,7 @@
 from flask import Blueprint, abort, current_app, render_template, send_from_directory
 
 from ..content import PHASES
+from ..ml.service import get_model_service
 
 bp = Blueprint("docs", __name__)
 
@@ -23,6 +24,9 @@ def phase(slug):
         phase=current,
         prev_phase=PHASES[index - 1] if index > 0 else None,
         next_phase=PHASES[index + 1] if index < len(PHASES) - 1 else None,
+        # Phases 3 and 4 show the results of the deployed model, so the published
+        # documentation always matches the model used by the system.
+        model_meta=get_model_service().metadata,
     )
 
 
