@@ -95,7 +95,7 @@ class ReportFlowTest(unittest.TestCase):
         user_b = self.register("Person B", "person-b@example.test")
         self.assertEqual(user_b.get(f"/report/{report_id}/submitted").status_code, 404)
         self.assertIn(b"You have not sent any report", user_b.get("/my-reports").data)
-        self.assertEqual(user_b.get("/review").status_code, 404)
+        self.assertEqual(user_b.get("/review").status_code, 403)  # role check on the server
 
     def test_invalid_reports_are_rejected(self):
         client = self.register("Person C", "person-c@example.test")
