@@ -1,0 +1,164 @@
+{
+  "model_name": "Phishing Detection",
+  "artifact": "phishing_detector.joblib",
+  "selected_candidate": "char_tfidf_logistic_regression",
+  "selection_rule": "Highest validation phishing F1, then macro F1, then phishing recall; threshold=0.5.",
+  "feature_source": "URL text only; no page is requested, fetched, or executed.",
+  "features": [
+    "URL character n-grams (3-5)"
+  ],
+  "target": "is_phishing",
+  "source_label_mapping": {
+    "0": "phishing",
+    "1": "legitimate"
+  },
+  "prediction_label_mapping": {
+    "0": "legitimate",
+    "1": "phishing"
+  },
+  "dataset": {
+    "filename": "PhiUSIIL_Phishing_URL_Dataset.csv",
+    "sha256": "a236549cd369cd80bd478ff8e1779cbf44c58d5c3f79f7a51a1adbed7d06d1c6",
+    "source_rows": 235795,
+    "rows_removed_inconsistent": 8,
+    "duplicate_url_rows_removed": 425,
+    "conflicting_duplicate_urls_removed": 0,
+    "rows_after_cleaning": 235362,
+    "missing_values_in_selected_columns": 0,
+    "source_label_counts": {
+      "1": 134850,
+      "0": 100945
+    },
+    "host_domain_mismatch_rows": 0,
+    "url_over_max_length_rows": 8,
+    "url_parse_failed_rows": 0,
+    "invalid_domain_rows": 0,
+    "invalid_label_rows": 0,
+    "phishing_rows_after_cleaning": 100512,
+    "legitimate_rows_after_cleaning": 134850
+  },
+  "split": {
+    "strategy": "GroupShuffleSplit by normalized URL host (www alias removed)",
+    "seed": 42,
+    "proportions_requested": {
+      "train": 0.7,
+      "validation": 0.15,
+      "test": 0.15
+    },
+    "actual": {
+      "train": {
+        "rows": 165070,
+        "domains": 153363,
+        "phishing_rows": 70625,
+        "legitimate_rows": 94445
+      },
+      "validation": {
+        "rows": 35023,
+        "domains": 32864,
+        "phishing_rows": 14856,
+        "legitimate_rows": 20167
+      },
+      "test": {
+        "rows": 35269,
+        "domains": 32864,
+        "phishing_rows": 15031,
+        "legitimate_rows": 20238
+      }
+    },
+    "overlapping_hosts": {
+      "train_validation": 0,
+      "train_test": 0,
+      "validation_test": 0
+    }
+  },
+  "validation_comparison": [
+    {
+      "model": "char_tfidf_logistic_regression",
+      "accuracy": 0.9962881534991291,
+      "precision_phishing": 1.0,
+      "recall_phishing": 0.9912493268712977,
+      "f1_phishing": 0.9956054357379488,
+      "f1_macro": 0.9961963517163449,
+      "fit_and_validation_seconds": 47.81
+    },
+    {
+      "model": "url_features_random_forest",
+      "accuracy": 0.9951174942180853,
+      "precision_phishing": 0.9986417657045841,
+      "recall_phishing": 0.9898357565966612,
+      "f1_phishing": 0.9942192623643555,
+      "f1_macro": 0.9949966940760366,
+      "fit_and_validation_seconds": 42.41
+    },
+    {
+      "model": "url_features_logistic_regression",
+      "accuracy": 0.9927476229906061,
+      "precision_phishing": 0.9992478118161926,
+      "recall_phishing": 0.9836429725363489,
+      "f1_phishing": 0.9913839891451832,
+      "f1_macro": 0.9925612939858934,
+      "fit_and_validation_seconds": 18.42
+    },
+    {
+      "model": "char_tfidf_complement_nb",
+      "accuracy": 0.9629957456528567,
+      "precision_phishing": 0.9884726224783862,
+      "recall_phishing": 0.9235325794291869,
+      "f1_phishing": 0.9548997772828508,
+      "f1_macro": 0.9617636141316215,
+      "fit_and_validation_seconds": 42.89
+    }
+  ],
+  "test_metrics": {
+    "accuracy": 0.9969094672375174,
+    "precision_phishing": 1.0,
+    "recall_phishing": 0.9927483201383807,
+    "f1_phishing": 0.9963609655126364,
+    "f1_macro": 0.9968376220935118
+  },
+  "test_metrics_by_class": {
+    "legitimate": {
+      "precision": 0.9946429449058829,
+      "recall": 1.0,
+      "f1-score": 0.997314278674387,
+      "support": 20238.0
+    },
+    "phishing": {
+      "precision": 1.0,
+      "recall": 0.9927483201383807,
+      "f1-score": 0.9963609655126364,
+      "support": 15031.0
+    },
+    "accuracy": 0.9969094672375174,
+    "macro avg": {
+      "precision": 0.9973214724529414,
+      "recall": 0.9963741600691903,
+      "f1-score": 0.9968376220935118,
+      "support": 35269.0
+    },
+    "weighted avg": {
+      "precision": 0.9969260233917961,
+      "recall": 0.9969094672375174,
+      "f1-score": 0.9969079941147377,
+      "support": 35269.0
+    }
+  },
+  "test_confusion_matrix_labels": [
+    "legitimate",
+    "phishing"
+  ],
+  "test_confusion_matrix": [
+    [
+      20238,
+      0
+    ],
+    [
+      109,
+      14922
+    ]
+  ],
+  "threshold": 0.5,
+  "probabilities_note": "Classifier probability estimates; not calibrated guarantees.",
+  "scikit_learn_version": "1.8.0",
+  "random_state": 42
+}

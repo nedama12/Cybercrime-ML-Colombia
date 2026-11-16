@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="portal-page container">
+  <div class="portal-page-heading">
+    <p class="eyebrow">Historical patterns · Territory · Annual outlook</p>
+    <h1>Cybercrime <span>Territorial and Temporal Analysis.</span></h1>
+    <p>Explore reported process volumes and their geographic and temporal distribution. These aggregated records do not describe or classify individual incidents.</p>
+  </div>
+
+  {% if error %}<div class="portal-alert error" role="alert">{{ error }}</div>{% endif %}
+  {% if analysis %}
+  <form method="get" action="{{ url_for('territorial_analysis') }}" class="portal-panel territorial-filter-form">
+    <div class="form-grid territorial-filter-grid">
+      <div class="portal-field"><label for="scope">Analysis area</label><select id="scope" name="scope"><option value="national" {% if analysis.filters.scope == 'national' %}selected{% endif %}>Colombia</option><option value="department" {% if analysis.filters.scope == 'department' %}selected{% endif %}>Department</option><option value="municipality" {% if analysis.filters.scope == 'municipality' %}selected{% endif %}>Municipality</option></select></div>
+      <div class="portal-field"><label for="department">Department</label><select id="department" name="department"><option value="">All departments</option>{% for department in analysis.departments %}<option value="{{ department }}" {% if analysis.filters.department == department %}selected{% endif %}>{{ department }}</option>{% endfor %}</select></div>
+      <div class="portal-field"><label for="municipality">Municipality</label><select id="municipality" name="municipality"><option value="">All municipalities</option>{% for municipality in analysis.municipalities %}<option value="{{ municipality }}" {% if analysis.filters.municipality == municipality %}selected{% endif %}>{{ municipality }}</option>{% endfor %}</select></div>
+      <div class="portal-field"><label for="basis">Year basis</label><select id="basis" name="basis"><option value="report" {% if analysis.filters.basis == 'report' %}selected{% endif %}>Report year</option><option value="event" {% if analysis.filters.basis == 'event' %}selected{% endif %}>Event year</option></select><small>Population rates align to report year.</small></div>
+      <div class="portal-field"><label for="category">Legal category</label><select id="category" name="category">{% for category in analysis.categories %}<option value="{{ category.value }}" {% if analysis.filters.category == category.value %}selected{% endif %}>{{ category.label }}</option>{% endfor %}</select><small>Unclassified records without a verifiable article are excluded.</small></div>
+      <div class="portal-field"><label for="year">Comparison year</label><select id="year" name="year">{% for year in analysis.years|reverse %}<option value="{{ year }}" {% if analysis.selected_year == year %}selected{% endif %}>{{ year }}{% if year == analysis.data_summary.partial_year %} · partial{% endif %}</option>{% endfor %}</select></div>
+      <div class="portal-field"><label for="compare_level">Compare</label><select id="compare_level" name="compare_level"><option value="department" {% if analysis.filters.compare_level == 'department' %}selected{% endif %}>Departments</option><option value="municipality" {% if analysis.filters.compare_level == 'municipality' %}selected{% endif %} {% if not analysis.filters.department %}disabled{% endif %}>Municipalities in selected department</option></select></div>
+    </div>
+    <button class="button button-primary" type="submit">Update analysis <span aria-hidden="true">↗</span></button>
+  </form>
+
+  <div class="portal-stat-grid four territorial-stat-grid">
+    <article class="portal-stat"><span>Processed rows</span><strong>{{ '{:,}'.format(analysis.data_summary.source_rows) }}</strong><small>Aggregated records</small></article>
+    <article class="portal-stat"><span>Verifiable-article rows</span><strong>{{ '{:,}'.format(analysis.data_summary.legal_rows) }}</strong><small>Used in category analysis</small></article>
+    <article class="portal-stat"><span>Unclassified rows</span><strong>{{ '{:,}'.format(analysis.data_summary.unclassified_rows) }}</strong><small>Excluded from legal categories</small></article>
+    <article class="portal-stat"><span>Geographic coverage</span><strong>{{ analysis.data_summary.departments }} departments</strong><small>{{ '{:,}'.format(analysis.data_summary.municipalities) }} department-municipality pairs</small></article>
+  </div>
+  <p class="panel-note">Source workbook: {{ '{:,}'.format(analysis.data_summary.raw_source_rows) if analysis.data_summary.raw_source_rows is not none else 'Unavailable' }} rows in the original Data sheet; {{ '{:,}'.format(analysis.data_summary.source_rows) }} rows in the processed analysis file. {{ '{:,}'.format(analysis.data_summary.preprocessing_excluded_rows) }} source rows were excluded during preparation because territory fields were missing. The raw workbook is inspected read-only.</p>
+  {% if analysis.no_data %}<div class="portal-alert">No records match this combination of filters. Choose a broader area, period, or category.</div>{% endif %}
+
+  {% if analysis.filters.basis == 'event' %}<div class="portal-alert">The selected series uses event year. Population rates are not displayed because the available processed denominator table is aligned to report year.</div>{% endif %}
+  {% if analysis.filters.basis == 'report' %}<div class="portal-alert">Rates are calculated only where the selected report year and exact normalized territory key match the existing processed population tables ({{ analysis.rate_available_years|first }}–{{ analysis.rate_available_years|last }}). The original population projection workbook is not present in <code>data/raw</code>, so municipal code correspondences cannot be independently re-audited here.</div>{% endif %}
+  <div class="portal-alert">The source marks {{ analysis.data_summary.partial_year }} as an incomplete year. It is visible in historical charts but excluded from model fitting and forecast validation.</div>
+
+  <div class="portal-panel">
+    <div class="panel-heading"><div><p class="eyebrow">Selected territory</p><h2>{% if analysis.filters.scope == 'municipality' %}{{ analysis.filters.municipality }}, {{ analysis.filters.department }}{% elif analysis.filters.scope == 'department' %}{{ analysis.filters.department }}{% else %}Colombia{% endif %}</h2></div><span class="model-badge">{{ 'Processes per 100,000 residents' if analysis.show_rate else 'Reported processes' }}</span></div>
+    {% if analysis.trend_chart %}<img class="territorial-chart" src="{{ analysis.trend_chart }}" alt="Annual trend for the selected territory and legal category">{% else %}<p>No matching annual data is available for these filters.</p>{% endif %}
+    <p class="panel-note">Rates use the denominator for the same report year and territory when available. The denominator is not used for event-year rates.</p>
+  </div>
+
+  <div class="portal-panel">
+    <p class="eyebrow">Legal categories</p><h2>Process evolution by category</h2>
+    {% if analysis.category_chart %}<img class="territorial-chart" src="{{ analysis.category_chart }}" alt="Annual process totals for verifiable legal categories">{% endif %}
+    <p class="panel-note">Categories follow the recorded article mapping. The system articles 269B, 269C, and 269D remain grouped under the current dataset label. Records without a recognized article are omitted.</p>
+  </div>
+
+  <div class="portal-panel">
+    <div class="panel-heading"><div><p class="eyebrow">Regional comparison · {{ analysis.selected_year }}</p><h2>{{ 'Municipalities' if analysis.filters.compare_level == 'municipality' else 'Departments' }}</h2></div><span class="model-badge">{{ 'Population rate' if analysis.comparison_show_rate else 'Process count' }}</span></div>
+    {% if analysis.comparison_chart %}<img class="territorial-chart" src="{{ analysis.comparison_chart }}" alt="Regional comparison chart for {{ analysis.selected_year }}">{% endif %}
+    {% if analysis.comparison %}<div class="table-wrap"><table class="portal-table"><thead><tr><th>Territory</th><th>Processes</th><th>Population</th><th>Rate per 100,000</th></tr></thead><tbody>{% for row in analysis.comparison %}<tr><td>{{ row.place }}</td><td>{{ '{:,}'.format(row.processes) }}</td><td>{{ '{:,}'.format(row.population) if row.population is not none else 'Unavailable' }}</td><td>{{ '%.2f'|format(row.rate_100k) if row.rate_100k is not none else 'Unavailable' }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p>No comparison records are available for this year.</p>{% endif %}
+  </div>
+
+  <div class="portal-panel">
+    <p class="eyebrow">Exploratory outlook</p><h2>Annual process-volume forecast</h2>
+    {% if analysis.forecast and analysis.forecast.available %}
+      <p>Selected method: <strong>{{ analysis.forecast.model|replace('_',' ')|title }}</strong>. Backtest MAE: <strong>{{ '%.1f'|format(analysis.forecast.mae) }}</strong> processes across {{ analysis.forecast.validation_years|length }} annual holdout observations.</p>
+      {% if analysis.forecast_chart %}<img class="territorial-chart" src="{{ analysis.forecast_chart }}" alt="Observed annual counts and future forecast">{% endif %}
+      <div class="table-wrap"><table class="portal-table"><thead><tr><th>Forecast year</th><th>Estimated processes</th></tr></thead><tbody>{% for row in analysis.forecast.future %}<tr><td>{{ row.year }}</td><td>{{ '{:,.1f}'.format(row.forecast) }}</td></tr>{% endfor %}</tbody></table></div>
+      <h3>Backtest method comparison</h3><div class="table-wrap"><table class="portal-table"><thead><tr><th>Method</th><th>Validation MAE (processes)</th><th>Selected</th></tr></thead><tbody>{% for method, score in analysis.forecast.scores.items() %}<tr><td>{{ method|replace('_',' ')|title }}</td><td>{{ '%.1f'|format(score) }}</td><td>{{ 'Yes' if method == analysis.forecast.model else 'No' }}</td></tr>{% endfor %}</tbody></table></div>
+      <h3>Backtest: observed vs forecast</h3><div class="table-wrap"><table class="portal-table"><thead><tr><th>Year</th><th>Method</th><th>Observed</th><th>Forecast</th></tr></thead><tbody>{% for row in analysis.forecast.backtests %}<tr><td>{{ row.year }}</td><td>{{ row.model|replace('_',' ')|title }}</td><td>{{ '{:,.1f}'.format(row.observed) }}</td><td>{{ '{:,.1f}'.format(row.predicted) }}</td></tr>{% endfor %}</tbody></table></div>
+      <p class="panel-note">{{ analysis.forecast.note }} The method is selected using a short rolling one-year holdout; this is a baseline, not a causal or official projection. It does not account for changes in reporting practices, population, policy, or emerging crime types.</p>
+    {% elif analysis.forecast %}<div class="portal-alert">Forecast unavailable: {{ analysis.forecast.reason }}</div>{% else %}<div class="portal-alert">Forecast unavailable for the selected filters.</div>{% endif %}
+  </div>
+
+  <div class="portal-panel territorial-limitations"><p class="eyebrow">Interpretation</p><h2>What these outputs mean</h2><ul><li>Counts describe recorded processes in the source, not the incidence or prevalence of all cybercrime.</li><li>Territorial and temporal patterns can reflect reporting, registration, and coverage changes.</li><li>Annual forecasts extrapolate historical counts; they are not risk scores, causal explanations, or guarantees.</li><li>The 2026 partial year is excluded from forecasts and should not be compared directly with complete years.</li><li>Population rates are available only for report years with a stored denominator and matched territory. The existing population source workbook is absent, so the processed municipal crosswalk still needs independent review.</li></ul></div>
+  {% endif %}
+</section>
+{% endblock %}

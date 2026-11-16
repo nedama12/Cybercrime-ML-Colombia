@@ -1,13 +1,15 @@
-# Configuración segura del despliegue
+# Deployment configuration
 
-La aplicación lee estas variables de entorno:
+The application reads these environment variables:
 
-- `APP_ENV=production`: exige que se configure una clave secreta externa.
-- `FLASK_SECRET_KEY`: secreto privado de al menos 32 caracteres. Genéralo, por ejemplo, con `python -c "import secrets; print(secrets.token_urlsafe(48))"` y guárdalo en el gestor de secretos del despliegue.
-- `COOKIE_SECURE=1`: activa cookies de sesión seguras; úsalo cuando el sitio se sirva bajo HTTPS.
-- `USER_DB_PATH`: opcional. Ruta al archivo SQLite existente si no se usa `instance/cybercrime.sqlite3`. No apuntes a un archivo nuevo en producción si necesitas conservar los datos actuales.
-- `PORT`: puerto HTTP, opcional.
+- `APP_ENV=production` requires an externally supplied secret key.
+- `FLASK_SECRET_KEY` must be a private, stable value of at least 32 characters. Generate one with `python -c "import secrets; print(secrets.token_urlsafe(48))"` and store it in the deployment secret manager.
+- `COOKIE_SECURE=1` enables secure session cookies. Use it when serving the site over HTTPS.
+- `USER_DB_PATH` optionally points to an existing SQLite database. Preserve the current database path if account and prediction history must be retained.
+- `PORT` optionally sets the HTTP port.
 
-En desarrollo se mantiene la generación de una clave local en `instance/flask_secret_key`. No reutilices esa clave como secreto de producción. La aplicación conserva sesiones de ocho horas, con cookies `HttpOnly` y `SameSite=Lax`; los formularios de escritura requieren token CSRF.
+In development, the application creates a local key at `instance/flask_secret_key`. Do not use it as a production secret. Sessions last eight hours; cookies use `HttpOnly` and `SameSite=Lax`, and all write forms require a CSRF token.
 
-Los intentos de login se limitan por correo e IP: cinco fallos dentro de diez minutos activan una espera de dos minutos. El contador es en memoria por proceso, por lo que en despliegues con varios workers cada worker mantiene su propio contador.
+Login attempts are limited by email and IP address. Five failed attempts within ten minutes trigger a two-minute wait. The in-memory counter is per process, so each worker has a separate counter.
+
+The Flask prediction page exposes Cybercrime Analysis and Phishing Detection as separate modules. Deploy `models/phishing_detector.joblib` and `models/phishing_detector_info.json` with the application to enable the phishing form. This model only analyzes URL text; it does not fetch submitted sites. Train it from the original CSV with `python -m src.train_phishing --data "path\to\PhiUSIIL_Phishing_URL_Dataset.csv"`.

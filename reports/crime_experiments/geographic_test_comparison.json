@@ -1,0 +1,92 @@
+[
+  {
+    "model": "original_logistic_regression",
+    "metrics": {
+      "accuracy": 0.2839022140221402,
+      "precision_macro": 0.10468991505209904,
+      "recall_macro": 0.11242024014451034,
+      "f1_macro": 0.07157384175709415,
+      "f1_weighted": 0.16963088708632731
+    }
+  },
+  {
+    "model": "engineered_logistic_C0.1_balanced",
+    "metrics": {
+      "accuracy": 0.176429889298893,
+      "precision_macro": 0.13529617541822536,
+      "recall_macro": 0.19435887253809647,
+      "f1_macro": 0.08758396563334842,
+      "f1_weighted": 0.15332176779003873
+    }
+  },
+  {
+    "model": "engineered_logistic_C1_balanced",
+    "metrics": {
+      "accuracy": 0.17058733087330874,
+      "precision_macro": 0.13904024723832234,
+      "recall_macro": 0.19443090541808744,
+      "f1_macro": 0.08409478910069354,
+      "f1_weighted": 0.1436766684796031
+    }
+  },
+  {
+    "model": "engineered_logistic_C1_balanced_select75",
+    "metrics": {
+      "accuracy": 0.16720479704797048,
+      "precision_macro": 0.13040653670536503,
+      "recall_macro": 0.18914855764858912,
+      "f1_macro": 0.07898460909025101,
+      "f1_weighted": 0.14186713192396438
+    }
+  },
+  {
+    "model": "engineered_logistic_C10_balanced",
+    "metrics": {
+      "accuracy": 0.16897293972939728,
+      "precision_macro": 0.14657490263253603,
+      "recall_macro": 0.19098124740338107,
+      "f1_macro": 0.08161013851665339,
+      "f1_weighted": 0.14341208177882642
+    }
+  },
+  {
+    "model": "engineered_logistic_C1_unweighted",
+    "metrics": {
+      "accuracy": 0.2933579335793358,
+      "precision_macro": 0.1437004006389722,
+      "recall_macro": 0.11115744601983134,
+      "f1_macro": 0.05048959812375532,
+      "f1_weighted": 0.13317796940550627
+    }
+  },
+  {
+    "model": "random_forest_balanced",
+    "metrics": {
+      "accuracy": 0.2728321033210332,
+      "precision_macro": 0.134324823890978,
+      "recall_macro": 0.15649374470125432,
+      "f1_macro": 0.11618770560867975,
+      "f1_weighted": 0.20522993478647966
+    }
+  },
+  {
+    "model": "extra_trees_balanced",
+    "metrics": {
+      "accuracy": 0.27813653136531363,
+      "precision_macro": 0.13758069472071735,
+      "recall_macro": 0.14120197002672583,
+      "f1_macro": 0.10613047542196521,
+      "f1_weighted": 0.18883309725608152
+    }
+  },
+  {
+    "model": "hist_gradient_boosting",
+    "metrics": {
+      "accuracy": 0.2794434194341943,
+      "precision_macro": 0.10980681840374233,
+      "recall_macro": 0.11049967032233768,
+      "f1_macro": 0.07219850326393723,
+      "f1_weighted": 0.17309070485527103
+    }
+  }
+]

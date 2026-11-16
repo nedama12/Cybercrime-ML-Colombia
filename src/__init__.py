@@ -1,1 +1,1 @@
-"""Código de model engineering del proyecto."""
+"""Model engineering code for the project."""

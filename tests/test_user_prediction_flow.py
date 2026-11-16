@@ -51,7 +51,7 @@ class UserPredictionFlowTest(unittest.TestCase):
             "email": "PERSONA-A@example.test", "password": "ClaveSeguraA123"
         })
         self.assertEqual(duplicate.status_code, 200)
-        self.assertIn(b"Ya existe una cuenta", duplicate.data)
+        self.assertIn(b"An account with that email", duplicate.data)
 
         connection = sqlite3.connect(web.USER_DB_PATH)
         try:
@@ -70,9 +70,9 @@ class UserPredictionFlowTest(unittest.TestCase):
         payload["csrf_token"] = token
         prediction = user_a.post("/prediction", data=payload)
         self.assertEqual(prediction.status_code, 200)
-        self.assertIn(b"guardada en tu cuenta", prediction.data)
+        self.assertIn(b"saved to your account", prediction.data)
         self.assertEqual(user_a.get("/history").status_code, 200)
-        self.assertIn(b"Predicci\xc3\xb3n #1", user_a.get("/history").data)
+        self.assertIn(b"Prediction #1", user_a.get("/history").data)
 
         connection = sqlite3.connect(web.USER_DB_PATH)
         try:
@@ -88,17 +88,17 @@ class UserPredictionFlowTest(unittest.TestCase):
         invalid_category = {**payload, "csrf_token": token, "departamento_hecho": "__INVALIDO__"}
         rejected_category = user_a.post("/prediction", data=invalid_category)
         self.assertEqual(rejected_category.status_code, 200)
-        self.assertIn("opción válida".encode("utf-8"), rejected_category.data)
+        self.assertIn(b"Select a valid option", rejected_category.data)
         token = self.csrf(user_a, "/prediction")
         invalid_numeric = {**payload, "csrf_token": token, "ano_hechos": "999999"}
         rejected_numeric = user_a.post("/prediction", data=invalid_numeric)
         self.assertEqual(rejected_numeric.status_code, 200)
-        self.assertIn("debe estar entre".encode("utf-8"), rejected_numeric.data)
+        self.assertIn("must be between".encode("utf-8"), rejected_numeric.data)
         token = self.csrf(user_a, "/prediction")
         unexpected_field = {**payload, "csrf_token": token, "user_id": "2"}
         rejected_extra = user_a.post("/prediction", data=unexpected_field)
         self.assertEqual(rejected_extra.status_code, 200)
-        self.assertIn("campos no permitidos".encode("utf-8"), rejected_extra.data)
+        self.assertIn("unexpected fields".encode("utf-8"), rejected_extra.data)
 
         user_b = web.app.test_client()
         token = self.csrf(user_b, "/register")
@@ -108,8 +108,8 @@ class UserPredictionFlowTest(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         history_b = user_b.get("/history")
         self.assertEqual(history_b.status_code, 200)
-        self.assertIn(b"Tu historial est\xc3\xa1 vac\xc3\xado", history_b.data)
-        self.assertNotIn(b"Predicci\xc3\xb3n #1", history_b.data)
+        self.assertIn(b"Your history is empty", history_b.data)
+        self.assertNotIn(b"Prediction #1", history_b.data)
 
         token = self.csrf(user_b, "/prediction")
         bad_payload = {**payload, "csrf_token": "invalid"}
@@ -124,7 +124,7 @@ class UserPredictionFlowTest(unittest.TestCase):
             "csrf_token": login_token, "email": "persona-b@example.test", "password": "incorrecta"
         })
         self.assertEqual(rejected.status_code, 200)
-        self.assertIn(b"Correo o contrase", rejected.data)
+        self.assertIn(b"Incorrect email or password", rejected.data)
         for _ in range(4):
             login_token = self.csrf(user_b, "/login")
             rejected = user_b.post("/login", data={

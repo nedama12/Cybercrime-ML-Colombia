@@ -21,6 +21,8 @@ from flask import (Flask, abort, flash, redirect, render_template, request,
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from src.predict import MODEL_PATH, predict_incident
+from src.phishing_predict import MODEL_PATH as PHISHING_MODEL_PATH, predict_url
+from src.territorial_analysis import build_analysis_context
 
 ROOT = Path(__file__).resolve().parent
 DATA_PATH = ROOT / "data/processed/delitos_procesado.csv"
@@ -45,10 +47,10 @@ def load_secret_key() -> str:
     configured = os.environ.get("FLASK_SECRET_KEY")
     if configured:
         if len(configured) < 32:
-            raise RuntimeError("FLASK_SECRET_KEY debe tener al menos 32 caracteres.")
+            raise RuntimeError("FLASK_SECRET_KEY must contain at least 32 characters.")
         return configured
     if os.environ.get("APP_ENV", "development").lower() == "production":
-        raise RuntimeError("FLASK_SECRET_KEY es obligatoria en producción.")
+        raise RuntimeError("FLASK_SECRET_KEY is required in production.")
     INSTANCE_DIR.mkdir(parents=True, exist_ok=True)
     if not SECRET_KEY_PATH.exists():
         SECRET_KEY_PATH.write_text(secrets.token_urlsafe(48), encoding="utf-8")
@@ -155,8 +157,8 @@ def _record_login_failure(key: tuple[str, str]) -> None:
 
 @app.errorhandler(sqlite3.Error)
 def handle_database_error(error):
-    logger.exception("Error de base de datos SQLite", exc_info=error)
-    return "No fue posible completar la operación. Inténtalo de nuevo más tarde.", 503
+    logger.exception("SQLite database error", exc_info=error)
+    return "The operation could not be completed. Please try again later.", 503
 
 
 @app.before_request
@@ -168,8 +170,8 @@ def login_required(view):
     @wraps(view)
     def wrapped(*args, **kwargs):
         if not session.get("user_id"):
-            flash("Inicia sesión para realizar una predicción.", "error")
-            return redirect(url_for("login", next=request.path))
+            flash("Sign in to submit a prediction.", "error")
+            return redirect(url_for("login", next=request.full_path.rstrip("?")))
         return view(*args, **kwargs)
     return wrapped
 
@@ -178,7 +180,7 @@ def validate_csrf() -> None:
     expected = session.get("_csrf_token", "")
     supplied = request.form.get("csrf_token", "")
     if not expected or not supplied or not hmac.compare_digest(expected, supplied):
-        abort(400, description="Formulario vencido o token de seguridad inválido. Recarga la página.")
+        abort(400, description="The form expired or the security token is invalid. Reload the page.")
 
 
 @lru_cache(maxsize=1)
@@ -212,9 +214,9 @@ def get_model_summaries() -> list[dict]:
     best = metadata.get("algorithm")
     summaries = []
     for key, title, description in [
-        ("decision_tree", "Decision Tree", "Construye reglas jerárquicas dividiendo los datos por sus atributos."),
-        ("random_forest", "Random Forest", "Combina árboles entrenados sobre muestras y subconjuntos de variables."),
-        ("logistic_regression", "Logistic Regression", "Estima probabilidades por clase mediante una función logística multiclase."),
+        ("decision_tree", "Decision Tree", "Builds hierarchical rules by splitting the data according to its features."),
+        ("random_forest", "Random Forest", "Combines trees trained on samples and feature subsets."),
+        ("logistic_regression", "Logistic Regression", "Estimates class probabilities using a multiclass logistic function."),
     ]:
         report = read_json(CLASS_REPORT_DIR / f"{key}.json", {}) or {}
         metric = next((row for row in get_metrics() if row.get("model") == key), {})
@@ -247,13 +249,14 @@ def dataset_context() -> dict:
 def inject_shared_context():
     return {"project_name": "Cybercrime-ML-Colombia",
             "model_ready": MODEL_PATH.exists() and INFO_PATH.exists(),
+            "phishing_model_ready": PHISHING_MODEL_PATH.exists(),
             "current_user": current_user_email(),
             "csrf_token": session.setdefault("_csrf_token", secrets.token_urlsafe(32))}
 
 
 @app.get("/")
 def home():
-    return render_template("index.html", page_title="Inicio")
+    return render_template("index.html", page_title="Home")
 
 
 @app.get("/dashboard")
@@ -265,7 +268,7 @@ def dashboard():
         prediction_count = connection.execute(
             "SELECT COUNT(*) FROM predictions WHERE user_id = ?", (session["user_id"],)
         ).fetchone()[0]
-    return render_template("dashboard.html", page_title="Panel", data=data, info=info,
+    return render_template("dashboard.html", page_title="Dashboard", data=data, info=info,
                            metrics=get_metrics(), prediction_count=prediction_count)
 
 
@@ -275,21 +278,41 @@ def dataset():
     return render_template("dataset.html", page_title="Dataset", data=data)
 
 
+@app.get("/territorial-analysis")
+def territorial_analysis():
+    filters = {
+        "scope": request.args.get("scope", "national"),
+        "department": request.args.get("department", ""),
+        "municipality": request.args.get("municipality", ""),
+        "basis": request.args.get("basis", "report"),
+        "category": request.args.get("category", "all"),
+        "compare_level": request.args.get("compare_level", "department"),
+        "year": request.args.get("year", ""),
+    }
+    try:
+        analysis = build_analysis_context(filters)
+        error = None
+    except (FileNotFoundError, ValueError) as exc:
+        analysis, error = None, str(exc)
+    return render_template("territorial_analysis.html", page_title="Cybercrime Territorial and Temporal Analysis",
+                           analysis=analysis, error=error)
+
+
 @app.get("/preprocessing")
 def preprocessing():
     info = get_info()
     data = dataset_context()
-    return render_template("preprocessing.html", page_title="Preparación", info=info, data=data)
+    return render_template("preprocessing.html", page_title="Data Preparation", info=info, data=data)
 
 
 @app.get("/models")
 def models():
-    return render_template("models.html", page_title="Modelos", models=get_model_summaries(), info=get_info())
+    return render_template("models.html", page_title="Models", models=get_model_summaries(), info=get_info())
 
 
 @app.get("/evaluation")
 def evaluation():
-    return render_template("evaluation.html", page_title="Evaluación", metrics=get_metrics(),
+    return render_template("evaluation.html", page_title="Evaluation", metrics=get_metrics(),
                            models=get_model_summaries(), info=get_info())
 
 
@@ -303,13 +326,13 @@ def register():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
         if not name or len(name) > 100:
-            flash("Ingresa un nombre de hasta 100 caracteres.", "error")
+            flash("Enter a name up to 100 characters.", "error")
         elif len(email) > 254 or "@" not in email or "." not in email.rsplit("@", 1)[-1]:
-            flash("Ingresa un correo electrónico válido.", "error")
+            flash("Enter a valid email address.", "error")
         elif len(password) < 8:
-            flash("La contraseña debe tener al menos 8 caracteres.", "error")
+            flash("The password must contain at least 8 characters.", "error")
         elif len(password) > 256:
-            flash("La contraseña es demasiado larga.", "error")
+            flash("The password is too long.", "error")
         else:
             try:
                 with connect_db() as connection:
@@ -319,11 +342,11 @@ def register():
                 session.clear()
                 session["user_id"] = cursor.lastrowid
                 session.permanent = True
-                flash("Cuenta creada. Ya puedes hacer una predicción.", "success")
+                flash("Account created. You can now submit a prediction.", "success")
                 return redirect(url_for("prediction"))
             except sqlite3.IntegrityError:
-                flash("Ya existe una cuenta con ese correo.", "error")
-    return render_template("register.html", page_title="Crear cuenta")
+                flash("An account with that email already exists.", "error")
+    return render_template("register.html", page_title="Create account")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -337,7 +360,7 @@ def login():
         key = _login_key(email)
         retry_after = _login_retry_after(key)
         if retry_after:
-            response = render_template("login.html", page_title="Iniciar sesión",
+            response = render_template("login.html", page_title="Sign in",
                                        retry_after=retry_after)
             return response, 429, {"Retry-After": str(retry_after)}
         with connect_db() as connection:
@@ -351,20 +374,20 @@ def login():
             session.clear()
             session["user_id"] = user["id"]
             session.permanent = True
-            flash("Sesión iniciada.", "success")
+            flash("Signed in.", "success")
             destination = request.args.get("next", "")
             if destination.startswith("/") and not destination.startswith("//"):
                 return redirect(destination)
             return redirect(url_for("prediction"))
-        flash("Correo o contraseña incorrectos.", "error")
-    return render_template("login.html", page_title="Iniciar sesión")
+        flash("Incorrect email or password.", "error")
+    return render_template("login.html", page_title="Sign in")
 
 
 @app.post("/logout")
 def logout():
     validate_csrf()
     session.clear()
-    flash("Sesión cerrada.", "success")
+    flash("Signed out.", "success")
     return redirect(url_for("home"))
 
 
@@ -379,13 +402,16 @@ def history():
     entries = []
     for row in rows:
         probabilities = json.loads(row["probabilities_json"])
-        entries.append({"id": row["id"], "incident": json.loads(row["incident_json"]),
+        incident = json.loads(row["incident_json"])
+        model_key = incident.pop("_model", "cybercrime")
+        entries.append({"id": row["id"], "incident": incident,
+                        "model_title": "Phishing Detection" if model_key == "phishing" else "Cybercrime Analysis",
                         "category": row["category"],
                         "probabilities": sorted(
                             [{"name": name, "value": value} for name, value in probabilities.items()],
                             key=lambda item: item["value"], reverse=True),
                         "created_at": row["created_at"]})
-    return render_template("history.html", page_title="Mi historial", predictions=entries)
+    return render_template("history.html", page_title="My History", predictions=entries)
 
 
 def form_fields() -> list[dict]:
@@ -413,50 +439,65 @@ def form_fields() -> list[dict]:
 @app.route("/prediction", methods=["GET", "POST"])
 @login_required
 def prediction():
-    fields = form_fields()
+    model_key = request.values.get("model", "cybercrime")
+    if model_key not in {"cybercrime", "phishing"}:
+        abort(400)
+    fields = form_fields() if model_key == "cybercrime" else []
     result = None
     form_values = request.form.to_dict() if request.method == "POST" else {}
     error = None
     if request.method == "POST":
         validate_csrf()
-        incident = {}
         try:
-            allowed_fields = {field["name"] for field in fields}
-            unexpected_fields = set(request.form) - allowed_fields - {"csrf_token"}
-            if unexpected_fields:
-                raise ValueError("El formulario contiene campos no permitidos.")
-            for field in fields:
-                name = field["name"]
-                raw = request.form.get(name, "").strip()
-                if not raw:
-                    raise ValueError(f"El campo {name} es obligatorio.")
-                if field["numeric"]:
-                    try:
-                        incident[name] = int(raw)
-                    except ValueError as exc:
-                        raise ValueError(f"El campo {name} debe ser un número entero.") from exc
-                    if field["minimum"] is not None and not field["minimum"] <= incident[name] <= field["maximum"]:
-                        raise ValueError(f"El campo {name} debe estar entre {field['minimum']} y {field['maximum']}.")
-                else:
-                    if raw not in field["options"]:
-                        raise ValueError(f"Selecciona una opción válida para {name}.")
-                    incident[name] = raw
-            result = predict_incident(incident)
-            result["record_id"] = save_prediction(session["user_id"], incident, result)
+            if model_key == "phishing":
+                unexpected_fields = set(request.form) - {"csrf_token", "model", "url"}
+                if unexpected_fields:
+                    raise ValueError("The form contains unexpected fields.")
+                result = predict_url(request.form.get("url", ""))
+                incident = {"_model": "phishing", "url": result["input_url"]}
+                result["record_id"] = save_prediction(session["user_id"], incident, result)
+            else:
+                incident = {}
+                allowed_fields = {field["name"] for field in fields}
+                unexpected_fields = set(request.form) - allowed_fields - {"csrf_token", "model"}
+                if unexpected_fields:
+                    raise ValueError("The form contains unexpected fields.")
+                for field in fields:
+                    name = field["name"]
+                    raw = request.form.get(name, "").strip()
+                    if not raw:
+                        raise ValueError(f"The {name} field is required.")
+                    if field["numeric"]:
+                        try:
+                            incident[name] = int(raw)
+                        except ValueError as exc:
+                            raise ValueError(f"The {name} field must be an integer.") from exc
+                        if field["minimum"] is not None and not field["minimum"] <= incident[name] <= field["maximum"]:
+                            raise ValueError(f"The {name} field must be between {field['minimum']} and {field['maximum']}.")
+                    else:
+                        if raw not in field["options"]:
+                            raise ValueError(f"Select a valid option for {name}.")
+                        incident[name] = raw
+                result = predict_incident(incident)
+                result["record_id"] = save_prediction(session["user_id"], incident, result)
         except (ValueError, OSError, RuntimeError) as exc:
             error = str(exc)
         except sqlite3.Error:
             result = None
-            error = "La predicción se generó, pero no se pudo guardar en tu historial. Inténtalo de nuevo."
-    return render_template("prediction.html", page_title="Predicción", fields=fields,
-                           result=result, error=error, form_values=form_values, info=get_info())
+            error = "The prediction was generated, but could not be saved to your history. Please try again."
+    phishing_mode = model_key == "phishing"
+    return render_template(
+        "prediction.html",
+        page_title="Phishing Detection" if phishing_mode else "Cybercrime Analysis",
+        fields=fields, result=result, error=error, form_values=form_values,
+        info={} if phishing_mode else get_info(), active_model=model_key)
 
 
 @app.get("/reports")
 def reports():
     info = get_info()
     data = dataset_context()
-    return render_template("reports.html", page_title="Informes", info=info, data=data,
+    return render_template("reports.html", page_title="Reports", info=info, data=data,
                            metrics=get_metrics())
 
 

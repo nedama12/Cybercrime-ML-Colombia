@@ -1,4 +1,4 @@
-"""Interfaz de predicción individual, lista para ser llamada desde Flask."""
+"""Load the saved model pipeline and predict a cybercrime category."""
 from pathlib import Path
 
 import joblib
@@ -10,14 +10,14 @@ INFO_PATH = ROOT / "models/best_model_info.json"
 
 
 def predict_incident(incident: dict, model_path: str | Path = MODEL_PATH) -> dict:
-    """Predice categoria. Requiere todos los campos usados por el modelo."""
+    """Return a predicted category and its per-class probability estimates."""
     if not isinstance(incident, dict) or not incident:
-        raise ValueError("incident debe ser un diccionario con los campos predictivos.")
+        raise ValueError("incident must be a non-empty dictionary of model features.")
     model = joblib.load(model_path)
     required = list(model.feature_names_in_)
     missing = [field for field in required if field not in incident]
     if missing:
-        raise ValueError(f"Faltan campos requeridos: {missing}")
+        raise ValueError(f"Required features are missing: {missing}")
     frame = pd.DataFrame([{field: incident[field] for field in required}], columns=required)
     category = model.predict(frame)[0]
     result = {"prediction": str(category)}
@@ -34,5 +34,5 @@ if __name__ == "__main__":
     import json
     import sys
     if len(sys.argv) != 2:
-        raise SystemExit("Uso: python -m src.predict '{\"criminalidad\":...}'")
+        raise SystemExit("Usage: python -m src.predict '{\"criminalidad\":...}'")
     print(json.dumps(predict_incident(json.loads(sys.argv[1])), ensure_ascii=False, indent=2))
