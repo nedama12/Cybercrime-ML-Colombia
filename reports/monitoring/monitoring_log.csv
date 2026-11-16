@@ -1,0 +1,601 @@
+simulated,week,timestamp,channel,affected,description,predicted_category,confidence,needs_review,analyst_category,inference_ms,model_version
+1,1,2026-10-19T10:14:00+00:00,device,device;personal_data,an antivirus detected a virus that steals passwords on my computer,MALWARE,0.9962,0,MALWARE,76.48,logistic_regression@2026.11.15
+1,1,2026-10-21T12:57:00+00:00,sms_whatsapp,money,I made a transfer to a stranger who said he was from the bank to protect my money,TRANSFER_FRAUD,0.9968,0,TRANSFER_FRAUD,16.84,logistic_regression@2026.11.15
+1,1,2026-10-20T08:09:00+00:00,unknown,money;account;personal_data,aparecieron compras que yo no hice en Banco de Bogota,ELECTRONIC_THEFT,0.9779,0,ELECTRONIC_THEFT,16.61,logistic_regression@2026.11.15
+1,1,2026-10-24T15:33:00+00:00,social_media,personal_data,publicaron mis datos personales en internet sin autorizacion,PERSONAL_DATA,0.9967,0,PERSONAL_DATA,16.07,logistic_regression@2026.11.15
+1,1,2026-10-25T12:51:00+00:00,website_app,business_system,the system we use to bill clients was sabotaged and data was destroyed,SYSTEM_ATTACK,0.957,0,SYSTEM_ATTACK,17.06,logistic_regression@2026.11.15
+1,1,2026-10-22T21:24:00+00:00,phone_call,personal_data,publicaron mis datos personales en internet sin autorizacion,PERSONAL_DATA,0.9976,0,PERSONAL_DATA,15.43,logistic_regression@2026.11.15
+1,1,2026-10-22T23:37:00+00:00,sms_whatsapp,personal_data,they sent me a fake page of Instagram and I typed my credentials,PHISHING_SPOOFING,0.9914,0,PHISHING_SPOOFING,17.45,logistic_regression@2026.11.15
+1,1,2026-10-22T12:32:00+00:00,device,device,el telefono que compre tenia el IMEI adulterado,MOBILE_DEVICES,0.9952,0,MOBILE_DEVICES,15.54,logistic_regression@2026.11.15
+1,1,2026-10-21T11:35:00+00:00,device,device,I bought a used phone and the operator says the IMEI is cloned,MOBILE_DEVICES,0.9978,0,MOBILE_DEVICES,14.51,logistic_regression@2026.11.15
+1,1,2026-10-20T13:23:00+00:00,unknown,personal_data,someone used my ID number to open a credit line in my name,PERSONAL_DATA,0.9965,0,PERSONAL_DATA,14.39,logistic_regression@2026.11.15
+1,1,2026-10-21T15:20:00+00:00,device,business_system;device,la pagina web de la empresa se cayo por un ataque,SYSTEM_ATTACK,0.9592,0,SYSTEM_ATTACK,16.31,logistic_regression@2026.11.15
+1,1,2026-10-22T15:00:00+00:00,unknown,account,someone logged into my WhatsApp account without permission,ABUSIVE_ACCESS,0.9926,0,ABUSIVE_ACCESS,16.21,logistic_regression@2026.11.15
+1,1,2026-10-23T11:08:00+00:00,website_app,personal_data,un mensaje decia que mi cuenta estaba bloqueada y que entrara al enlace,PHISHING_SPOOFING,0.983,0,PHISHING_SPOOFING,15.45,logistic_regression@2026.11.15
+1,1,2026-10-20T06:01:00+00:00,website_app,business_system,they blocked access to our platform and customers cannot use it,SYSTEM_ATTACK,0.9671,0,SYSTEM_ATTACK,14.96,logistic_regression@2026.11.15
+1,1,2026-10-21T08:47:00+00:00,email,device;business_system,instale una aplicacion y el celular quedo con un virus,MALWARE,0.9991,0,MALWARE,15.43,logistic_regression@2026.11.15
+1,1,2026-10-24T12:07:00+00:00,website_app,business_system,the online store was defaced and shows a hacker message,SYSTEM_ATTACK,0.9984,0,SYSTEM_ATTACK,15.07,logistic_regression@2026.11.15
+1,1,2026-10-25T00:14:00+00:00,social_media,personal_data;money,a company shared my data and now strangers call me with my full name and ID,PERSONAL_DATA,0.9864,0,PERSONAL_DATA,14.62,logistic_regression@2026.11.15
+1,1,2026-10-23T04:08:00+00:00,sms_whatsapp,device;business_system,an antivirus detected a virus that steals passwords on my computer,MALWARE,0.9944,0,MALWARE,13.62,logistic_regression@2026.11.15
+1,1,2026-10-21T05:17:00+00:00,sms_whatsapp,personal_data,I got an SMS saying my account was blocked and to click a link to unlock it,PHISHING_SPOOFING,0.9988,0,PHISHING_SPOOFING,18.61,logistic_regression@2026.11.15
+1,1,2026-10-21T22:46:00+00:00,social_media,account;personal_data,my ex partner keeps entering my online banking account without my authorization,ABUSIVE_ACCESS,0.9226,0,ABUSIVE_ACCESS,17.35,logistic_regression@2026.11.15
+1,1,2026-10-21T12:12:00+00:00,website_app,money,un tercero accedio a mi correo y lo esta usando,TRANSFER_FRAUD,0.4467,1,ABUSIVE_ACCESS,16.54,logistic_regression@2026.11.15
+1,1,2026-10-19T00:31:00+00:00,sms_whatsapp,money,I sent money for a rental apartment that did not exist,TRANSFER_FRAUD,0.9926,0,TRANSFER_FRAUD,17.7,logistic_regression@2026.11.15
+1,1,2026-10-23T22:29:00+00:00,device,device,they tampered with my mobile device identification number,MOBILE_DEVICES,0.6992,0,MOBILE_DEVICES,18.66,logistic_regression@2026.11.15
+1,1,2026-10-20T17:16:00+00:00,sms_whatsapp,device;personal_data;business_system,I installed an app and now my phone shows ads and sends messages by itself,MALWARE,0.9925,0,MALWARE,18.08,logistic_regression@2026.11.15
+1,1,2026-10-19T05:50:00+00:00,unknown,device,a shop reprogrammed my stolen cellphone to sell it,MOBILE_DEVICES,0.9961,0,MOBILE_DEVICES,17.39,logistic_regression@2026.11.15
+1,1,2026-10-21T10:06:00+00:00,device,money;personal_data,"desaparecio dinero de mi cuenta, cobros que no reconozco",ELECTRONIC_THEFT,0.9831,0,ELECTRONIC_THEFT,18.43,logistic_regression@2026.11.15
+1,1,2026-10-24T05:06:00+00:00,unknown,personal_data;account,publicaron mis datos personales en internet sin autorizacion,PERSONAL_DATA,0.9806,0,PERSONAL_DATA,16.42,logistic_regression@2026.11.15
+1,1,2026-10-20T16:54:00+00:00,unknown,business_system,la pagina web de la empresa se cayo por un ataque,SYSTEM_ATTACK,0.9981,0,SYSTEM_ATTACK,18.21,logistic_regression@2026.11.15
+1,1,2026-10-20T04:58:00+00:00,email,personal_data,I entered my username and password on a website that copied the real login page,PHISHING_SPOOFING,0.9985,0,PHISHING_SPOOFING,15.93,logistic_regression@2026.11.15
+1,1,2026-10-19T17:18:00+00:00,unknown,money;account,I found online purchases on Nequi that I did not make,ELECTRONIC_THEFT,0.9922,0,ELECTRONIC_THEFT,16.42,logistic_regression@2026.11.15
+1,1,2026-10-24T10:32:00+00:00,device,device,they tampered with my mobile device identification number,MOBILE_DEVICES,0.6992,0,MOBILE_DEVICES,15.32,logistic_regression@2026.11.15
+1,1,2026-10-19T19:48:00+00:00,website_app,account;personal_data,un tercero accedio a mi correo y lo esta usando,ABUSIVE_ACCESS,0.982,0,ABUSIVE_ACCESS,15.3,logistic_regression@2026.11.15
+1,1,2026-10-23T03:59:00+00:00,unknown,account,my ex partner keeps entering my Outlook account without my authorization,ABUSIVE_ACCESS,0.9636,0,ABUSIVE_ACCESS,17.75,logistic_regression@2026.11.15
+1,1,2026-10-21T13:05:00+00:00,social_media,personal_data;account,the website looked identical to the official one but the address was different,PHISHING_SPOOFING,0.566,0,PHISHING_SPOOFING,14.5,logistic_regression@2026.11.15
+1,1,2026-10-22T20:17:00+00:00,sms_whatsapp,personal_data;account,un mensaje decia que mi cuenta estaba bloqueada y que entrara al enlace,PHISHING_SPOOFING,0.9973,0,PHISHING_SPOOFING,14.83,logistic_regression@2026.11.15
+1,1,2026-10-21T14:24:00+00:00,device,device;money,el telefono que compre tenia el IMEI adulterado,MOBILE_DEVICES,0.9948,0,MOBILE_DEVICES,13.56,logistic_regression@2026.11.15
+1,1,2026-10-21T22:37:00+00:00,social_media,money,a person pretending to be my relative asked me to send money and I transferred it,TRANSFER_FRAUD,0.9779,0,TRANSFER_FRAUD,12.5,logistic_regression@2026.11.15
+1,1,2026-10-19T19:46:00+00:00,website_app,business_system,the online store was defaced and shows a hacker message,SYSTEM_ATTACK,0.9984,0,SYSTEM_ATTACK,11.72,logistic_regression@2026.11.15
+1,1,2026-10-22T20:36:00+00:00,website_app,personal_data,my personal information was published online without my consent,PERSONAL_DATA,0.9919,0,PERSONAL_DATA,13.41,logistic_regression@2026.11.15
+1,1,2026-10-21T01:27:00+00:00,unknown,business_system,an attacker intercepted the data sent between our offices,SYSTEM_ATTACK,0.9987,0,SYSTEM_ATTACK,12.52,logistic_regression@2026.11.15
+1,1,2026-10-21T20:23:00+00:00,social_media,account;personal_data,they hacked my Gmail account and changed the recovery email,ABUSIVE_ACCESS,0.9949,0,ABUSIVE_ACCESS,14.91,logistic_regression@2026.11.15
+1,1,2026-10-23T22:00:00+00:00,website_app,money,money disappeared from my bank and I did not make those purchases,ELECTRONIC_THEFT,0.8611,0,ELECTRONIC_THEFT,14.71,logistic_regression@2026.11.15
+1,1,2026-10-20T14:09:00+00:00,device,device;money,reprogramaron mi celular robado para venderlo,MOBILE_DEVICES,0.9545,0,MOBILE_DEVICES,16.32,logistic_regression@2026.11.15
+1,1,2026-10-23T08:00:00+00:00,unknown,business_system;personal_data,the system we use to bill clients was sabotaged and data was destroyed,SYSTEM_ATTACK,0.9032,0,SYSTEM_ATTACK,14.19,logistic_regression@2026.11.15
+1,1,2026-10-22T17:49:00+00:00,social_media,personal_data;account,usaron mi cedula para sacar un credito a mi nombre,PERSONAL_DATA,0.9693,0,PERSONAL_DATA,15.86,logistic_regression@2026.11.15
+1,1,2026-10-21T06:52:00+00:00,email,device;personal_data;business_system,a program I downloaded took control of my computer,MALWARE,0.9983,0,MALWARE,16.02,logistic_regression@2026.11.15
+1,1,2026-10-22T11:04:00+00:00,unknown,account;personal_data;business_system,alguien entro a mi cuenta de Outlook sin permiso,ABUSIVE_ACCESS,0.6206,0,ABUSIVE_ACCESS,13.92,logistic_regression@2026.11.15
+1,1,2026-10-24T14:56:00+00:00,website_app,account,I received an alert of a login from another country on my WhatsApp,ABUSIVE_ACCESS,0.9934,0,ABUSIVE_ACCESS,13.29,logistic_regression@2026.11.15
+1,1,2026-10-24T18:02:00+00:00,website_app,money,the website looked identical to the official one but the address was different,TRANSFER_FRAUD,0.4505,0,PHISHING_SPOOFING,13.51,logistic_regression@2026.11.15
+1,1,2026-10-21T14:47:00+00:00,sms_whatsapp,personal_data,me llego un correo falso de mi tarjeta debito con un enlace para actualizar datos,PHISHING_SPOOFING,0.9928,0,PHISHING_SPOOFING,13.93,logistic_regression@2026.11.15
+1,1,2026-10-19T05:08:00+00:00,sms_whatsapp,money;personal_data,"I paid 200,000 pesos to an online seller who never delivered",TRANSFER_FRAUD,0.9867,0,TRANSFER_FRAUD,14.15,logistic_regression@2026.11.15
+1,1,2026-10-24T23:37:00+00:00,unknown,account;business_system,they stole my Netflix and are asking my friends for money,ABUSIVE_ACCESS,0.9787,0,ABUSIVE_ACCESS,14.47,logistic_regression@2026.11.15
+1,1,2026-10-24T05:42:00+00:00,social_media,money,me ofrecieron una inversion y les transferi mis ahorros,TRANSFER_FRAUD,0.996,0,TRANSFER_FRAUD,14.25,logistic_regression@2026.11.15
+1,1,2026-10-25T19:45:00+00:00,device,device;money,me robaron el celular y le cambiaron el IMEI,MOBILE_DEVICES,0.9975,0,MOBILE_DEVICES,15.28,logistic_regression@2026.11.15
+1,1,2026-10-21T11:26:00+00:00,sms_whatsapp,personal_data;money,I got an SMS saying my account was blocked and to click a link to unlock it,PHISHING_SPOOFING,0.9943,0,PHISHING_SPOOFING,16.35,logistic_regression@2026.11.15
+1,1,2026-10-21T06:24:00+00:00,device,device,I bought a used phone and the operator says the IMEI is cloned,MOBILE_DEVICES,0.9978,0,MOBILE_DEVICES,16.39,logistic_regression@2026.11.15
+1,1,2026-10-23T09:38:00+00:00,social_media,personal_data,a company shared my data and now strangers call me with my full name and ID,PERSONAL_DATA,0.997,0,PERSONAL_DATA,16.72,logistic_regression@2026.11.15
+1,1,2026-10-24T18:55:00+00:00,email,account,a person entered my Instagram and is sending messages to my contacts,ABUSIVE_ACCESS,0.9928,0,ABUSIVE_ACCESS,15.16,logistic_regression@2026.11.15
+1,1,2026-10-23T14:42:00+00:00,unknown,personal_data,a company shared my data and now strangers call me with my full name and ID,PERSONAL_DATA,0.9967,0,PERSONAL_DATA,15.83,logistic_regression@2026.11.15
+1,1,2026-10-23T12:45:00+00:00,unknown,personal_data;account,una empresa vendio mi informacion personal,PERSONAL_DATA,0.9916,0,PERSONAL_DATA,13.89,logistic_regression@2026.11.15
+1,1,2026-10-19T20:51:00+00:00,social_media,money,I sent money for a rental apartment that did not exist,TRANSFER_FRAUD,0.9943,0,TRANSFER_FRAUD,12.76,logistic_regression@2026.11.15
+1,1,2026-10-22T00:33:00+00:00,email,device;business_system,the company computers were infected with ransomware,MALWARE,0.9249,0,MALWARE,13.52,logistic_regression@2026.11.15
+1,1,2026-10-25T07:19:00+00:00,device,business_system,la pagina web de la empresa se cayo por un ataque,SYSTEM_ATTACK,0.9958,0,SYSTEM_ATTACK,13.75,logistic_regression@2026.11.15
+1,1,2026-10-25T06:12:00+00:00,email,account,un tercero accedio a mi correo y lo esta usando,ABUSIVE_ACCESS,0.9953,0,ABUSIVE_ACCESS,15.55,logistic_regression@2026.11.15
+1,1,2026-10-21T17:10:00+00:00,email,personal_data,I entered my username and password on a website that copied the real login page,PHISHING_SPOOFING,0.9985,0,PHISHING_SPOOFING,13.21,logistic_regression@2026.11.15
+1,1,2026-10-25T06:17:00+00:00,phone_call,personal_data,someone created a profile with my photos and my name,PERSONAL_DATA,0.9976,0,PERSONAL_DATA,13.16,logistic_regression@2026.11.15
+1,1,2026-10-22T15:11:00+00:00,social_media,account;personal_data,they stole my email and are asking my friends for money,ABUSIVE_ACCESS,0.989,0,ABUSIVE_ACCESS,12.73,logistic_regression@2026.11.15
+1,1,2026-10-23T06:54:00+00:00,email,account,someone accessed the company server with an old employee password,ABUSIVE_ACCESS,0.9968,0,ABUSIVE_ACCESS,16.71,logistic_regression@2026.11.15
+1,1,2026-10-21T10:58:00+00:00,website_app,personal_data,they took a loan using my identity card copy,PERSONAL_DATA,0.9936,0,PERSONAL_DATA,13.93,logistic_regression@2026.11.15
+1,1,2026-10-19T05:57:00+00:00,sms_whatsapp,money,a fake investment platform promised returns and I transferred my savings,TRANSFER_FRAUD,0.9971,0,TRANSFER_FRAUD,13.05,logistic_regression@2026.11.15
+1,1,2026-10-24T07:50:00+00:00,email,money,I received an email that looked like Banco de Bogota asking me to update my password on a link,PHISHING_SPOOFING,0.959,0,PHISHING_SPOOFING,14.45,logistic_regression@2026.11.15
+1,1,2026-10-24T04:52:00+00:00,device,device,my phone was stolen and they changed the IMEI to unlock it,MOBILE_DEVICES,0.9979,0,MOBILE_DEVICES,15.26,logistic_regression@2026.11.15
+1,1,2026-10-20T10:56:00+00:00,sms_whatsapp,money,"me enganaron y transferi 350,000 pesos a un vendedor falso",TRANSFER_FRAUD,0.9952,0,TRANSFER_FRAUD,14.5,logistic_regression@2026.11.15
+1,1,2026-10-25T20:07:00+00:00,unknown,personal_data,publicaron mis datos personales en internet sin autorizacion,PERSONAL_DATA,0.9959,0,PERSONAL_DATA,15.44,logistic_regression@2026.11.15
+1,1,2026-10-21T16:06:00+00:00,device,money,money disappeared from my credit card and I did not make those purchases,ELECTRONIC_THEFT,0.9116,0,ELECTRONIC_THEFT,15.63,logistic_regression@2026.11.15
+1,1,2026-10-21T14:12:00+00:00,unknown,account;business_system,someone logged into my Facebook account without permission,ABUSIVE_ACCESS,0.9619,0,ABUSIVE_ACCESS,15.28,logistic_regression@2026.11.15
+1,1,2026-10-22T07:45:00+00:00,website_app,business_system,the system we use to bill clients was sabotaged and data was destroyed,SYSTEM_ATTACK,0.957,0,SYSTEM_ATTACK,15.26,logistic_regression@2026.11.15
+1,1,2026-10-22T08:32:00+00:00,website_app,money,I sent money for a rental apartment that did not exist,TRANSFER_FRAUD,0.9828,0,TRANSFER_FRAUD,14.9,logistic_regression@2026.11.15
+1,1,2026-10-25T18:25:00+00:00,sms_whatsapp,money;personal_data,un supuesto familiar me pidio plata por whatsapp y le consigne,TRANSFER_FRAUD,0.9881,0,TRANSFER_FRAUD,14.85,logistic_regression@2026.11.15
+1,1,2026-10-22T13:47:00+00:00,email,personal_data;account,an email from a supposed government office asked me to log in to check a fine,PHISHING_SPOOFING,0.8615,0,PHISHING_SPOOFING,12.45,logistic_regression@2026.11.15
+1,1,2026-10-22T13:08:00+00:00,phone_call,money,a person pretending to be my relative asked me to send money and I transferred it,TRANSFER_FRAUD,0.9868,0,TRANSFER_FRAUD,11.95,logistic_regression@2026.11.15
+1,1,2026-10-20T09:46:00+00:00,website_app,business_system,the system we use to bill clients was sabotaged and data was destroyed,SYSTEM_ATTACK,0.957,0,SYSTEM_ATTACK,13.27,logistic_regression@2026.11.15
+1,1,2026-10-21T04:42:00+00:00,unknown,account,my ex partner keeps entering my email account without my authorization,ABUSIVE_ACCESS,0.9699,0,ABUSIVE_ACCESS,12.31,logistic_regression@2026.11.15
+1,1,2026-10-19T17:05:00+00:00,website_app,device;personal_data;business_system,a fake update installed something that records what I type,MALWARE,0.986,0,MALWARE,11.04,logistic_regression@2026.11.15
+1,1,2026-10-22T14:25:00+00:00,unknown,money,"my balance dropped by 500,000 pesos overnight, unknown payments",ELECTRONIC_THEFT,0.9987,0,ELECTRONIC_THEFT,10.9,logistic_regression@2026.11.15
+1,1,2026-10-23T09:32:00+00:00,website_app,personal_data,a database with my address and phone number is being sold,PERSONAL_DATA,0.9883,0,PERSONAL_DATA,12.03,logistic_regression@2026.11.15
+1,1,2026-10-20T17:19:00+00:00,social_media,personal_data,a store sold my contact data to third parties,PERSONAL_DATA,0.8353,0,PERSONAL_DATA,13.92,logistic_regression@2026.11.15
+1,1,2026-10-21T19:31:00+00:00,email,account;personal_data,someone accessed the company server with an old employee password,ABUSIVE_ACCESS,0.9897,0,ABUSIVE_ACCESS,11.14,logistic_regression@2026.11.15
+1,1,2026-10-22T00:19:00+00:00,website_app,money,someone deleted the information in our database,SYSTEM_ATTACK,0.4251,1,SYSTEM_ATTACK,10.57,logistic_regression@2026.11.15
+1,1,2026-10-24T05:51:00+00:00,website_app,money,I sent money for a rental apartment that did not exist,TRANSFER_FRAUD,0.9828,0,TRANSFER_FRAUD,11.36,logistic_regression@2026.11.15
+1,1,2026-10-23T23:59:00+00:00,unknown,account;personal_data,un tercero accedio a mi correo y lo esta usando,ABUSIVE_ACCESS,0.9878,0,ABUSIVE_ACCESS,11.62,logistic_regression@2026.11.15
+1,1,2026-10-21T19:09:00+00:00,website_app,account;personal_data,my WhatsApp password was changed and I can no longer access it,ABUSIVE_ACCESS,0.9903,0,ABUSIVE_ACCESS,11.56,logistic_regression@2026.11.15
+1,1,2026-10-23T06:05:00+00:00,unknown,account;personal_data,me llego una alerta de inicio de sesion desde otro pais,ABUSIVE_ACCESS,0.9877,0,ABUSIVE_ACCESS,11.0,logistic_regression@2026.11.15
+1,1,2026-10-24T19:59:00+00:00,website_app,money;account;personal_data,"my balance dropped by 350,000 pesos overnight, unknown payments",ELECTRONIC_THEFT,0.9932,0,ELECTRONIC_THEFT,12.49,logistic_regression@2026.11.15
+1,1,2026-10-22T20:50:00+00:00,sms_whatsapp,personal_data;account;money,they sent me a fake page of Facebook and I typed my credentials,PHISHING_SPOOFING,0.9814,0,PHISHING_SPOOFING,11.85,logistic_regression@2026.11.15
+1,1,2026-10-23T15:40:00+00:00,website_app,money,I received an email that looked like Nequi asking me to update my password on a link,PHISHING_SPOOFING,0.8297,0,PHISHING_SPOOFING,11.57,logistic_regression@2026.11.15
+1,1,2026-10-23T11:56:00+00:00,email,device,an antivirus detected a virus that steals passwords on my computer,MALWARE,0.9974,0,MALWARE,12.19,logistic_regression@2026.11.15
+1,1,2026-10-19T14:01:00+00:00,sms_whatsapp,personal_data;account,ingrese mi clave en una pagina que se veia igual a la oficial,PHISHING_SPOOFING,0.9985,0,PHISHING_SPOOFING,12.31,logistic_regression@2026.11.15
+1,1,2026-10-23T10:41:00+00:00,social_media,personal_data,una empresa vendio mi informacion personal,PERSONAL_DATA,0.9987,0,PERSONAL_DATA,11.41,logistic_regression@2026.11.15
+1,1,2026-10-20T20:23:00+00:00,website_app,business_system,our servers stopped working because of a denial of service attack,SYSTEM_ATTACK,0.9982,0,SYSTEM_ATTACK,15.84,logistic_regression@2026.11.15
+1,1,2026-10-24T17:45:00+00:00,website_app,personal_data,I received an email that looked like my bank asking me to update my password on a link,PHISHING_SPOOFING,0.986,0,PHISHING_SPOOFING,17.14,logistic_regression@2026.11.15
+1,1,2026-10-21T05:53:00+00:00,email,personal_data;account,I entered my username and password on a website that copied the real login page,PHISHING_SPOOFING,0.996,0,PHISHING_SPOOFING,14.05,logistic_regression@2026.11.15
+1,1,2026-10-20T19:45:00+00:00,phone_call,personal_data;account,someone used my ID number to open a credit line in my name,PERSONAL_DATA,0.9911,0,PERSONAL_DATA,16.43,logistic_regression@2026.11.15
+1,1,2026-10-20T18:43:00+00:00,social_media,account;personal_data,me hackearon el Gmail y cambiaron la contrasena,ABUSIVE_ACCESS,0.9921,0,ABUSIVE_ACCESS,17.48,logistic_regression@2026.11.15
+1,1,2026-10-19T10:24:00+00:00,unknown,business_system,the system we use to bill clients was sabotaged and data was destroyed,SYSTEM_ATTACK,0.9718,0,SYSTEM_ATTACK,12.42,logistic_regression@2026.11.15
+1,1,2026-10-21T20:03:00+00:00,website_app,device,I installed an app and now my phone shows ads and sends messages by itself,MALWARE,0.9957,0,MALWARE,14.27,logistic_regression@2026.11.15
+1,1,2026-10-24T02:00:00+00:00,website_app,business_system,they blocked access to our platform and customers cannot use it,SYSTEM_ATTACK,0.9671,0,SYSTEM_ATTACK,15.06,logistic_regression@2026.11.15
+1,1,2026-10-24T00:41:00+00:00,device,device;money,a shop reprogrammed my stolen cellphone to sell it,MOBILE_DEVICES,0.9963,0,MOBILE_DEVICES,14.82,logistic_regression@2026.11.15
+1,1,2026-10-20T13:11:00+00:00,website_app,money,money disappeared from Davivienda and I did not make those purchases,ELECTRONIC_THEFT,0.8755,0,ELECTRONIC_THEFT,15.2,logistic_regression@2026.11.15
+1,1,2026-10-20T21:05:00+00:00,device,money,there are charges on my debit card that I never authorized,ELECTRONIC_THEFT,0.9523,0,ELECTRONIC_THEFT,16.16,logistic_regression@2026.11.15
+1,1,2026-10-21T21:24:00+00:00,social_media,account,I received an alert of a login from another country on my Outlook,ABUSIVE_ACCESS,0.9974,0,ABUSIVE_ACCESS,14.9,logistic_regression@2026.11.15
+1,1,2026-10-20T20:01:00+00:00,device,device;money,my phone was stolen and they changed the IMEI to unlock it,MOBILE_DEVICES,0.9983,0,MOBILE_DEVICES,14.61,logistic_regression@2026.11.15
+1,1,2026-10-23T02:14:00+00:00,phone_call,personal_data,filtraron mis fotos y documentos privados,PERSONAL_DATA,0.9647,0,PERSONAL_DATA,15.91,logistic_regression@2026.11.15
+1,1,2026-10-23T05:26:00+00:00,unknown,device,reprogramaron mi celular robado para venderlo,MOBILE_DEVICES,0.9492,0,MOBILE_DEVICES,14.85,logistic_regression@2026.11.15
+1,1,2026-10-19T13:11:00+00:00,unknown,personal_data,a store sold my contact data to third parties,PERSONAL_DATA,0.8231,0,PERSONAL_DATA,16.65,logistic_regression@2026.11.15
+1,1,2026-10-23T22:01:00+00:00,social_media,personal_data;account,publicaron mis datos personales en internet sin autorizacion,PERSONAL_DATA,0.9737,0,PERSONAL_DATA,15.16,logistic_regression@2026.11.15
+1,1,2026-10-23T00:55:00+00:00,website_app,business_system;device;personal_data,la pagina web de la empresa se cayo por un ataque,SYSTEM_ATTACK,0.9821,0,SYSTEM_ATTACK,13.14,logistic_regression@2026.11.15
+1,1,2026-10-24T09:40:00+00:00,unknown,personal_data;account,a company shared my data and now strangers call me with my full name and ID,PERSONAL_DATA,0.9831,0,PERSONAL_DATA,11.05,logistic_regression@2026.11.15
+1,1,2026-10-23T13:45:00+00:00,email,personal_data,I entered my username and password on a website that copied the real login page,PHISHING_SPOOFING,0.9985,0,PHISHING_SPOOFING,11.48,logistic_regression@2026.11.15
+1,1,2026-10-21T19:51:00+00:00,phone_call,personal_data,my personal information was published online without my consent,PERSONAL_DATA,0.9978,0,PERSONAL_DATA,11.77,logistic_regression@2026.11.15
+1,1,2026-10-19T03:22:00+00:00,sms_whatsapp,personal_data;account,I received an email that looked like my bank asking me to update my password on a link,PHISHING_SPOOFING,0.9962,0,PHISHING_SPOOFING,15.01,logistic_regression@2026.11.15
+1,1,2026-10-24T18:52:00+00:00,email,account,my online banking password was changed and I can no longer access it,ABUSIVE_ACCESS,0.9972,0,ABUSIVE_ACCESS,11.52,logistic_regression@2026.11.15
+1,1,2026-10-19T21:58:00+00:00,unknown,personal_data,a company shared my data and now strangers call me with my full name and ID,PERSONAL_DATA,0.9967,0,PERSONAL_DATA,12.18,logistic_regression@2026.11.15
+1,1,2026-10-21T23:53:00+00:00,device,device,a shop reprogrammed my stolen cellphone to sell it,MOBILE_DEVICES,0.996,0,MOBILE_DEVICES,14.36,logistic_regression@2026.11.15
+1,1,2026-10-24T18:33:00+00:00,unknown,money;personal_data,"my balance dropped by 500,000 pesos overnight, unknown payments",ELECTRONIC_THEFT,0.9958,0,ELECTRONIC_THEFT,14.83,logistic_regression@2026.11.15
+1,1,2026-10-21T17:18:00+00:00,website_app,money,"someone withdrew 350,000 pesos from Daviplata without my permission",ELECTRONIC_THEFT,0.9785,0,ELECTRONIC_THEFT,14.5,logistic_regression@2026.11.15
+1,1,2026-10-21T15:51:00+00:00,unknown,business_system;device,atacaron los servidores y el servicio dejo de funcionar,SYSTEM_ATTACK,0.9925,0,SYSTEM_ATTACK,11.28,logistic_regression@2026.11.15
+1,1,2026-10-20T20:11:00+00:00,website_app,personal_data;account;money,my photos and private documents were leaked on social media,PERSONAL_DATA,0.9493,0,PERSONAL_DATA,11.04,logistic_regression@2026.11.15
+1,1,2026-10-19T17:57:00+00:00,website_app,device,an antivirus detected a virus that steals passwords on my computer,MALWARE,0.9968,0,MALWARE,11.82,logistic_regression@2026.11.15
+1,1,2026-10-19T23:53:00+00:00,email,device;personal_data,a program I downloaded took control of my computer,MALWARE,0.9973,0,MALWARE,11.86,logistic_regression@2026.11.15
+1,1,2026-10-19T05:42:00+00:00,phone_call,personal_data,someone created a profile with my photos and my name,PERSONAL_DATA,0.9976,0,PERSONAL_DATA,10.93,logistic_regression@2026.11.15
+1,1,2026-10-19T08:27:00+00:00,website_app,device;business_system,my files now have a strange extension and there is a ransom note,MALWARE,0.9909,0,MALWARE,11.84,logistic_regression@2026.11.15
+1,1,2026-10-20T00:49:00+00:00,website_app,business_system,our company website went down after a flood of traffic,SYSTEM_ATTACK,0.9979,0,SYSTEM_ATTACK,13.8,logistic_regression@2026.11.15
+1,1,2026-10-20T02:07:00+00:00,social_media,personal_data;account,someone used my ID number to open a credit line in my name,PERSONAL_DATA,0.9772,0,PERSONAL_DATA,15.37,logistic_regression@2026.11.15
+1,1,2026-10-21T10:37:00+00:00,device,device;money,a shop reprogrammed my stolen cellphone to sell it,MOBILE_DEVICES,0.9963,0,MOBILE_DEVICES,11.41,logistic_regression@2026.11.15
+1,1,2026-10-23T01:06:00+00:00,email,account,they stole my Instagram and are asking my friends for money,ABUSIVE_ACCESS,0.9938,0,ABUSIVE_ACCESS,10.7,logistic_regression@2026.11.15
+1,1,2026-10-25T04:48:00+00:00,social_media,money,I made a transfer to a stranger who said he was from the bank to protect my money,TRANSFER_FRAUD,0.9971,0,TRANSFER_FRAUD,15.36,logistic_regression@2026.11.15
+1,1,2026-10-25T14:48:00+00:00,sms_whatsapp,personal_data;money,an email from a supposed government office asked me to log in to check a fine,PHISHING_SPOOFING,0.7162,0,PHISHING_SPOOFING,12.81,logistic_regression@2026.11.15
+1,1,2026-10-21T15:05:00+00:00,email,device;business_system,"abri un archivo adjunto y me encriptaron los archivos, piden rescate",MALWARE,0.9973,0,MALWARE,12.07,logistic_regression@2026.11.15
+1,1,2026-10-20T18:35:00+00:00,email,personal_data,I got an SMS saying my account was blocked and to click a link to unlock it,PHISHING_SPOOFING,0.9985,0,PHISHING_SPOOFING,11.31,logistic_regression@2026.11.15
+1,1,2026-10-20T03:47:00+00:00,unknown,account;personal_data,un tercero accedio a mi correo y lo esta usando,ABUSIVE_ACCESS,0.9878,0,ABUSIVE_ACCESS,11.48,logistic_regression@2026.11.15
+1,1,2026-10-21T05:34:00+00:00,social_media,personal_data,ingrese mi clave en una pagina que se veia igual a la oficial,PHISHING_SPOOFING,0.9847,0,PHISHING_SPOOFING,14.74,logistic_regression@2026.11.15
+1,1,2026-10-23T23:12:00+00:00,sms_whatsapp,money,"pague un arriendo que no existia, me estafaron con la transferencia",TRANSFER_FRAUD,0.9907,0,TRANSFER_FRAUD,11.38,logistic_regression@2026.11.15
+1,1,2026-10-23T21:25:00+00:00,unknown,account;personal_data,alguien entro a mi cuenta de Facebook sin permiso,ABUSIVE_ACCESS,0.7199,0,ABUSIVE_ACCESS,16.24,logistic_regression@2026.11.15
+1,1,2026-10-23T18:34:00+00:00,website_app,business_system,our servers stopped working because of a denial of service attack,SYSTEM_ATTACK,0.9982,0,SYSTEM_ATTACK,14.64,logistic_regression@2026.11.15
+1,1,2026-10-21T01:59:00+00:00,social_media,account,my ex partner keeps entering my email account without my authorization,ABUSIVE_ACCESS,0.9841,0,ABUSIVE_ACCESS,14.72,logistic_regression@2026.11.15
+1,1,2026-10-21T06:33:00+00:00,email,device,after opening an attachment my computer files were encrypted and they ask for a ransom,MALWARE,0.9747,0,MALWARE,14.82,logistic_regression@2026.11.15
+1,1,2026-10-24T22:27:00+00:00,website_app,device,I installed an app and now my phone shows ads and sends messages by itself,MALWARE,0.9957,0,MALWARE,14.89,logistic_regression@2026.11.15
+1,1,2026-10-19T15:27:00+00:00,device,device,the company computers were infected with ransomware,MALWARE,0.7221,0,MALWARE,14.77,logistic_regression@2026.11.15
+1,1,2026-10-25T14:25:00+00:00,social_media,personal_data,a database with my address and phone number is being sold,PERSONAL_DATA,0.9956,0,PERSONAL_DATA,14.67,logistic_regression@2026.11.15
+1,2,2026-10-27T20:55:00+00:00,website_app,money,a company shared my data and now strangers call me with my full name and ID,PERSONAL_DATA,0.6574,0,PERSONAL_DATA,14.67,logistic_regression@2026.11.15
+1,2,2026-10-30T16:51:00+00:00,email,account,a text message with a link to a fake bank page asked for my card number,PHISHING_SPOOFING,0.9924,0,PHISHING_SPOOFING,15.16,logistic_regression@2026.11.15
+1,2,2026-10-28T21:14:00+00:00,unknown,device,I bought a used phone and the operator says the IMEI is cloned,MOBILE_DEVICES,0.9979,0,MOBILE_DEVICES,13.43,logistic_regression@2026.11.15
+1,2,2026-10-31T10:56:00+00:00,unknown,business_system,atacaron los servidores y el servicio dejo de funcionar,SYSTEM_ATTACK,0.9982,0,SYSTEM_ATTACK,11.1,logistic_regression@2026.11.15
+1,2,2026-11-01T10:10:00+00:00,unknown,device;money,me robaron el celular y le cambiaron el IMEI,MOBILE_DEVICES,0.9962,0,MOBILE_DEVICES,10.66,logistic_regression@2026.11.15
+1,2,2026-10-27T03:43:00+00:00,email,business_system,an antivirus detected a virus that steals passwords on my computer,MALWARE,0.9585,0,MALWARE,10.68,logistic_regression@2026.11.15
+1,2,2026-11-01T22:07:00+00:00,email,money,a message said my package was retained and asked for my details on a link,PHISHING_SPOOFING,0.9772,0,PHISHING_SPOOFING,11.34,logistic_regression@2026.11.15
+1,2,2026-10-30T23:45:00+00:00,phone_call,money,"pague un arriendo que no existia, me estafaron con la transferencia",TRANSFER_FRAUD,0.9956,0,TRANSFER_FRAUD,11.62,logistic_regression@2026.11.15
+1,2,2026-10-31T12:15:00+00:00,website_app,money,"me enganaron y transferi 350,000 pesos a un vendedor falso",TRANSFER_FRAUD,0.9881,0,TRANSFER_FRAUD,10.58,logistic_regression@2026.11.15
+1,2,2026-10-29T15:34:00+00:00,device,device;money,a shop reprogrammed my stolen cellphone to sell it,MOBILE_DEVICES,0.9963,0,MOBILE_DEVICES,10.63,logistic_regression@2026.11.15
+1,2,2026-10-30T02:24:00+00:00,device,device;money,el telefono que compre tenia el IMEI adulterado,MOBILE_DEVICES,0.9948,0,MOBILE_DEVICES,13.71,logistic_regression@2026.11.15
+1,2,2026-10-26T09:15:00+00:00,device,money,money disappeared from my debit card and I did not make those purchases,ELECTRONIC_THEFT,0.9475,0,ELECTRONIC_THEFT,14.58,logistic_regression@2026.11.15
+1,2,2026-10-28T09:32:00+00:00,website_app,account,un tercero accedio a mi correo y lo esta usando,ABUSIVE_ACCESS,0.9939,0,ABUSIVE_ACCESS,13.32,logistic_regression@2026.11.15
+1,2,2026-10-29T19:07:00+00:00,social_media,personal_data,a store sold my contact data to third parties,PERSONAL_DATA,0.8353,0,PERSONAL_DATA,10.31,logistic_regression@2026.11.15
+1,2,2026-10-26T23:54:00+00:00,social_media,personal_data;money,publicaron mis datos personales en internet sin autorizacion,PERSONAL_DATA,0.9898,0,PERSONAL_DATA,11.52,logistic_regression@2026.11.15
+1,2,2026-10-31T09:43:00+00:00,unknown,money;account,"unauthorized payments of 2,000,000 appeared in my bank statement",ELECTRONIC_THEFT,0.9984,0,ELECTRONIC_THEFT,10.68,logistic_regression@2026.11.15
+1,2,2026-10-26T22:39:00+00:00,unknown,money,"me sacaron 2,000,000 pesos de mi tarjeta debito sin autorizacion",ELECTRONIC_THEFT,0.9953,0,ELECTRONIC_THEFT,10.55,logistic_regression@2026.11.15
+1,2,2026-10-26T03:39:00+00:00,unknown,account,someone logged into my Instagram account without permission,ABUSIVE_ACCESS,0.9932,0,ABUSIVE_ACCESS,11.46,logistic_regression@2026.11.15
+1,2,2026-11-01T13:54:00+00:00,email,device,an antivirus detected a virus that steals passwords on my computer,MALWARE,0.9974,0,MALWARE,12.31,logistic_regression@2026.11.15
+1,2,2026-10-31T01:54:00+00:00,unknown,money,somebody used my card details to buy online,ELECTRONIC_THEFT,0.996,0,ELECTRONIC_THEFT,11.45,logistic_regression@2026.11.15
+1,2,2026-10-31T08:56:00+00:00,phone_call,money;personal_data,"I paid 1,200,000 pesos to an online seller who never delivered",TRANSFER_FRAUD,0.9875,0,TRANSFER_FRAUD,12.61,logistic_regression@2026.11.15
+1,2,2026-10-27T09:08:00+00:00,email,account;business_system,my Facebook password was changed and I can no longer access it,ABUSIVE_ACCESS,0.9952,0,ABUSIVE_ACCESS,11.93,logistic_regression@2026.11.15
+1,2,2026-10-27T15:32:00+00:00,website_app,personal_data;account,they sent me a fake page of Gmail and I typed my credentials,PHISHING_SPOOFING,0.981,0,PHISHING_SPOOFING,13.99,logistic_regression@2026.11.15
+1,2,2026-10-26T08:43:00+00:00,website_app,money,a fake investment platform promised returns and I transferred my savings,TRANSFER_FRAUD,0.9935,0,TRANSFER_FRAUD,13.2,logistic_regression@2026.11.15
+1,2,2026-10-31T12:48:00+00:00,unknown,money;account,money disappeared from my bank and I did not make those purchases,ELECTRONIC_THEFT,0.9603,0,ELECTRONIC_THEFT,13.19,logistic_regression@2026.11.15
+1,2,2026-10-27T20:47:00+00:00,website_app,money,they cloned my card and paid things in another city,ELECTRONIC_THEFT,0.9952,0,ELECTRONIC_THEFT,15.26,logistic_regression@2026.11.15
+1,2,2026-11-01T19:48:00+00:00,unknown,business_system,someone modified the records in the school information system,SYSTEM_ATTACK,0.9747,0,SYSTEM_ATTACK,15.61,logistic_regression@2026.11.15
+1,2,2026-11-01T20:19:00+00:00,device,device,instale una aplicacion y el celular quedo con un virus,MALWARE,0.9928,0,MALWARE,16.37,logistic_regression@2026.11.15
+1,2,2026-10-26T11:32:00+00:00,unknown,account,they stole my TikTok and are asking my friends for money,ABUSIVE_ACCESS,0.9953,0,ABUSIVE_ACCESS,19.64,logistic_regression@2026.11.15
+1,2,2026-11-01T01:58:00+00:00,phone_call,personal_data,someone used my ID number to open a credit line in my name,PERSONAL_DATA,0.9975,0,PERSONAL_DATA,17.99,logistic_regression@2026.11.15
+1,2,2026-10-29T12:30:00+00:00,phone_call,money,"me enganaron y transferi 350,000 pesos a un vendedor falso",TRANSFER_FRAUD,0.9977,0,TRANSFER_FRAUD,17.19,logistic_regression@2026.11.15
+1,2,2026-11-01T02:24:00+00:00,website_app,money,me clonaron la tarjeta y hicieron compras por internet,ELECTRONIC_THEFT,0.6834,0,ELECTRONIC_THEFT,18.31,logistic_regression@2026.11.15
+1,2,2026-10-28T03:39:00+00:00,website_app,device,I installed an app and now my phone shows ads and sends messages by itself,MALWARE,0.9957,0,MALWARE,11.72,logistic_regression@2026.11.15
+1,2,2026-10-28T19:15:00+00:00,social_media,account,a person entered my Outlook and is sending messages to my contacts,ABUSIVE_ACCESS,0.9966,0,ABUSIVE_ACCESS,20.38,logistic_regression@2026.11.15
+1,2,2026-10-29T04:36:00+00:00,website_app,money;account;personal_data,somebody used my card details to buy online,ELECTRONIC_THEFT,0.9727,0,ELECTRONIC_THEFT,13.69,logistic_regression@2026.11.15
+1,2,2026-10-31T02:01:00+00:00,website_app,money,there are charges on my bank that I never authorized,ELECTRONIC_THEFT,0.8952,0,ELECTRONIC_THEFT,12.54,logistic_regression@2026.11.15
+1,2,2026-10-31T05:08:00+00:00,sms_whatsapp,personal_data;account,the website looked identical to the official one but the address was different,PHISHING_SPOOFING,0.9284,0,PHISHING_SPOOFING,12.94,logistic_regression@2026.11.15
+1,2,2026-10-27T00:31:00+00:00,unknown,device,the phone I bought had its IMEI altered,MOBILE_DEVICES,0.9972,0,MOBILE_DEVICES,16.04,logistic_regression@2026.11.15
+1,2,2026-10-30T00:07:00+00:00,device,business_system;device,the online store was defaced and shows a hacker message,SYSTEM_ATTACK,0.9771,0,SYSTEM_ATTACK,14.99,logistic_regression@2026.11.15
+1,2,2026-10-27T03:35:00+00:00,website_app,money,"me sacaron 4,500,000 pesos de mi banco sin autorizacion",ELECTRONIC_THEFT,0.9944,0,ELECTRONIC_THEFT,14.54,logistic_regression@2026.11.15
+1,2,2026-10-28T22:10:00+00:00,sms_whatsapp,personal_data;account,I got an SMS saying my account was blocked and to click a link to unlock it,PHISHING_SPOOFING,0.9986,0,PHISHING_SPOOFING,10.6,logistic_regression@2026.11.15
+1,2,2026-10-31T07:46:00+00:00,website_app,business_system,someone deleted the information in our database,SYSTEM_ATTACK,0.9985,0,SYSTEM_ATTACK,13.56,logistic_regression@2026.11.15
+1,2,2026-10-27T02:29:00+00:00,website_app,account;personal_data,someone logged into my Instagram account without permission,ABUSIVE_ACCESS,0.9763,0,ABUSIVE_ACCESS,13.07,logistic_regression@2026.11.15
+1,2,2026-10-28T12:31:00+00:00,unknown,business_system;personal_data,our company website went down after a flood of traffic,SYSTEM_ATTACK,0.9975,0,SYSTEM_ATTACK,14.13,logistic_regression@2026.11.15
+1,2,2026-10-29T02:01:00+00:00,sms_whatsapp,money,"someone withdrew 1,200,000 pesos from my savings account without my permission",ELECTRONIC_THEFT,0.9573,0,ELECTRONIC_THEFT,15.28,logistic_regression@2026.11.15
+1,2,2026-10-26T15:31:00+00:00,unknown,personal_data;account,they took a loan using my identity card copy,PERSONAL_DATA,0.9832,0,PERSONAL_DATA,15.17,logistic_regression@2026.11.15
+1,2,2026-10-28T17:10:00+00:00,email,money,alguien entro a mi cuenta de Instagram sin permiso,ELECTRONIC_THEFT,0.6256,0,ABUSIVE_ACCESS,15.18,logistic_regression@2026.11.15
+1,2,2026-10-26T04:22:00+00:00,unknown,account;personal_data,I received an alert of a login from another country on my email,ABUSIVE_ACCESS,0.9913,0,ABUSIVE_ACCESS,14.78,logistic_regression@2026.11.15
+1,2,2026-10-28T02:44:00+00:00,device,device,reprogramaron mi celular robado para venderlo,MOBILE_DEVICES,0.9089,0,MOBILE_DEVICES,14.93,logistic_regression@2026.11.15
+1,2,2026-10-27T23:57:00+00:00,device,device;personal_data,the company computers were infected with ransomware,MALWARE,0.8464,0,MALWARE,15.31,logistic_regression@2026.11.15
+1,2,2026-10-28T04:28:00+00:00,unknown,account,me hackearon el Netflix y cambiaron la contrasena,ABUSIVE_ACCESS,0.997,0,ABUSIVE_ACCESS,16.53,logistic_regression@2026.11.15
+1,2,2026-10-29T04:56:00+00:00,website_app,personal_data,my photos and private documents were leaked on social media,PERSONAL_DATA,0.9889,0,PERSONAL_DATA,16.49,logistic_regression@2026.11.15
+1,2,2026-10-30T04:14:00+00:00,unknown,device;money,the phone I bought had its IMEI altered,MOBILE_DEVICES,0.9956,0,MOBILE_DEVICES,17.01,logistic_regression@2026.11.15
+1,2,2026-10-28T18:49:00+00:00,website_app,money;personal_data,"someone withdrew 500,000 pesos from BBVA without my permission",ELECTRONIC_THEFT,0.973,0,ELECTRONIC_THEFT,18.79,logistic_regression@2026.11.15
+1,2,2026-11-01T00:51:00+00:00,website_app,money,los equipos de la empresa se infectaron con ransomware,ELECTRONIC_THEFT,0.4577,0,MALWARE,17.89,logistic_regression@2026.11.15
+1,2,2026-10-26T08:12:00+00:00,email,personal_data;account,I received an email that looked like Nequi asking me to update my password on a link,PHISHING_SPOOFING,0.9844,0,PHISHING_SPOOFING,16.9,logistic_regression@2026.11.15
+1,2,2026-10-27T04:05:00+00:00,website_app,money,there are charges on Nequi that I never authorized,ELECTRONIC_THEFT,0.895,0,ELECTRONIC_THEFT,15.11,logistic_regression@2026.11.15
+1,2,2026-10-27T09:11:00+00:00,device,device;business_system,I installed an app and now my phone shows ads and sends messages by itself,MALWARE,0.9918,0,MALWARE,12.73,logistic_regression@2026.11.15
+1,2,2026-10-26T05:03:00+00:00,website_app,business_system,the online store was defaced and shows a hacker message,SYSTEM_ATTACK,0.9984,0,SYSTEM_ATTACK,14.35,logistic_regression@2026.11.15
+1,2,2026-10-28T17:38:00+00:00,website_app,business_system,interceptaron las comunicaciones de la red de la empresa,SYSTEM_ATTACK,0.998,0,SYSTEM_ATTACK,11.64,logistic_regression@2026.11.15
+1,2,2026-10-30T00:30:00+00:00,device,device;business_system,los equipos de la empresa se infectaron con ransomware,MALWARE,0.4824,0,MALWARE,15.84,logistic_regression@2026.11.15
+1,2,2026-10-28T13:34:00+00:00,unknown,account;personal_data,my ex partner keeps entering my Instagram account without my authorization,ABUSIVE_ACCESS,0.9069,0,ABUSIVE_ACCESS,15.22,logistic_regression@2026.11.15
+1,2,2026-10-29T00:34:00+00:00,social_media,account,an email from a supposed government office asked me to log in to check a fine,ABUSIVE_ACCESS,0.5829,0,PHISHING_SPOOFING,11.69,logistic_regression@2026.11.15
+1,2,2026-10-27T06:52:00+00:00,social_media,personal_data;money,filtraron mis fotos y documentos privados,PERSONAL_DATA,0.8114,0,PERSONAL_DATA,15.41,logistic_regression@2026.11.15
+1,2,2026-11-01T17:10:00+00:00,website_app,personal_data;money,they took a loan using my identity card copy,PERSONAL_DATA,0.9742,0,PERSONAL_DATA,13.37,logistic_regression@2026.11.15
+1,2,2026-11-01T05:10:00+00:00,social_media,personal_data;account,they sent me a fake page of WhatsApp and I typed my credentials,PHISHING_SPOOFING,0.9574,0,PHISHING_SPOOFING,11.6,logistic_regression@2026.11.15
+1,2,2026-10-29T10:55:00+00:00,unknown,personal_data,someone created a profile with my photos and my name,PERSONAL_DATA,0.9965,0,PERSONAL_DATA,11.52,logistic_regression@2026.11.15
+1,2,2026-11-01T15:55:00+00:00,device,device,el telefono que compre tenia el IMEI adulterado,MOBILE_DEVICES,0.9952,0,MOBILE_DEVICES,12.02,logistic_regression@2026.11.15
+1,2,2026-10-29T08:41:00+00:00,unknown,business_system,our company website went down after a flood of traffic,SYSTEM_ATTACK,0.9989,0,SYSTEM_ATTACK,11.71,logistic_regression@2026.11.15
+1,2,2026-10-31T00:07:00+00:00,sms_whatsapp,money;account,money disappeared from Davivienda and I did not make those purchases,ELECTRONIC_THEFT,0.8832,0,ELECTRONIC_THEFT,14.82,logistic_regression@2026.11.15
+1,2,2026-10-28T07:17:00+00:00,website_app,device,los equipos de la empresa se infectaron con ransomware,MALWARE,0.7849,0,MALWARE,11.83,logistic_regression@2026.11.15
+1,2,2026-10-27T04:13:00+00:00,phone_call,personal_data,publicaron mis datos personales en internet sin autorizacion,PERSONAL_DATA,0.9976,0,PERSONAL_DATA,12.99,logistic_regression@2026.11.15
+1,2,2026-10-29T04:16:00+00:00,unknown,account,"unauthorized payments of 1,200,000 appeared in my bank statement",ELECTRONIC_THEFT,0.8985,0,ELECTRONIC_THEFT,12.21,logistic_regression@2026.11.15
+1,2,2026-11-01T18:35:00+00:00,sms_whatsapp,money,I made a transfer to a stranger who said he was from the bank to protect my money,TRANSFER_FRAUD,0.9968,0,TRANSFER_FRAUD,12.07,logistic_regression@2026.11.15
+1,2,2026-11-01T13:07:00+00:00,website_app,business_system;personal_data,atacaron los servidores y el servicio dejo de funcionar,SYSTEM_ATTACK,0.9933,0,SYSTEM_ATTACK,10.14,logistic_regression@2026.11.15
+1,2,2026-10-30T20:26:00+00:00,device,business_system,borraron la informacion de nuestra base de datos,SYSTEM_ATTACK,0.9978,0,SYSTEM_ATTACK,11.02,logistic_regression@2026.11.15
+1,2,2026-10-31T21:17:00+00:00,device,money,money disappeared from my bank and I did not make those purchases,ELECTRONIC_THEFT,0.8922,0,ELECTRONIC_THEFT,12.69,logistic_regression@2026.11.15
+1,2,2026-10-28T14:36:00+00:00,unknown,business_system;device;personal_data,they blocked access to our platform and customers cannot use it,SYSTEM_ATTACK,0.9208,0,SYSTEM_ATTACK,14.73,logistic_regression@2026.11.15
+1,2,2026-10-30T19:01:00+00:00,sms_whatsapp,money,I made a transfer to a stranger who said he was from the bank to protect my money,TRANSFER_FRAUD,0.9968,0,TRANSFER_FRAUD,14.54,logistic_regression@2026.11.15
+1,2,2026-10-29T14:51:00+00:00,device,device;money,me robaron el celular y le cambiaron el IMEI,MOBILE_DEVICES,0.9975,0,MOBILE_DEVICES,10.41,logistic_regression@2026.11.15
+1,2,2026-10-31T18:57:00+00:00,device,device,I installed an app and now my phone shows ads and sends messages by itself,MALWARE,0.9908,0,MALWARE,11.7,logistic_regression@2026.11.15
+1,2,2026-11-01T10:16:00+00:00,unknown,business_system;device,atacaron los servidores y el servicio dejo de funcionar,SYSTEM_ATTACK,0.9925,0,SYSTEM_ATTACK,10.39,logistic_regression@2026.11.15
+1,2,2026-10-26T01:04:00+00:00,phone_call,money,they told me I won a prize and had to pay a fee by transfer,TRANSFER_FRAUD,0.9982,0,TRANSFER_FRAUD,10.39,logistic_regression@2026.11.15
+1,2,2026-11-01T01:07:00+00:00,social_media,personal_data,a store sold my contact data to third parties,PERSONAL_DATA,0.8353,0,PERSONAL_DATA,11.3,logistic_regression@2026.11.15
+1,2,2026-10-27T22:34:00+00:00,email,personal_data;account;money,recibi un mensaje de texto con un link a una pagina falsa del banco,PHISHING_SPOOFING,0.9987,0,PHISHING_SPOOFING,10.64,logistic_regression@2026.11.15
+1,2,2026-10-28T17:03:00+00:00,device,device,el telefono que compre tenia el IMEI adulterado,MOBILE_DEVICES,0.9952,0,MOBILE_DEVICES,15.3,logistic_regression@2026.11.15
+1,2,2026-10-31T02:50:00+00:00,email,device,my files now have a strange extension and there is a ransom note,MALWARE,0.997,0,MALWARE,12.04,logistic_regression@2026.11.15
+1,2,2026-10-28T12:51:00+00:00,unknown,business_system;device,our company website went down after a flood of traffic,SYSTEM_ATTACK,0.9933,0,SYSTEM_ATTACK,12.59,logistic_regression@2026.11.15
+1,2,2026-10-31T15:19:00+00:00,device,money;account,"someone withdrew 200,000 pesos from my debit card without my permission",ELECTRONIC_THEFT,0.9965,0,ELECTRONIC_THEFT,11.3,logistic_regression@2026.11.15
+1,2,2026-10-28T18:27:00+00:00,sms_whatsapp,money,I sent money for a rental apartment that did not exist,TRANSFER_FRAUD,0.9926,0,TRANSFER_FRAUD,15.24,logistic_regression@2026.11.15
+1,2,2026-10-30T03:06:00+00:00,social_media,money,"they convinced me to transfer 350,000 for a job offer that was fake",TRANSFER_FRAUD,0.9611,0,TRANSFER_FRAUD,13.04,logistic_regression@2026.11.15
+1,2,2026-10-29T23:54:00+00:00,phone_call,money,they told me I won a prize and had to pay a fee by transfer,TRANSFER_FRAUD,0.9982,0,TRANSFER_FRAUD,15.83,logistic_regression@2026.11.15
+1,2,2026-10-27T18:34:00+00:00,unknown,account,my ex partner keeps entering my Outlook account without my authorization,ABUSIVE_ACCESS,0.9636,0,ABUSIVE_ACCESS,16.86,logistic_regression@2026.11.15
+1,2,2026-10-28T17:35:00+00:00,social_media,account,un tercero accedio a mi correo y lo esta usando,ABUSIVE_ACCESS,0.9977,0,ABUSIVE_ACCESS,14.18,logistic_regression@2026.11.15
+1,2,2026-10-28T07:49:00+00:00,sms_whatsapp,personal_data;account,I got an SMS saying my account was blocked and to click a link to unlock it,PHISHING_SPOOFING,0.9986,0,PHISHING_SPOOFING,15.3,logistic_regression@2026.11.15
+1,2,2026-10-27T10:16:00+00:00,website_app,account,they stole my Netflix and are asking my friends for money,ABUSIVE_ACCESS,0.993,0,ABUSIVE_ACCESS,12.18,logistic_regression@2026.11.15
+1,2,2026-11-01T11:00:00+00:00,social_media,money,"pague un arriendo que no existia, me estafaron con la transferencia",TRANSFER_FRAUD,0.9928,0,TRANSFER_FRAUD,16.46,logistic_regression@2026.11.15
+1,2,2026-10-27T05:45:00+00:00,email,account,the website looked identical to the official one but the address was different,PHISHING_SPOOFING,0.5924,0,PHISHING_SPOOFING,13.69,logistic_regression@2026.11.15
+1,2,2026-10-27T10:26:00+00:00,social_media,money,"me enganaron y transferi 350,000 pesos a un vendedor falso",TRANSFER_FRAUD,0.9965,0,TRANSFER_FRAUD,15.85,logistic_regression@2026.11.15
+1,2,2026-10-28T00:10:00+00:00,unknown,business_system,an attacker intercepted the data sent between our offices,SYSTEM_ATTACK,0.9987,0,SYSTEM_ATTACK,16.96,logistic_regression@2026.11.15
+1,2,2026-10-27T02:40:00+00:00,website_app,money,they cloned my card and paid things in another city,ELECTRONIC_THEFT,0.9952,0,ELECTRONIC_THEFT,14.57,logistic_regression@2026.11.15
+1,2,2026-10-29T10:45:00+00:00,sms_whatsapp,personal_data,the website looked identical to the official one but the address was different,PHISHING_SPOOFING,0.8851,0,PHISHING_SPOOFING,15.87,logistic_regression@2026.11.15
+1,2,2026-10-31T22:12:00+00:00,sms_whatsapp,personal_data,an email from a supposed government office asked me to log in to check a fine,PHISHING_SPOOFING,0.9399,0,PHISHING_SPOOFING,15.4,logistic_regression@2026.11.15
+1,2,2026-11-01T15:46:00+00:00,website_app,personal_data;money,a store sold my contact data to third parties,PERSONAL_DATA,0.3947,1,PERSONAL_DATA,14.98,logistic_regression@2026.11.15
+1,2,2026-10-30T11:29:00+00:00,website_app,money,I found online purchases on Bancolombia that I did not make,ELECTRONIC_THEFT,0.9698,0,ELECTRONIC_THEFT,13.23,logistic_regression@2026.11.15
+1,2,2026-10-31T03:38:00+00:00,social_media,account,they hacked my TikTok account and changed the recovery email,ABUSIVE_ACCESS,0.999,0,ABUSIVE_ACCESS,13.92,logistic_regression@2026.11.15
+1,2,2026-11-01T08:40:00+00:00,device,money;personal_data,me clonaron la tarjeta y hicieron compras por internet,ELECTRONIC_THEFT,0.5753,0,ELECTRONIC_THEFT,14.18,logistic_regression@2026.11.15
+1,2,2026-10-27T01:16:00+00:00,social_media,personal_data,someone used my ID number to open a credit line in my name,PERSONAL_DATA,0.9967,0,PERSONAL_DATA,11.19,logistic_regression@2026.11.15
+1,2,2026-10-31T20:44:00+00:00,email,account;personal_data,me llego una alerta de inicio de sesion desde otro pais,ABUSIVE_ACCESS,0.9843,0,ABUSIVE_ACCESS,19.33,logistic_regression@2026.11.15
+1,2,2026-10-27T08:12:00+00:00,device,device,a shop reprogrammed my stolen cellphone to sell it,MOBILE_DEVICES,0.996,0,MOBILE_DEVICES,14.78,logistic_regression@2026.11.15
+1,2,2026-10-30T02:26:00+00:00,unknown,business_system;device,the online store was defaced and shows a hacker message,SYSTEM_ATTACK,0.9954,0,SYSTEM_ATTACK,15.83,logistic_regression@2026.11.15
+1,2,2026-10-27T06:51:00+00:00,device,device,my phone was stolen and they changed the IMEI to unlock it,MOBILE_DEVICES,0.9979,0,MOBILE_DEVICES,16.65,logistic_regression@2026.11.15
+1,2,2026-10-31T12:34:00+00:00,email,personal_data;account,I got an SMS saying my account was blocked and to click a link to unlock it,PHISHING_SPOOFING,0.9953,0,PHISHING_SPOOFING,16.63,logistic_regression@2026.11.15
+1,2,2026-11-01T04:17:00+00:00,phone_call,money,me ofrecieron una inversion y les transferi mis ahorros,TRANSFER_FRAUD,0.9975,0,TRANSFER_FRAUD,16.36,logistic_regression@2026.11.15
+1,2,2026-10-26T21:20:00+00:00,device,device,after opening an attachment my computer files were encrypted and they ask for a ransom,MALWARE,0.921,0,MALWARE,11.56,logistic_regression@2026.11.15
+1,2,2026-10-27T22:00:00+00:00,email,personal_data,un mensaje decia que mi cuenta estaba bloqueada y que entrara al enlace,PHISHING_SPOOFING,0.9952,0,PHISHING_SPOOFING,14.96,logistic_regression@2026.11.15
+1,2,2026-10-30T04:37:00+00:00,social_media,money,me ofrecieron una inversion y les transferi mis ahorros,TRANSFER_FRAUD,0.996,0,TRANSFER_FRAUD,15.46,logistic_regression@2026.11.15
+1,2,2026-10-30T14:06:00+00:00,email,personal_data,me llego un correo falso de Daviplata con un enlace para actualizar datos,PHISHING_SPOOFING,0.994,0,PHISHING_SPOOFING,15.78,logistic_regression@2026.11.15
+1,2,2026-10-28T14:07:00+00:00,unknown,money;personal_data,I found online purchases on my savings account that I did not make,ELECTRONIC_THEFT,0.9673,0,ELECTRONIC_THEFT,15.65,logistic_regression@2026.11.15
+1,2,2026-10-26T08:44:00+00:00,website_app,personal_data;account,I entered my username and password on a website that copied the real login page,PHISHING_SPOOFING,0.9941,0,PHISHING_SPOOFING,14.86,logistic_regression@2026.11.15
+1,2,2026-10-28T00:08:00+00:00,unknown,business_system;device;personal_data,the online store was defaced and shows a hacker message,SYSTEM_ATTACK,0.996,0,SYSTEM_ATTACK,12.89,logistic_regression@2026.11.15
+1,2,2026-10-29T16:23:00+00:00,sms_whatsapp,personal_data;account;money,an email from a supposed government office asked me to log in to check a fine,PHISHING_SPOOFING,0.9013,0,PHISHING_SPOOFING,14.98,logistic_regression@2026.11.15
+1,2,2026-10-29T18:31:00+00:00,device,device;money,me robaron el celular y le cambiaron el IMEI,MOBILE_DEVICES,0.9975,0,MOBILE_DEVICES,14.8,logistic_regression@2026.11.15
+1,2,2026-10-26T07:36:00+00:00,phone_call,personal_data,usaron mi cedula para sacar un credito a mi nombre,PERSONAL_DATA,0.997,0,PERSONAL_DATA,15.27,logistic_regression@2026.11.15
+1,2,2026-10-28T17:36:00+00:00,social_media,account,a person entered my WhatsApp and is sending messages to my contacts,ABUSIVE_ACCESS,0.9972,0,ABUSIVE_ACCESS,15.44,logistic_regression@2026.11.15
+1,2,2026-10-28T12:25:00+00:00,unknown,device,me robaron el celular y le cambiaron el IMEI,MOBILE_DEVICES,0.9967,0,MOBILE_DEVICES,14.77,logistic_regression@2026.11.15
+1,2,2026-11-01T12:23:00+00:00,social_media,personal_data,filtraron mis fotos y documentos privados,PERSONAL_DATA,0.9544,0,PERSONAL_DATA,14.57,logistic_regression@2026.11.15
+1,2,2026-10-31T17:23:00+00:00,sms_whatsapp,money,me ofrecieron una inversion y les transferi mis ahorros,TRANSFER_FRAUD,0.9953,0,TRANSFER_FRAUD,13.58,logistic_regression@2026.11.15
+1,2,2026-10-28T04:19:00+00:00,phone_call,money,"pague un arriendo que no existia, me estafaron con la transferencia",TRANSFER_FRAUD,0.9956,0,TRANSFER_FRAUD,15.9,logistic_regression@2026.11.15
+1,2,2026-11-01T18:17:00+00:00,device,device;money,the phone I bought had its IMEI altered,MOBILE_DEVICES,0.9972,0,MOBILE_DEVICES,15.42,logistic_regression@2026.11.15
+1,2,2026-10-27T07:19:00+00:00,website_app,account,they stole my WhatsApp and are asking my friends for money,ABUSIVE_ACCESS,0.9934,0,ABUSIVE_ACCESS,15.23,logistic_regression@2026.11.15
+1,2,2026-10-30T01:28:00+00:00,email,device,an antivirus detected a virus that steals passwords on my computer,MALWARE,0.9974,0,MALWARE,13.53,logistic_regression@2026.11.15
+1,2,2026-10-28T18:12:00+00:00,device,device;money,my stolen phone was reported but it is working again with another IMEI,MOBILE_DEVICES,0.9957,0,MOBILE_DEVICES,15.49,logistic_regression@2026.11.15
+1,2,2026-10-26T20:08:00+00:00,website_app,personal_data,they took a loan using my identity card copy,PERSONAL_DATA,0.9936,0,PERSONAL_DATA,15.07,logistic_regression@2026.11.15
+1,2,2026-11-01T03:01:00+00:00,phone_call,personal_data;account,someone used my ID number to open a credit line in my name,PERSONAL_DATA,0.9911,0,PERSONAL_DATA,15.35,logistic_regression@2026.11.15
+1,2,2026-10-26T20:22:00+00:00,unknown,personal_data;account,someone created a profile with my photos and my name,PERSONAL_DATA,0.9817,0,PERSONAL_DATA,14.92,logistic_regression@2026.11.15
+1,2,2026-10-31T21:10:00+00:00,sms_whatsapp,personal_data;account,recibi un mensaje de texto con un link a una pagina falsa del banco,PHISHING_SPOOFING,0.999,0,PHISHING_SPOOFING,15.59,logistic_regression@2026.11.15
+1,2,2026-10-27T22:20:00+00:00,website_app,money;personal_data,they told me I won a prize and had to pay a fee by transfer,TRANSFER_FRAUD,0.9807,0,TRANSFER_FRAUD,14.8,logistic_regression@2026.11.15
+1,2,2026-10-28T13:52:00+00:00,sms_whatsapp,device,los equipos de la empresa se infectaron con ransomware,MALWARE,0.7866,0,MALWARE,12.25,logistic_regression@2026.11.15
+1,2,2026-10-31T16:32:00+00:00,unknown,money;account,I found online purchases on my savings account that I did not make,ELECTRONIC_THEFT,0.9878,0,ELECTRONIC_THEFT,11.09,logistic_regression@2026.11.15
+1,2,2026-10-27T02:00:00+00:00,website_app,account,they took a loan using my identity card copy,PERSONAL_DATA,0.7468,0,PERSONAL_DATA,15.2,logistic_regression@2026.11.15
+1,2,2026-10-26T19:40:00+00:00,unknown,account,my ex partner keeps entering my TikTok account without my authorization,ABUSIVE_ACCESS,0.9669,0,ABUSIVE_ACCESS,15.78,logistic_regression@2026.11.15
+1,2,2026-10-29T16:15:00+00:00,website_app,personal_data,they took a loan using my identity card copy,PERSONAL_DATA,0.9936,0,PERSONAL_DATA,14.82,logistic_regression@2026.11.15
+1,2,2026-10-31T03:44:00+00:00,device,device,reprogramaron mi celular robado para venderlo,MOBILE_DEVICES,0.9089,0,MOBILE_DEVICES,13.32,logistic_regression@2026.11.15
+1,2,2026-11-01T12:09:00+00:00,unknown,business_system,someone modified the records in the school information system,SYSTEM_ATTACK,0.9747,0,SYSTEM_ATTACK,12.75,logistic_regression@2026.11.15
+1,2,2026-10-30T20:56:00+00:00,email,device,I installed an app and now my phone shows ads and sends messages by itself,MALWARE,0.9965,0,MALWARE,13.18,logistic_regression@2026.11.15
+1,2,2026-10-28T16:41:00+00:00,sms_whatsapp,money,"I bought a product on marketplace, transferred the money and the seller disappeared",TRANSFER_FRAUD,0.9946,0,TRANSFER_FRAUD,10.95,logistic_regression@2026.11.15
+1,2,2026-10-28T18:00:00+00:00,device,money;personal_data,I found online purchases on my bank that I did not make,ELECTRONIC_THEFT,0.9699,0,ELECTRONIC_THEFT,11.53,logistic_regression@2026.11.15
+1,2,2026-10-28T03:23:00+00:00,sms_whatsapp,money;account;personal_data,"someone withdrew 200,000 pesos from my debit card without my permission",ELECTRONIC_THEFT,0.9818,0,ELECTRONIC_THEFT,10.76,logistic_regression@2026.11.15
+1,2,2026-11-01T22:30:00+00:00,unknown,personal_data;account,publicaron mis datos personales en internet sin autorizacion,PERSONAL_DATA,0.9806,0,PERSONAL_DATA,10.81,logistic_regression@2026.11.15
+1,3,2026-11-07T06:31:00+00:00,device,device;business_system,an antivirus detected a virus that steals passwords on my computer,MALWARE,0.994,0,MALWARE,11.61,logistic_regression@2026.11.15
+1,3,2026-11-03T14:57:00+00:00,website_app,money;account,they cloned my card and paid things in another city,ELECTRONIC_THEFT,0.9957,0,ELECTRONIC_THEFT,10.75,logistic_regression@2026.11.15
+1,3,2026-11-08T13:00:00+00:00,phone_call,money,they told me I won a prize and had to pay a fee by transfer,TRANSFER_FRAUD,0.9982,0,TRANSFER_FRAUD,10.98,logistic_regression@2026.11.15
+1,3,2026-11-07T10:24:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,13.99,logistic_regression@2026.11.15
+1,3,2026-11-03T03:14:00+00:00,unknown,personal_data,filtraron mis fotos y documentos privados,PERSONAL_DATA,0.9532,0,PERSONAL_DATA,13.85,logistic_regression@2026.11.15
+1,3,2026-11-04T22:45:00+00:00,social_media,device;personal_data,an antivirus detected a virus that steals passwords on my computer,MALWARE,0.9826,0,MALWARE,10.89,logistic_regression@2026.11.15
+1,3,2026-11-05T21:59:00+00:00,email,device,los equipos de la empresa se infectaron con ransomware,MALWARE,0.8588,0,MALWARE,10.92,logistic_regression@2026.11.15
+1,3,2026-11-05T23:45:00+00:00,social_media,business_system,someone modified the records in the school information system,SYSTEM_ATTACK,0.8512,0,SYSTEM_ATTACK,12.79,logistic_regression@2026.11.15
+1,3,2026-11-06T15:56:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,11.14,logistic_regression@2026.11.15
+1,3,2026-11-05T04:05:00+00:00,website_app,business_system,atacaron los servidores y el servicio dejo de funcionar,SYSTEM_ATTACK,0.9974,0,SYSTEM_ATTACK,14.98,logistic_regression@2026.11.15
+1,3,2026-11-04T11:08:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,15.59,logistic_regression@2026.11.15
+1,3,2026-11-08T22:38:00+00:00,social_media,account,they sent me a fake page of Outlook and I typed my credentials,PHISHING_SPOOFING,0.8975,0,PHISHING_SPOOFING,15.83,logistic_regression@2026.11.15
+1,3,2026-11-04T01:46:00+00:00,unknown,device,my phone was stolen and they changed the IMEI to unlock it,MOBILE_DEVICES,0.9972,0,MOBILE_DEVICES,15.58,logistic_regression@2026.11.15
+1,3,2026-11-07T06:50:00+00:00,email,personal_data;account,the website looked identical to the official one but the address was different,PHISHING_SPOOFING,0.8311,0,PHISHING_SPOOFING,12.9,logistic_regression@2026.11.15
+1,3,2026-11-03T12:49:00+00:00,social_media,money;personal_data,I made a transfer to a stranger who said he was from the bank to protect my money,TRANSFER_FRAUD,0.9841,0,TRANSFER_FRAUD,11.31,logistic_regression@2026.11.15
+1,3,2026-11-03T13:05:00+00:00,website_app,account;personal_data,me hackearon el Facebook y cambiaron la contrasena,ABUSIVE_ACCESS,0.9871,0,ABUSIVE_ACCESS,10.83,logistic_regression@2026.11.15
+1,3,2026-11-02T21:06:00+00:00,website_app,money,"someone withdrew 80,000 pesos from Nequi without my permission",ELECTRONIC_THEFT,0.9823,0,ELECTRONIC_THEFT,12.02,logistic_regression@2026.11.15
+1,3,2026-11-04T13:09:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,15.82,logistic_regression@2026.11.15
+1,3,2026-11-06T03:01:00+00:00,social_media,personal_data,una empresa vendio mi informacion personal,PERSONAL_DATA,0.9987,0,PERSONAL_DATA,14.31,logistic_regression@2026.11.15
+1,3,2026-11-02T11:18:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,11.26,logistic_regression@2026.11.15
+1,3,2026-11-06T15:56:00+00:00,unknown,personal_data,publicaron mis datos personales en internet sin autorizacion,PERSONAL_DATA,0.9959,0,PERSONAL_DATA,11.94,logistic_regression@2026.11.15
+1,3,2026-11-02T09:11:00+00:00,website_app,money;account;personal_data,I found online purchases on my debit card that I did not make,ELECTRONIC_THEFT,0.9799,0,ELECTRONIC_THEFT,12.42,logistic_regression@2026.11.15
+1,3,2026-11-07T08:30:00+00:00,website_app,money,"unauthorized payments of 2,000,000 appeared in my bank statement",ELECTRONIC_THEFT,0.9953,0,ELECTRONIC_THEFT,13.01,logistic_regression@2026.11.15
+1,3,2026-11-08T04:17:00+00:00,social_media,business_system;personal_data,our servers stopped working because of a denial of service attack,SYSTEM_ATTACK,0.9729,0,SYSTEM_ATTACK,14.03,logistic_regression@2026.11.15
+1,3,2026-11-07T23:04:00+00:00,social_media,personal_data,a database with my address and phone number is being sold,PERSONAL_DATA,0.9956,0,PERSONAL_DATA,15.06,logistic_regression@2026.11.15
+1,3,2026-11-06T03:53:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,13.65,logistic_regression@2026.11.15
+1,3,2026-11-03T17:37:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,12.8,logistic_regression@2026.11.15
+1,3,2026-11-04T20:40:00+00:00,unknown,device;money,a shop reprogrammed my stolen cellphone to sell it,MOBILE_DEVICES,0.994,0,MOBILE_DEVICES,16.43,logistic_regression@2026.11.15
+1,3,2026-11-07T10:37:00+00:00,social_media,device;business_system,a fake update installed something that records what I type,MALWARE,0.9851,0,MALWARE,16.61,logistic_regression@2026.11.15
+1,3,2026-11-04T21:02:00+00:00,sms_whatsapp,personal_data,me llego un correo falso de mi banco con un enlace para actualizar datos,PHISHING_SPOOFING,0.9967,0,PHISHING_SPOOFING,16.02,logistic_regression@2026.11.15
+1,3,2026-11-02T00:13:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,14.19,logistic_regression@2026.11.15
+1,3,2026-11-07T14:43:00+00:00,social_media,money,aparecieron compras que yo no hice en Daviplata,ELECTRONIC_THEFT,0.9639,0,ELECTRONIC_THEFT,12.15,logistic_regression@2026.11.15
+1,3,2026-11-06T21:40:00+00:00,email,account,my TikTok password was changed and I can no longer access it,ABUSIVE_ACCESS,0.9972,0,ABUSIVE_ACCESS,15.67,logistic_regression@2026.11.15
+1,3,2026-11-05T17:57:00+00:00,social_media,personal_data,they took a loan using my identity card copy,PERSONAL_DATA,0.9974,0,PERSONAL_DATA,13.34,logistic_regression@2026.11.15
+1,3,2026-11-08T17:52:00+00:00,sms_whatsapp,money;personal_data,"I bought a product on marketplace, transferred the money and the seller disappeared",TRANSFER_FRAUD,0.9859,0,TRANSFER_FRAUD,16.08,logistic_regression@2026.11.15
+1,3,2026-11-04T15:27:00+00:00,device,device,me robaron el celular y le cambiaron el IMEI,MOBILE_DEVICES,0.9966,0,MOBILE_DEVICES,14.2,logistic_regression@2026.11.15
+1,3,2026-11-02T04:13:00+00:00,unknown,business_system;personal_data,la pagina web de la empresa se cayo por un ataque,SYSTEM_ATTACK,0.9926,0,SYSTEM_ATTACK,17.3,logistic_regression@2026.11.15
+1,3,2026-11-04T10:52:00+00:00,phone_call,money,a cloned voice of my son made with AI asked me to send money and I did,TRANSFER_FRAUD,0.8716,0,TRANSFER_FRAUD,14.68,logistic_regression@2026.11.15
+1,3,2026-11-02T13:40:00+00:00,unknown,money,me clonaron la tarjeta y hicieron compras por internet,ELECTRONIC_THEFT,0.8678,0,ELECTRONIC_THEFT,15.94,logistic_regression@2026.11.15
+1,3,2026-11-05T09:35:00+00:00,email,personal_data;account,I got an SMS saying my account was blocked and to click a link to unlock it,PHISHING_SPOOFING,0.9953,0,PHISHING_SPOOFING,15.79,logistic_regression@2026.11.15
+1,3,2026-11-02T14:13:00+00:00,unknown,business_system,atacaron los servidores y el servicio dejo de funcionar,SYSTEM_ATTACK,0.9982,0,SYSTEM_ATTACK,16.53,logistic_regression@2026.11.15
+1,3,2026-11-07T06:45:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,16.1,logistic_regression@2026.11.15
+1,3,2026-11-08T10:15:00+00:00,social_media,personal_data,I got an SMS saying my account was blocked and to click a link to unlock it,PHISHING_SPOOFING,0.9921,0,PHISHING_SPOOFING,14.8,logistic_regression@2026.11.15
+1,3,2026-11-07T01:28:00+00:00,website_app,money,"my balance dropped by 350,000 pesos overnight, unknown payments",ELECTRONIC_THEFT,0.9936,0,ELECTRONIC_THEFT,16.31,logistic_regression@2026.11.15
+1,3,2026-11-02T15:45:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,14.57,logistic_regression@2026.11.15
+1,3,2026-11-02T13:22:00+00:00,phone_call,money,a cloned voice of my son made with AI asked me to send money and I did,TRANSFER_FRAUD,0.8716,0,TRANSFER_FRAUD,14.92,logistic_regression@2026.11.15
+1,3,2026-11-08T18:49:00+00:00,phone_call,money,a cloned voice of my son made with AI asked me to send money and I did,TRANSFER_FRAUD,0.8716,0,TRANSFER_FRAUD,17.38,logistic_regression@2026.11.15
+1,3,2026-11-03T15:48:00+00:00,website_app,money;account,"desaparecio dinero de mi cuenta, cobros que no reconozco",ELECTRONIC_THEFT,0.9934,0,ELECTRONIC_THEFT,15.11,logistic_regression@2026.11.15
+1,3,2026-11-07T00:48:00+00:00,email,account,alguien entro a mi cuenta de Instagram sin permiso,ABUSIVE_ACCESS,0.8866,0,ABUSIVE_ACCESS,14.22,logistic_regression@2026.11.15
+1,3,2026-11-03T18:02:00+00:00,sms_whatsapp,money,I received an email that looked like Davivienda asking me to update my password on a link,PHISHING_SPOOFING,0.898,0,PHISHING_SPOOFING,14.27,logistic_regression@2026.11.15
+1,3,2026-11-05T16:34:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,13.26,logistic_regression@2026.11.15
+1,3,2026-11-07T06:49:00+00:00,social_media,account;business_system,my Facebook password was changed and I can no longer access it,ABUSIVE_ACCESS,0.997,0,ABUSIVE_ACCESS,14.43,logistic_regression@2026.11.15
+1,3,2026-11-06T21:22:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,12.87,logistic_regression@2026.11.15
+1,3,2026-11-03T07:13:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,11.95,logistic_regression@2026.11.15
+1,3,2026-11-03T09:20:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,14.01,logistic_regression@2026.11.15
+1,3,2026-11-04T06:45:00+00:00,social_media,account,me llego una alerta de inicio de sesion desde otro pais,ABUSIVE_ACCESS,0.9976,0,ABUSIVE_ACCESS,11.91,logistic_regression@2026.11.15
+1,3,2026-11-05T09:52:00+00:00,social_media,personal_data,usaron mi cedula para sacar un credito a mi nombre,PERSONAL_DATA,0.9959,0,PERSONAL_DATA,12.54,logistic_regression@2026.11.15
+1,3,2026-11-02T00:21:00+00:00,phone_call,money,a cloned voice of my son made with AI asked me to send money and I did,TRANSFER_FRAUD,0.8716,0,TRANSFER_FRAUD,13.29,logistic_regression@2026.11.15
+1,3,2026-11-05T09:55:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,14.01,logistic_regression@2026.11.15
+1,3,2026-11-05T23:38:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,12.8,logistic_regression@2026.11.15
+1,3,2026-11-03T06:50:00+00:00,website_app,account,someone accessed the company server with an old employee password,ABUSIVE_ACCESS,0.9953,0,ABUSIVE_ACCESS,14.68,logistic_regression@2026.11.15
+1,3,2026-11-02T20:49:00+00:00,unknown,business_system,someone modified the records in the school information system,SYSTEM_ATTACK,0.9747,0,SYSTEM_ATTACK,13.55,logistic_regression@2026.11.15
+1,3,2026-11-04T17:11:00+00:00,website_app,personal_data;account;money,I got an SMS saying my account was blocked and to click a link to unlock it,PHISHING_SPOOFING,0.9954,0,PHISHING_SPOOFING,13.87,logistic_regression@2026.11.15
+1,3,2026-11-05T01:51:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,14.6,logistic_regression@2026.11.15
+1,3,2026-11-06T14:14:00+00:00,sms_whatsapp,money,they told me I won a prize and had to pay a fee by transfer,TRANSFER_FRAUD,0.9966,0,TRANSFER_FRAUD,13.98,logistic_regression@2026.11.15
+1,3,2026-11-04T14:36:00+00:00,email,personal_data,a message said my package was retained and asked for my details on a link,PHISHING_SPOOFING,0.998,0,PHISHING_SPOOFING,11.28,logistic_regression@2026.11.15
+1,3,2026-11-03T17:57:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,11.73,logistic_regression@2026.11.15
+1,3,2026-11-08T18:33:00+00:00,unknown,money,"unauthorized payments of 200,000 appeared in my bank statement",ELECTRONIC_THEFT,0.9987,0,ELECTRONIC_THEFT,11.81,logistic_regression@2026.11.15
+1,3,2026-11-07T06:05:00+00:00,unknown,money,I found online purchases on Bancolombia that I did not make,ELECTRONIC_THEFT,0.9887,0,ELECTRONIC_THEFT,12.26,logistic_regression@2026.11.15
+1,3,2026-11-05T22:01:00+00:00,social_media,personal_data;money,I received an email that looked like BBVA asking me to update my password on a link,PHISHING_SPOOFING,0.9539,0,PHISHING_SPOOFING,12.9,logistic_regression@2026.11.15
+1,3,2026-11-08T20:47:00+00:00,email,account,a person entered my Instagram and is sending messages to my contacts,ABUSIVE_ACCESS,0.9928,0,ABUSIVE_ACCESS,11.98,logistic_regression@2026.11.15
+1,3,2026-11-07T15:30:00+00:00,email,account,me llego una alerta de inicio de sesion desde otro pais,ABUSIVE_ACCESS,0.995,0,ABUSIVE_ACCESS,12.22,logistic_regression@2026.11.15
+1,3,2026-11-02T14:24:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,11.37,logistic_regression@2026.11.15
+1,3,2026-11-04T20:48:00+00:00,social_media,account,an email from a supposed government office asked me to log in to check a fine,ABUSIVE_ACCESS,0.5829,0,PHISHING_SPOOFING,15.54,logistic_regression@2026.11.15
+1,3,2026-11-06T11:02:00+00:00,unknown,account,a person entered my Netflix and is sending messages to my contacts,ABUSIVE_ACCESS,0.9954,0,ABUSIVE_ACCESS,12.98,logistic_regression@2026.11.15
+1,3,2026-11-06T20:29:00+00:00,website_app,business_system,atacaron los servidores y el servicio dejo de funcionar,SYSTEM_ATTACK,0.9974,0,SYSTEM_ATTACK,14.45,logistic_regression@2026.11.15
+1,3,2026-11-08T04:55:00+00:00,sms_whatsapp,money;account;personal_data,"my balance dropped by 200,000 pesos overnight, unknown payments",ELECTRONIC_THEFT,0.9902,0,ELECTRONIC_THEFT,14.19,logistic_regression@2026.11.15
+1,3,2026-11-06T11:33:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,11.14,logistic_regression@2026.11.15
+1,3,2026-11-02T11:20:00+00:00,website_app,money;personal_data,"my balance dropped by 350,000 pesos overnight, unknown payments",ELECTRONIC_THEFT,0.9891,0,ELECTRONIC_THEFT,11.19,logistic_regression@2026.11.15
+1,3,2026-11-05T12:15:00+00:00,email,personal_data,an email from a supposed government office asked me to log in to check a fine,PHISHING_SPOOFING,0.934,0,PHISHING_SPOOFING,12.88,logistic_regression@2026.11.15
+1,3,2026-11-06T00:12:00+00:00,social_media,account,my Facebook password was changed and I can no longer access it,ABUSIVE_ACCESS,0.9979,0,ABUSIVE_ACCESS,14.97,logistic_regression@2026.11.15
+1,3,2026-11-06T06:38:00+00:00,unknown,business_system,the online store was defaced and shows a hacker message,SYSTEM_ATTACK,0.9989,0,SYSTEM_ATTACK,15.28,logistic_regression@2026.11.15
+1,3,2026-11-07T02:15:00+00:00,social_media,money,me clonaron la tarjeta y hicieron compras por internet,TRANSFER_FRAUD,0.5909,0,ELECTRONIC_THEFT,13.91,logistic_regression@2026.11.15
+1,3,2026-11-08T21:46:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,16.37,logistic_regression@2026.11.15
+1,3,2026-11-08T16:59:00+00:00,unknown,money;account,they cloned my card and paid things in another city,ELECTRONIC_THEFT,0.9964,0,ELECTRONIC_THEFT,12.6,logistic_regression@2026.11.15
+1,3,2026-11-06T07:53:00+00:00,unknown,personal_data,filtraron mis fotos y documentos privados,PERSONAL_DATA,0.9532,0,PERSONAL_DATA,14.66,logistic_regression@2026.11.15
+1,3,2026-11-07T20:54:00+00:00,device,device;business_system,los equipos de la empresa se infectaron con ransomware,MALWARE,0.4824,0,MALWARE,14.3,logistic_regression@2026.11.15
+1,3,2026-11-04T03:06:00+00:00,social_media,money,"someone withdrew 80,000 pesos from Daviplata without my permission",ELECTRONIC_THEFT,0.9204,0,ELECTRONIC_THEFT,13.9,logistic_regression@2026.11.15
+1,3,2026-11-04T05:53:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,16.21,logistic_regression@2026.11.15
+1,3,2026-11-07T02:56:00+00:00,device,device;money,me robaron el celular y le cambiaron el IMEI,MOBILE_DEVICES,0.9975,0,MOBILE_DEVICES,13.76,logistic_regression@2026.11.15
+1,3,2026-11-02T20:52:00+00:00,website_app,business_system,atacaron los servidores y el servicio dejo de funcionar,SYSTEM_ATTACK,0.9974,0,SYSTEM_ATTACK,10.76,logistic_regression@2026.11.15
+1,3,2026-11-06T12:00:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,11.17,logistic_regression@2026.11.15
+1,3,2026-11-06T02:15:00+00:00,social_media,personal_data,filtraron mis fotos y documentos privados,PERSONAL_DATA,0.9544,0,PERSONAL_DATA,16.15,logistic_regression@2026.11.15
+1,3,2026-11-02T19:04:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,14.33,logistic_regression@2026.11.15
+1,3,2026-11-06T14:16:00+00:00,phone_call,money,un supuesto familiar me pidio plata por whatsapp y le consigne,TRANSFER_FRAUD,0.9975,0,TRANSFER_FRAUD,13.65,logistic_regression@2026.11.15
+1,3,2026-11-05T06:50:00+00:00,website_app,device,the company computers were infected with ransomware,MALWARE,0.8912,0,MALWARE,14.77,logistic_regression@2026.11.15
+1,3,2026-11-02T18:00:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,14.93,logistic_regression@2026.11.15
+1,3,2026-11-03T12:10:00+00:00,social_media,money,"me enganaron y transferi 2,000,000 pesos a un vendedor falso",TRANSFER_FRAUD,0.9953,0,TRANSFER_FRAUD,15.72,logistic_regression@2026.11.15
+1,3,2026-11-07T16:41:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,12.84,logistic_regression@2026.11.15
+1,3,2026-11-02T09:08:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,13.03,logistic_regression@2026.11.15
+1,3,2026-11-04T13:07:00+00:00,website_app,business_system,an attacker intercepted the data sent between our offices,SYSTEM_ATTACK,0.9981,0,SYSTEM_ATTACK,15.02,logistic_regression@2026.11.15
+1,3,2026-11-08T11:22:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,13.84,logistic_regression@2026.11.15
+1,3,2026-11-03T13:53:00+00:00,website_app,money,they told me I won a prize and had to pay a fee by transfer,TRANSFER_FRAUD,0.992,0,TRANSFER_FRAUD,13.9,logistic_regression@2026.11.15
+1,3,2026-11-05T18:23:00+00:00,website_app,money;account,somebody used my card details to buy online,ELECTRONIC_THEFT,0.9935,0,ELECTRONIC_THEFT,15.03,logistic_regression@2026.11.15
+1,3,2026-11-07T17:48:00+00:00,website_app,account;personal_data,a person entered my Outlook and is sending messages to my contacts,ABUSIVE_ACCESS,0.9716,0,ABUSIVE_ACCESS,16.31,logistic_regression@2026.11.15
+1,3,2026-11-02T17:13:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,14.73,logistic_regression@2026.11.15
+1,3,2026-11-02T14:56:00+00:00,unknown,personal_data,una empresa vendio mi informacion personal,PERSONAL_DATA,0.9981,0,PERSONAL_DATA,15.26,logistic_regression@2026.11.15
+1,3,2026-11-05T21:18:00+00:00,email,device,un programa malicioso tomo el control de mi computador,MALWARE,0.9968,0,MALWARE,15.64,logistic_regression@2026.11.15
+1,3,2026-11-04T05:43:00+00:00,phone_call,money,I made a transfer to a stranger who said he was from the bank to protect my money,TRANSFER_FRAUD,0.9983,0,TRANSFER_FRAUD,16.33,logistic_regression@2026.11.15
+1,3,2026-11-08T02:50:00+00:00,social_media,account,alguien entro a mi cuenta de Facebook sin permiso,ABUSIVE_ACCESS,0.9353,0,ABUSIVE_ACCESS,14.15,logistic_regression@2026.11.15
+1,3,2026-11-03T20:41:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,14.94,logistic_regression@2026.11.15
+1,3,2026-11-03T03:53:00+00:00,email,device,a fake update installed something that records what I type,MALWARE,0.9951,0,MALWARE,11.13,logistic_regression@2026.11.15
+1,3,2026-11-06T03:21:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,11.52,logistic_regression@2026.11.15
+1,3,2026-11-04T20:36:00+00:00,unknown,device,el telefono que compre tenia el IMEI adulterado,MOBILE_DEVICES,0.9947,0,MOBILE_DEVICES,11.37,logistic_regression@2026.11.15
+1,3,2026-11-03T19:57:00+00:00,unknown,account,someone accessed the company server with an old employee password,ABUSIVE_ACCESS,0.9968,0,ABUSIVE_ACCESS,13.34,logistic_regression@2026.11.15
+1,3,2026-11-02T23:29:00+00:00,unknown,business_system,the online store was defaced and shows a hacker message,SYSTEM_ATTACK,0.9989,0,SYSTEM_ATTACK,12.88,logistic_regression@2026.11.15
+1,3,2026-11-04T08:10:00+00:00,unknown,money,I found online purchases on my debit card that I did not make,ELECTRONIC_THEFT,0.9958,0,ELECTRONIC_THEFT,11.87,logistic_regression@2026.11.15
+1,3,2026-11-06T00:49:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,12.32,logistic_regression@2026.11.15
+1,3,2026-11-07T00:02:00+00:00,sms_whatsapp,money,a person pretending to be my relative asked me to send money and I transferred it,TRANSFER_FRAUD,0.976,0,TRANSFER_FRAUD,13.32,logistic_regression@2026.11.15
+1,3,2026-11-08T19:35:00+00:00,website_app,money;account,somebody used my card details to buy online,ELECTRONIC_THEFT,0.9935,0,ELECTRONIC_THEFT,12.59,logistic_regression@2026.11.15
+1,3,2026-11-02T00:15:00+00:00,email,account,a person entered my Gmail and is sending messages to my contacts,ABUSIVE_ACCESS,0.9935,0,ABUSIVE_ACCESS,14.58,logistic_regression@2026.11.15
+1,3,2026-11-06T13:46:00+00:00,phone_call,money,a cloned voice of my son made with AI asked me to send money and I did,TRANSFER_FRAUD,0.8716,0,TRANSFER_FRAUD,15.66,logistic_regression@2026.11.15
+1,3,2026-11-02T12:04:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,14.26,logistic_regression@2026.11.15
+1,3,2026-11-03T15:07:00+00:00,website_app,business_system;personal_data,an attacker intercepted the data sent between our offices,SYSTEM_ATTACK,0.9947,0,SYSTEM_ATTACK,14.86,logistic_regression@2026.11.15
+1,3,2026-11-08T07:47:00+00:00,website_app,account,recibi un mensaje de texto con un link a una pagina falsa del banco,PHISHING_SPOOFING,0.9873,0,PHISHING_SPOOFING,14.37,logistic_regression@2026.11.15
+1,3,2026-11-02T02:05:00+00:00,phone_call,money,"me enganaron y transferi 200,000 pesos a un vendedor falso",TRANSFER_FRAUD,0.9975,0,TRANSFER_FRAUD,12.44,logistic_regression@2026.11.15
+1,3,2026-11-02T23:34:00+00:00,unknown,account,someone logged into my Netflix account without permission,ABUSIVE_ACCESS,0.9921,0,ABUSIVE_ACCESS,11.93,logistic_regression@2026.11.15
+1,3,2026-11-05T08:45:00+00:00,website_app,device;personal_data,un programa malicioso tomo el control de mi computador,MALWARE,0.9963,0,MALWARE,11.54,logistic_regression@2026.11.15
+1,3,2026-11-04T04:26:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,10.51,logistic_regression@2026.11.15
+1,3,2026-11-02T11:53:00+00:00,phone_call,money,a cloned voice of my son made with AI asked me to send money and I did,TRANSFER_FRAUD,0.8716,0,TRANSFER_FRAUD,11.02,logistic_regression@2026.11.15
+1,3,2026-11-07T22:01:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,11.07,logistic_regression@2026.11.15
+1,3,2026-11-06T21:37:00+00:00,unknown,business_system,borraron la informacion de nuestra base de datos,SYSTEM_ATTACK,0.999,0,SYSTEM_ATTACK,11.36,logistic_regression@2026.11.15
+1,3,2026-11-03T01:51:00+00:00,social_media,money;account,"someone withdrew 500,000 pesos from my debit card without my permission",ELECTRONIC_THEFT,0.9687,0,ELECTRONIC_THEFT,14.82,logistic_regression@2026.11.15
+1,3,2026-11-07T09:14:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,15.89,logistic_regression@2026.11.15
+1,3,2026-11-04T17:12:00+00:00,social_media,device,my files now have a strange extension and there is a ransom note,MALWARE,0.9846,0,MALWARE,11.02,logistic_regression@2026.11.15
+1,3,2026-11-03T09:16:00+00:00,website_app,money;personal_data,"me enganaron y transferi 4,500,000 pesos a un vendedor falso",TRANSFER_FRAUD,0.9707,0,TRANSFER_FRAUD,10.94,logistic_regression@2026.11.15
+1,3,2026-11-03T00:28:00+00:00,social_media,money,a message said my package was retained and asked for my details on a link,PHISHING_SPOOFING,0.9146,0,PHISHING_SPOOFING,11.55,logistic_regression@2026.11.15
+1,3,2026-11-05T05:38:00+00:00,unknown,account,they hacked my email account and changed the recovery email,ABUSIVE_ACCESS,0.9983,0,ABUSIVE_ACCESS,10.19,logistic_regression@2026.11.15
+1,3,2026-11-03T14:46:00+00:00,website_app,account,someone accessed the company server with an old employee password,ABUSIVE_ACCESS,0.9953,0,ABUSIVE_ACCESS,11.33,logistic_regression@2026.11.15
+1,3,2026-11-08T08:10:00+00:00,phone_call,money;personal_data,me ofrecieron una inversion y les transferi mis ahorros,TRANSFER_FRAUD,0.9863,0,TRANSFER_FRAUD,10.43,logistic_regression@2026.11.15
+1,3,2026-11-07T19:20:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,9.99,logistic_regression@2026.11.15
+1,3,2026-11-07T05:46:00+00:00,unknown,personal_data,someone created a profile with my photos and my name,PERSONAL_DATA,0.9965,0,PERSONAL_DATA,11.44,logistic_regression@2026.11.15
+1,3,2026-11-02T08:22:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,12.1,logistic_regression@2026.11.15
+1,3,2026-11-08T16:17:00+00:00,email,account;personal_data,I received an alert of a login from another country on my TikTok,ABUSIVE_ACCESS,0.9855,0,ABUSIVE_ACCESS,12.41,logistic_regression@2026.11.15
+1,3,2026-11-04T01:19:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,11.62,logistic_regression@2026.11.15
+1,3,2026-11-03T02:30:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,13.56,logistic_regression@2026.11.15
+1,3,2026-11-06T03:17:00+00:00,social_media,money;account,"unauthorized payments of 200,000 appeared in my bank statement",ELECTRONIC_THEFT,0.9895,0,ELECTRONIC_THEFT,12.48,logistic_regression@2026.11.15
+1,3,2026-11-06T07:58:00+00:00,email,money,I entered my username and password on a website that copied the real login page,PHISHING_SPOOFING,0.9852,0,PHISHING_SPOOFING,13.55,logistic_regression@2026.11.15
+1,3,2026-11-06T07:03:00+00:00,unknown,money;personal_data,I found online purchases on Nequi that I did not make,ELECTRONIC_THEFT,0.9642,0,ELECTRONIC_THEFT,11.16,logistic_regression@2026.11.15
+1,3,2026-11-07T10:56:00+00:00,unknown,account;personal_data,they hacked my Netflix account and changed the recovery email,ABUSIVE_ACCESS,0.9947,0,ABUSIVE_ACCESS,10.23,logistic_regression@2026.11.15
+1,4,2026-11-09T19:31:00+00:00,unknown,account,my ex partner keeps entering my Instagram account without my authorization,ABUSIVE_ACCESS,0.9704,0,ABUSIVE_ACCESS,16.19,logistic_regression@2026.11.15
+1,4,2026-11-14T19:23:00+00:00,device,device,my phone was stolen and they changed the IMEI to unlock it,MOBILE_DEVICES,0.9979,0,MOBILE_DEVICES,15.58,logistic_regression@2026.11.15
+1,4,2026-11-12T14:47:00+00:00,website_app,account;personal_data,I received an alert of a login from another country on my Outlook,ABUSIVE_ACCESS,0.9809,0,ABUSIVE_ACCESS,14.87,logistic_regression@2026.11.15
+1,4,2026-11-13T02:38:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,11.48,logistic_regression@2026.11.15
+1,4,2026-11-14T11:30:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,10.78,logistic_regression@2026.11.15
+1,4,2026-11-14T20:32:00+00:00,phone_call,money,a cloned voice of my son made with AI asked me to send money and I did,TRANSFER_FRAUD,0.8716,0,TRANSFER_FRAUD,10.45,logistic_regression@2026.11.15
+1,4,2026-11-12T15:55:00+00:00,device,device,my stolen phone was reported but it is working again with another IMEI,MOBILE_DEVICES,0.9964,0,MOBILE_DEVICES,10.93,logistic_regression@2026.11.15
+1,4,2026-11-10T14:21:00+00:00,device,device;business_system,un programa malicioso tomo el control de mi computador,MALWARE,0.9935,0,MALWARE,12.21,logistic_regression@2026.11.15
+1,4,2026-11-14T10:16:00+00:00,unknown,personal_data,una empresa vendio mi informacion personal,PERSONAL_DATA,0.9981,0,PERSONAL_DATA,13.69,logistic_regression@2026.11.15
+1,4,2026-11-12T15:52:00+00:00,device,device,my phone was stolen and they changed the IMEI to unlock it,MOBILE_DEVICES,0.9979,0,MOBILE_DEVICES,10.61,logistic_regression@2026.11.15
+1,4,2026-11-12T21:42:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,12.49,logistic_regression@2026.11.15
+1,4,2026-11-15T05:36:00+00:00,social_media,money,aparecieron compras que yo no hice en Davivienda,ELECTRONIC_THEFT,0.9733,0,ELECTRONIC_THEFT,12.01,logistic_regression@2026.11.15
+1,4,2026-11-09T15:32:00+00:00,social_media,personal_data,the website looked identical to the official one but the address was different,PHISHING_SPOOFING,0.5089,0,PHISHING_SPOOFING,14.39,logistic_regression@2026.11.15
+1,4,2026-11-10T21:44:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,13.37,logistic_regression@2026.11.15
+1,4,2026-11-13T15:39:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,10.97,logistic_regression@2026.11.15
+1,4,2026-11-10T17:10:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,10.85,logistic_regression@2026.11.15
+1,4,2026-11-10T23:50:00+00:00,social_media,personal_data,una empresa vendio mi informacion personal,PERSONAL_DATA,0.9987,0,PERSONAL_DATA,11.48,logistic_regression@2026.11.15
+1,4,2026-11-15T00:50:00+00:00,unknown,business_system,someone deleted the information in our database,SYSTEM_ATTACK,0.9989,0,SYSTEM_ATTACK,10.7,logistic_regression@2026.11.15
+1,4,2026-11-11T16:35:00+00:00,social_media,device,"abri un archivo adjunto y me encriptaron los archivos, piden rescate",MALWARE,0.9819,0,MALWARE,11.15,logistic_regression@2026.11.15
+1,4,2026-11-11T01:13:00+00:00,phone_call,personal_data,filtraron mis fotos y documentos privados,PERSONAL_DATA,0.9647,0,PERSONAL_DATA,12.03,logistic_regression@2026.11.15
+1,4,2026-11-13T02:12:00+00:00,device,device;personal_data,a program I downloaded took control of my computer,MALWARE,0.9963,0,MALWARE,14.32,logistic_regression@2026.11.15
+1,4,2026-11-09T21:14:00+00:00,device,device,they tampered with my mobile device identification number,MOBILE_DEVICES,0.6992,0,MOBILE_DEVICES,14.63,logistic_regression@2026.11.15
+1,4,2026-11-09T04:48:00+00:00,device,device,they tampered with my mobile device identification number,MOBILE_DEVICES,0.6992,0,MOBILE_DEVICES,14.98,logistic_regression@2026.11.15
+1,4,2026-11-13T04:49:00+00:00,social_media,personal_data,an email from a supposed government office asked me to log in to check a fine,PHISHING_SPOOFING,0.7188,0,PHISHING_SPOOFING,14.84,logistic_regression@2026.11.15
+1,4,2026-11-15T18:36:00+00:00,unknown,personal_data;account,filtraron mis fotos y documentos privados,PERSONAL_DATA,0.8001,0,PERSONAL_DATA,14.9,logistic_regression@2026.11.15
+1,4,2026-11-11T16:32:00+00:00,social_media,personal_data,my personal information was published online without my consent,PERSONAL_DATA,0.9968,0,PERSONAL_DATA,13.77,logistic_regression@2026.11.15
+1,4,2026-11-09T22:31:00+00:00,phone_call,money,a cloned voice of my son made with AI asked me to send money and I did,TRANSFER_FRAUD,0.8716,0,TRANSFER_FRAUD,10.99,logistic_regression@2026.11.15
+1,4,2026-11-09T22:55:00+00:00,social_media,account,my Instagram password was changed and I can no longer access it,ABUSIVE_ACCESS,0.9985,0,ABUSIVE_ACCESS,11.52,logistic_regression@2026.11.15
+1,4,2026-11-10T00:57:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,11.03,logistic_regression@2026.11.15
+1,4,2026-11-11T23:48:00+00:00,phone_call,money,a cloned voice of my son made with AI asked me to send money and I did,TRANSFER_FRAUD,0.8716,0,TRANSFER_FRAUD,11.46,logistic_regression@2026.11.15
+1,4,2026-11-12T21:18:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,12.77,logistic_regression@2026.11.15
+1,4,2026-11-09T19:42:00+00:00,email,personal_data;money,a message said my package was retained and asked for my details on a link,PHISHING_SPOOFING,0.9952,0,PHISHING_SPOOFING,14.12,logistic_regression@2026.11.15
+1,4,2026-11-10T01:28:00+00:00,phone_call,money,a person pretending to be my relative asked me to send money and I transferred it,TRANSFER_FRAUD,0.9868,0,TRANSFER_FRAUD,11.74,logistic_regression@2026.11.15
+1,4,2026-11-14T16:53:00+00:00,device,device,me robaron el celular y le cambiaron el IMEI,MOBILE_DEVICES,0.9966,0,MOBILE_DEVICES,12.6,logistic_regression@2026.11.15
+1,4,2026-11-11T04:31:00+00:00,email,device,los equipos de la empresa se infectaron con ransomware,MALWARE,0.8588,0,MALWARE,13.12,logistic_regression@2026.11.15
+1,4,2026-11-12T12:33:00+00:00,unknown,account,they hacked my WhatsApp account and changed the recovery email,ABUSIVE_ACCESS,0.9986,0,ABUSIVE_ACCESS,12.14,logistic_regression@2026.11.15
+1,4,2026-11-14T06:05:00+00:00,social_media,personal_data,my personal information was published online without my consent,PERSONAL_DATA,0.9968,0,PERSONAL_DATA,11.42,logistic_regression@2026.11.15
+1,4,2026-11-10T08:39:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,11.31,logistic_regression@2026.11.15
+1,4,2026-11-14T20:14:00+00:00,email,device;business_system,un programa malicioso tomo el control de mi computador,MALWARE,0.9977,0,MALWARE,10.57,logistic_regression@2026.11.15
+1,4,2026-11-14T10:13:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,10.77,logistic_regression@2026.11.15
+1,4,2026-11-12T04:04:00+00:00,device,business_system;device,interceptaron las comunicaciones de la red de la empresa,SYSTEM_ATTACK,0.9571,0,SYSTEM_ATTACK,13.61,logistic_regression@2026.11.15
+1,4,2026-11-09T17:15:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,14.01,logistic_regression@2026.11.15
+1,4,2026-11-12T06:39:00+00:00,unknown,money;personal_data,"my balance dropped by 2,000,000 pesos overnight, unknown payments",ELECTRONIC_THEFT,0.9945,0,ELECTRONIC_THEFT,10.84,logistic_regression@2026.11.15
+1,4,2026-11-13T20:16:00+00:00,website_app,personal_data;account,me llego un correo falso de Bancolombia con un enlace para actualizar datos,PHISHING_SPOOFING,0.9847,0,PHISHING_SPOOFING,18.55,logistic_regression@2026.11.15
+1,4,2026-11-11T13:50:00+00:00,email,device,I installed an app and now my phone shows ads and sends messages by itself,MALWARE,0.9965,0,MALWARE,20.41,logistic_regression@2026.11.15
+1,4,2026-11-11T19:41:00+00:00,social_media,personal_data,someone created a profile with my photos and my name,PERSONAL_DATA,0.9967,0,PERSONAL_DATA,13.9,logistic_regression@2026.11.15
+1,4,2026-11-10T16:33:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,15.3,logistic_regression@2026.11.15
+1,4,2026-11-11T21:26:00+00:00,device,device;business_system,a fake update installed something that records what I type,MALWARE,0.9923,0,MALWARE,13.35,logistic_regression@2026.11.15
+1,4,2026-11-09T03:26:00+00:00,unknown,money;account,they cloned my card and paid things in another city,ELECTRONIC_THEFT,0.9964,0,ELECTRONIC_THEFT,13.91,logistic_regression@2026.11.15
+1,4,2026-11-13T23:19:00+00:00,social_media,business_system,atacaron los servidores y el servicio dejo de funcionar,SYSTEM_ATTACK,0.9876,0,SYSTEM_ATTACK,13.36,logistic_regression@2026.11.15
+1,4,2026-11-15T04:09:00+00:00,social_media,personal_data,a message said my package was retained and asked for my details on a link,PHISHING_SPOOFING,0.9907,0,PHISHING_SPOOFING,11.7,logistic_regression@2026.11.15
+1,4,2026-11-09T17:28:00+00:00,website_app,money,"me sacaron 4,500,000 pesos de BBVA sin autorizacion",ELECTRONIC_THEFT,0.9933,0,ELECTRONIC_THEFT,15.14,logistic_regression@2026.11.15
+1,4,2026-11-09T07:05:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,10.64,logistic_regression@2026.11.15
+1,4,2026-11-13T07:14:00+00:00,social_media,money,I found online purchases on BBVA that I did not make,ELECTRONIC_THEFT,0.9117,0,ELECTRONIC_THEFT,10.8,logistic_regression@2026.11.15
+1,4,2026-11-12T14:58:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,11.46,logistic_regression@2026.11.15
+1,4,2026-11-11T14:00:00+00:00,unknown,personal_data,una empresa vendio mi informacion personal,PERSONAL_DATA,0.9981,0,PERSONAL_DATA,11.77,logistic_regression@2026.11.15
+1,4,2026-11-15T04:12:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,12.59,logistic_regression@2026.11.15
+1,4,2026-11-11T02:11:00+00:00,social_media,money,"pague un arriendo que no existia, me estafaron con la transferencia",TRANSFER_FRAUD,0.9928,0,TRANSFER_FRAUD,14.58,logistic_regression@2026.11.15
+1,4,2026-11-09T21:01:00+00:00,device,device;personal_data,I installed an app and now my phone shows ads and sends messages by itself,MALWARE,0.9947,0,MALWARE,14.6,logistic_regression@2026.11.15
+1,4,2026-11-15T21:10:00+00:00,website_app,account;personal_data,someone accessed the company server with an old employee password,ABUSIVE_ACCESS,0.9851,0,ABUSIVE_ACCESS,14.71,logistic_regression@2026.11.15
+1,4,2026-11-11T10:44:00+00:00,social_media,personal_data,I entered my username and password on a website that copied the real login page,PHISHING_SPOOFING,0.9915,0,PHISHING_SPOOFING,14.39,logistic_regression@2026.11.15
+1,4,2026-11-11T15:50:00+00:00,social_media,personal_data,me llego un correo falso de Davivienda con un enlace para actualizar datos,PHISHING_SPOOFING,0.982,0,PHISHING_SPOOFING,11.85,logistic_regression@2026.11.15
+1,4,2026-11-10T23:54:00+00:00,device,device,my stolen phone was reported but it is working again with another IMEI,MOBILE_DEVICES,0.9964,0,MOBILE_DEVICES,11.97,logistic_regression@2026.11.15
+1,4,2026-11-11T07:09:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,11.2,logistic_regression@2026.11.15
+1,4,2026-11-09T00:28:00+00:00,website_app,money,me ofrecieron una inversion y les transferi mis ahorros,TRANSFER_FRAUD,0.9884,0,TRANSFER_FRAUD,10.63,logistic_regression@2026.11.15
+1,4,2026-11-11T18:56:00+00:00,sms_whatsapp,money,a person pretending to be my relative asked me to send money and I transferred it,TRANSFER_FRAUD,0.976,0,TRANSFER_FRAUD,11.27,logistic_regression@2026.11.15
+1,4,2026-11-10T09:59:00+00:00,social_media,account;personal_data,my email password was changed and I can no longer access it,ABUSIVE_ACCESS,0.9945,0,ABUSIVE_ACCESS,10.92,logistic_regression@2026.11.15
+1,4,2026-11-10T22:12:00+00:00,social_media,personal_data;money,an email from a supposed government office asked me to log in to check a fine,PHISHING_SPOOFING,0.5386,0,PHISHING_SPOOFING,10.63,logistic_regression@2026.11.15
+1,4,2026-11-13T08:42:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,11.16,logistic_regression@2026.11.15
+1,4,2026-11-15T05:36:00+00:00,unknown,business_system,someone deleted the information in our database,SYSTEM_ATTACK,0.9989,0,SYSTEM_ATTACK,11.26,logistic_regression@2026.11.15
+1,4,2026-11-13T00:47:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,11.55,logistic_regression@2026.11.15
+1,4,2026-11-13T12:53:00+00:00,unknown,business_system,they blocked access to our platform and customers cannot use it,SYSTEM_ATTACK,0.9772,0,SYSTEM_ATTACK,11.06,logistic_regression@2026.11.15
+1,4,2026-11-12T16:15:00+00:00,social_media,account,someone accessed the company server with an old employee password,ABUSIVE_ACCESS,0.9982,0,ABUSIVE_ACCESS,11.64,logistic_regression@2026.11.15
+1,4,2026-11-14T10:13:00+00:00,device,device,el telefono que compre tenia el IMEI adulterado,MOBILE_DEVICES,0.9952,0,MOBILE_DEVICES,10.03,logistic_regression@2026.11.15
+1,4,2026-11-13T09:42:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,10.25,logistic_regression@2026.11.15
+1,4,2026-11-14T15:10:00+00:00,website_app,personal_data,my personal information was published online without my consent,PERSONAL_DATA,0.9919,0,PERSONAL_DATA,10.3,logistic_regression@2026.11.15
+1,4,2026-11-09T05:56:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,10.25,logistic_regression@2026.11.15
+1,4,2026-11-09T16:14:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,10.0,logistic_regression@2026.11.15
+1,4,2026-11-10T15:17:00+00:00,social_media,money,I entered my username and password on a website that copied the real login page,PHISHING_SPOOFING,0.9416,0,PHISHING_SPOOFING,10.67,logistic_regression@2026.11.15
+1,4,2026-11-11T01:00:00+00:00,sms_whatsapp,money,"they convinced me to transfer 80,000 for a job offer that was fake",TRANSFER_FRAUD,0.9447,0,TRANSFER_FRAUD,10.15,logistic_regression@2026.11.15
+1,4,2026-11-10T05:14:00+00:00,social_media,personal_data,my personal information was published online without my consent,PERSONAL_DATA,0.9968,0,PERSONAL_DATA,10.37,logistic_regression@2026.11.15
+1,4,2026-11-11T06:04:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,9.96,logistic_regression@2026.11.15
+1,4,2026-11-11T01:07:00+00:00,website_app,money,the system we use to bill clients was sabotaged and data was destroyed,ELECTRONIC_THEFT,0.462,0,SYSTEM_ATTACK,10.75,logistic_regression@2026.11.15
+1,4,2026-11-14T03:18:00+00:00,social_media,device,un programa malicioso tomo el control de mi computador,MALWARE,0.9849,0,MALWARE,14.72,logistic_regression@2026.11.15
+1,4,2026-11-13T08:40:00+00:00,sms_whatsapp,money;account,aparecieron compras que yo no hice en Banco de Bogota,ELECTRONIC_THEFT,0.9835,0,ELECTRONIC_THEFT,14.45,logistic_regression@2026.11.15
+1,4,2026-11-14T16:37:00+00:00,phone_call,money,a cloned voice of my son made with AI asked me to send money and I did,TRANSFER_FRAUD,0.8716,0,TRANSFER_FRAUD,14.96,logistic_regression@2026.11.15
+1,4,2026-11-10T20:02:00+00:00,website_app,money,they cloned my card and paid things in another city,ELECTRONIC_THEFT,0.9952,0,ELECTRONIC_THEFT,10.77,logistic_regression@2026.11.15
+1,4,2026-11-11T04:07:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,11.75,logistic_regression@2026.11.15
+1,4,2026-11-15T23:49:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,10.56,logistic_regression@2026.11.15
+1,4,2026-11-14T14:21:00+00:00,device,money,a fake update installed something that records what I type,MALWARE,0.449,1,MALWARE,12.6,logistic_regression@2026.11.15
+1,4,2026-11-10T04:05:00+00:00,website_app,money;account,"someone withdrew 500,000 pesos from Banco de Bogota without my permission",ELECTRONIC_THEFT,0.9882,0,ELECTRONIC_THEFT,12.14,logistic_regression@2026.11.15
+1,4,2026-11-12T09:43:00+00:00,phone_call,money,un supuesto familiar me pidio plata por whatsapp y le consigne,TRANSFER_FRAUD,0.9975,0,TRANSFER_FRAUD,12.6,logistic_regression@2026.11.15
+1,4,2026-11-12T03:53:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,13.45,logistic_regression@2026.11.15
+1,4,2026-11-13T13:34:00+00:00,social_media,account,alguien entro a mi cuenta de email sin permiso,ABUSIVE_ACCESS,0.9415,0,ABUSIVE_ACCESS,15.14,logistic_regression@2026.11.15
+1,4,2026-11-13T00:00:00+00:00,device,device,the phone I bought had its IMEI altered,MOBILE_DEVICES,0.9975,0,MOBILE_DEVICES,16.79,logistic_regression@2026.11.15
+1,4,2026-11-14T06:51:00+00:00,social_media,business_system;personal_data,our servers stopped working because of a denial of service attack,SYSTEM_ATTACK,0.9729,0,SYSTEM_ATTACK,18.33,logistic_regression@2026.11.15
+1,4,2026-11-11T23:04:00+00:00,phone_call,money,me ofrecieron una inversion y les transferi mis ahorros,TRANSFER_FRAUD,0.9975,0,TRANSFER_FRAUD,15.22,logistic_regression@2026.11.15
+1,4,2026-11-11T12:55:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,17.07,logistic_regression@2026.11.15
+1,4,2026-11-15T01:31:00+00:00,website_app,money,they hacked my Gmail account and changed the recovery email,ABUSIVE_ACCESS,0.3459,1,ABUSIVE_ACCESS,17.57,logistic_regression@2026.11.15
+1,4,2026-11-14T11:18:00+00:00,social_media,device,my phone was stolen and they changed the IMEI to unlock it,MOBILE_DEVICES,0.9916,0,MOBILE_DEVICES,16.71,logistic_regression@2026.11.15
+1,4,2026-11-12T01:08:00+00:00,social_media,account,they hacked my Instagram account and changed the recovery email,ABUSIVE_ACCESS,0.999,0,ABUSIVE_ACCESS,15.15,logistic_regression@2026.11.15
+1,4,2026-11-10T14:19:00+00:00,social_media,money;personal_data,"me enganaron y transferi 350,000 pesos a un vendedor falso",TRANSFER_FRAUD,0.9869,0,TRANSFER_FRAUD,14.89,logistic_regression@2026.11.15
+1,4,2026-11-13T04:53:00+00:00,social_media,personal_data;account,they took a loan using my identity card copy,PERSONAL_DATA,0.9769,0,PERSONAL_DATA,14.65,logistic_regression@2026.11.15
+1,4,2026-11-15T16:10:00+00:00,social_media,device,my phone got a virus after downloading an apk from a link,MALWARE,0.9882,0,MALWARE,15.58,logistic_regression@2026.11.15
+1,4,2026-11-11T09:14:00+00:00,phone_call,money,a cloned voice of my son made with AI asked me to send money and I did,TRANSFER_FRAUD,0.8716,0,TRANSFER_FRAUD,15.12,logistic_regression@2026.11.15
+1,4,2026-11-09T00:29:00+00:00,social_media,account;personal_data,alguien entro a mi cuenta de Gmail sin permiso,ABUSIVE_ACCESS,0.7801,0,ABUSIVE_ACCESS,14.56,logistic_regression@2026.11.15
+1,4,2026-11-09T23:54:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,15.26,logistic_regression@2026.11.15
+1,4,2026-11-11T00:56:00+00:00,sms_whatsapp,device;personal_data;business_system,instale una aplicacion y el celular quedo con un virus,MALWARE,0.9979,0,MALWARE,16.45,logistic_regression@2026.11.15
+1,4,2026-11-09T07:20:00+00:00,website_app,account,I received an alert of a login from another country on my Outlook,ABUSIVE_ACCESS,0.9919,0,ABUSIVE_ACCESS,14.4,logistic_regression@2026.11.15
+1,4,2026-11-10T06:10:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,11.46,logistic_regression@2026.11.15
+1,4,2026-11-13T09:11:00+00:00,phone_call,money,publicaron mis datos personales en internet sin autorizacion,PERSONAL_DATA,0.8197,0,PERSONAL_DATA,11.27,logistic_regression@2026.11.15
+1,4,2026-11-15T06:31:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,12.26,logistic_regression@2026.11.15
+1,4,2026-11-11T21:39:00+00:00,social_media,money,a crypto influencer on TikTok promised to double my money and I sent it,TRANSFER_FRAUD,0.9453,0,TRANSFER_FRAUD,15.77,logistic_regression@2026.11.15
+1,4,2026-11-14T15:35:00+00:00,social_media,personal_data;money,I entered my username and password on a website that copied the real login page,PHISHING_SPOOFING,0.9831,0,PHISHING_SPOOFING,13.76,logistic_regression@2026.11.15
+1,4,2026-11-10T01:16:00+00:00,unknown,money,"desaparecio dinero de mi cuenta, cobros que no reconozco",ELECTRONIC_THEFT,0.9964,0,ELECTRONIC_THEFT,14.91,logistic_regression@2026.11.15
+1,4,2026-11-09T10:16:00+00:00,device,business_system,they blocked access to our platform and customers cannot use it,SYSTEM_ATTACK,0.9556,0,SYSTEM_ATTACK,16.16,logistic_regression@2026.11.15
+1,4,2026-11-14T19:51:00+00:00,social_media,personal_data;account,a message said my package was retained and asked for my details on a link,PHISHING_SPOOFING,0.9906,0,PHISHING_SPOOFING,16.29,logistic_regression@2026.11.15
+1,4,2026-11-10T21:19:00+00:00,device,device,my phone was stolen and they changed the IMEI to unlock it,MOBILE_DEVICES,0.9979,0,MOBILE_DEVICES,15.06,logistic_regression@2026.11.15
+1,4,2026-11-11T04:13:00+00:00,social_media,device,the phone I bought had its IMEI altered,MOBILE_DEVICES,0.9931,0,MOBILE_DEVICES,15.54,logistic_regression@2026.11.15
+1,4,2026-11-10T03:34:00+00:00,social_media,personal_data,a message said my package was retained and asked for my details on a link,PHISHING_SPOOFING,0.9907,0,PHISHING_SPOOFING,16.11,logistic_regression@2026.11.15
+1,4,2026-11-15T02:24:00+00:00,phone_call,money,a cloned voice of my son made with AI asked me to send money and I did,TRANSFER_FRAUD,0.8716,0,TRANSFER_FRAUD,15.34,logistic_regression@2026.11.15
+1,4,2026-11-09T15:31:00+00:00,email,device;personal_data;business_system,a fake update installed something that records what I type,MALWARE,0.9962,0,MALWARE,15.61,logistic_regression@2026.11.15
+1,4,2026-11-12T07:43:00+00:00,social_media,personal_data,filtraron mis fotos y documentos privados,PERSONAL_DATA,0.9544,0,PERSONAL_DATA,11.92,logistic_regression@2026.11.15
+1,4,2026-11-10T10:39:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,10.55,logistic_regression@2026.11.15
+1,4,2026-11-13T23:25:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,13.33,logistic_regression@2026.11.15
+1,4,2026-11-11T02:28:00+00:00,phone_call,money,a cloned voice of my son made with AI asked me to send money and I did,TRANSFER_FRAUD,0.8716,0,TRANSFER_FRAUD,11.67,logistic_regression@2026.11.15
+1,4,2026-11-13T04:08:00+00:00,unknown,money;account,"desaparecio dinero de mi cuenta, cobros que no reconozco",ELECTRONIC_THEFT,0.9956,0,ELECTRONIC_THEFT,11.96,logistic_regression@2026.11.15
+1,4,2026-11-11T23:10:00+00:00,social_media,personal_data,someone used my ID number to open a credit line in my name,PERSONAL_DATA,0.9967,0,PERSONAL_DATA,14.09,logistic_regression@2026.11.15
+1,4,2026-11-12T14:55:00+00:00,social_media,money,I made a transfer to a stranger who said he was from the bank to protect my money,TRANSFER_FRAUD,0.9971,0,TRANSFER_FRAUD,14.42,logistic_regression@2026.11.15
+1,4,2026-11-15T16:34:00+00:00,device,device,reprogramaron mi celular robado para venderlo,MOBILE_DEVICES,0.9089,0,MOBILE_DEVICES,10.13,logistic_regression@2026.11.15
+1,4,2026-11-14T01:45:00+00:00,unknown,personal_data,filtraron mis fotos y documentos privados,PERSONAL_DATA,0.9532,0,PERSONAL_DATA,10.63,logistic_regression@2026.11.15
+1,4,2026-11-14T11:46:00+00:00,device,device,my phone was stolen and they changed the IMEI to unlock it,MOBILE_DEVICES,0.9979,0,MOBILE_DEVICES,10.15,logistic_regression@2026.11.15
+1,4,2026-11-14T03:26:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,10.3,logistic_regression@2026.11.15
+1,4,2026-11-11T21:51:00+00:00,phone_call,money,someone created a profile with my photos and my name,PERSONAL_DATA,0.7954,0,PERSONAL_DATA,14.68,logistic_regression@2026.11.15
+1,4,2026-11-12T11:25:00+00:00,unknown,money,"my balance dropped by 500,000 pesos overnight, unknown payments",ELECTRONIC_THEFT,0.9987,0,ELECTRONIC_THEFT,11.19,logistic_regression@2026.11.15
+1,4,2026-11-14T13:02:00+00:00,email,account,someone accessed the company server with an old employee password,ABUSIVE_ACCESS,0.9968,0,ABUSIVE_ACCESS,11.23,logistic_regression@2026.11.15
+1,4,2026-11-12T20:32:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,11.12,logistic_regression@2026.11.15
+1,4,2026-11-11T19:00:00+00:00,social_media,device,I bought a used phone and the operator says the IMEI is cloned,MOBILE_DEVICES,0.9949,0,MOBILE_DEVICES,10.85,logistic_regression@2026.11.15
+1,4,2026-11-09T14:43:00+00:00,website_app,personal_data;money,I scanned a QR code in a parking lot that opened a fake payment page,PHISHING_SPOOFING,0.4924,0,PHISHING_SPOOFING,13.13,logistic_regression@2026.11.15
+1,4,2026-11-09T05:31:00+00:00,website_app,account,my Instagram password was changed and I can no longer access it,ABUSIVE_ACCESS,0.9961,0,ABUSIVE_ACCESS,13.45,logistic_regression@2026.11.15
+1,4,2026-11-15T14:13:00+00:00,social_media,personal_data;money,an email from a supposed government office asked me to log in to check a fine,PHISHING_SPOOFING,0.5386,0,PHISHING_SPOOFING,12.39,logistic_regression@2026.11.15
+1,4,2026-11-14T20:54:00+00:00,social_media,account;personal_data,they hacked my Gmail account and changed the recovery email,ABUSIVE_ACCESS,0.9949,0,ABUSIVE_ACCESS,14.05,logistic_regression@2026.11.15
+1,4,2026-11-11T14:19:00+00:00,sms_whatsapp,money;personal_data,"me enganaron y transferi 350,000 pesos a un vendedor falso",TRANSFER_FRAUD,0.9899,0,TRANSFER_FRAUD,10.42,logistic_regression@2026.11.15
+1,4,2026-11-11T17:38:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,11.56,logistic_regression@2026.11.15
+1,4,2026-11-14T10:50:00+00:00,unknown,business_system,our servers stopped working because of a denial of service attack,SYSTEM_ATTACK,0.9988,0,SYSTEM_ATTACK,11.23,logistic_regression@2026.11.15
+1,4,2026-11-10T04:33:00+00:00,website_app,money,money disappeared from Banco de Bogota and I did not make those purchases,ELECTRONIC_THEFT,0.8718,0,ELECTRONIC_THEFT,11.08,logistic_regression@2026.11.15
+1,4,2026-11-13T22:07:00+00:00,social_media,device,the phone I bought had its IMEI altered,MOBILE_DEVICES,0.9931,0,MOBILE_DEVICES,11.65,logistic_regression@2026.11.15
+1,4,2026-11-15T03:44:00+00:00,device,device,I bought a used phone and the operator says the IMEI is cloned,MOBILE_DEVICES,0.9978,0,MOBILE_DEVICES,12.22,logistic_regression@2026.11.15
+1,4,2026-11-13T01:41:00+00:00,sms_whatsapp,account,they hijacked my WhatsApp with a six digit code I shared by mistake,ABUSIVE_ACCESS,0.7647,0,ABUSIVE_ACCESS,12.34,logistic_regression@2026.11.15
+1,4,2026-11-10T07:06:00+00:00,social_media,personal_data,a database with my address and phone number is being sold,PERSONAL_DATA,0.9956,0,PERSONAL_DATA,14.24,logistic_regression@2026.11.15
