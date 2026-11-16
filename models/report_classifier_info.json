@@ -1,0 +1,62 @@
+{
+  "name": "Incident report classifier",
+  "version": "2026.11.15",
+  "algorithm": "logistic_regression",
+  "best_params": {
+    "C": 8.0
+  },
+  "target": "category",
+  "features": [
+    "description",
+    "channel",
+    "affected_money",
+    "affected_account",
+    "affected_personal_data",
+    "affected_device",
+    "affected_business_system"
+  ],
+  "labels": [
+    "ABUSIVE_ACCESS",
+    "ELECTRONIC_THEFT",
+    "MALWARE",
+    "MOBILE_DEVICES",
+    "PERSONAL_DATA",
+    "PHISHING_SPOOFING",
+    "SYSTEM_ATTACK",
+    "TRANSFER_FRAUD"
+  ],
+  "metrics": {
+    "cv_f1_macro_mean": 0.9559817680611136,
+    "cv_f1_macro_std": 0.010103093314091633,
+    "cv_accuracy_mean": 0.9571982316050566,
+    "train_f1_macro": 1.0,
+    "test_accuracy": 0.966824644549763,
+    "test_precision_macro": 0.9661149516008979,
+    "test_recall_macro": 0.9654053355610217,
+    "test_f1_macro": 0.9651239701932065,
+    "test_top2_accuracy": 0.995260663507109,
+    "test_mean_confidence": 0.8600141158922326,
+    "test_coverage_above_threshold": 0.981042654028436,
+    "test_accuracy_above_threshold": 0.9734299516908212,
+    "holdout_accuracy": 0.9782608695652174,
+    "holdout_precision_macro": 0.9821428571428572,
+    "holdout_recall_macro": 0.9791666666666667,
+    "holdout_f1_macro": 0.9790209790209791,
+    "holdout_top2_accuracy": 1.0,
+    "holdout_mean_confidence": 0.8658134838057873,
+    "holdout_coverage_above_threshold": 0.9782608695652174,
+    "holdout_accuracy_above_threshold": 1.0
+  },
+  "selection_rule": "Highest mean macro F1 in 5-fold StratifiedGroupKFold cross-validation (grouped by template) on the training split",
+  "validation": "Hyper-parameters tuned with GridSearchCV on the training split only; the template-held-out test split and the realistic holdout were not used for tuning or selection",
+  "low_confidence_threshold": 0.45,
+  "training_date_utc": "2026-11-15T03:23:48.703410+00:00",
+  "training_rows": 1658,
+  "test_rows": 422,
+  "holdout_rows": 46,
+  "templates": 93,
+  "sources": {
+    "seed": 2080
+  },
+  "random_state": 42
+}
