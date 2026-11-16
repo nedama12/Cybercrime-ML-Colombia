@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% from '_ui.html' import fold, pct, status_badge %}
+{% set info = report.final_info %}
+{% block content %}
+<section class="portal-page container" id="top" style="max-width:880px">
+  <div class="success-hero">
+    <div class="success-mark" aria-hidden="true">✓</div>
+    <div>
+      <p class="eyebrow">Report received</p>
+      <h1>Thank you. <span>Your report counts.</span></h1>
+      <p class="lead">Reference <span class="ref">{{ report.reference }}</span> · {{ status_badge(report) }}{% if report.duration_seconds %} · completed in {{ report.duration_seconds // 60 }} min {{ report.duration_seconds % 60 }} s{% endif %}</p>
+    </div>
+  </div>
+
+  <div class="result-card" id="classification">
+    <p class="eyebrow">What the system identified</p>
+    {% if report.needs_review and not report.confirmed_category %}
+      <h2>{{ info.label }}</h2>
+      <p>{{ info.summary }} The closest match was <strong>{{ report.predicted_info.label|lower }}</strong> ({{ pct(report.confidence) }}).</p>
+    {% else %}
+      <h2>{{ info.label }}</h2>
+      <p>{{ info.summary }}</p>
+      {% if not report.confirmed_category %}
+      <div class="confidence" aria-label="Model confidence"><div class="bar"><i style="width: {{ (report.confidence*100)|round(0) }}%"></i></div><strong>{{ pct(report.confidence) }}</strong></div>
+      <p class="result-meta">Model confidence · {{ info.law }}{% if report.alternatives %} · Also possible: {% for alt in report.alternatives %}{{ category_info(alt.category).label|lower }} ({{ pct(alt.probability) }}){% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</p>
+      {% else %}
+      <p class="result-meta">Confirmed by an analyst · {{ info.law }}</p>
+      {% endif %}
+    {% endif %}
+    <div class="feedback-row no-print">
+      {% if report.user_agrees is none %}
+        <span>Does this describe what happened to you?</span>
+        <form method="post" action="{{ url_for('report_feedback', report_id=report.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="chip-button" name="agrees" value="yes">Yes</button></form>
+        <form method="post" action="{{ url_for('report_feedback', report_id=report.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="chip-button" name="agrees" value="no">Not really</button></form>
+      {% elif report.user_agrees %}
+        <span>✓ You confirmed this category. Thank you.</span>
+      {% else %}
+        <span>✓ Noted. An analyst will assign the right category.</span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% call fold('Do this now', kicker='Protect yourself', open=true) %}
+    <ol>{% for step in info.steps %}<li>{{ step }}</li>{% endfor %}</ol>
+  {% endcall %}
+
+  {% call fold('Why your report matters', kicker='Your contribution', open=true) %}
+    {% if department_cases %}
+      <p class="impact-number">{{ '{:,}'.format(department_cases) }}</p>
+      <p>cases of <strong>{{ category_info(report.confirmed_category or report.predicted_category).label|lower }}</strong> were registered by the Attorney General's Office in <strong>{{ report.department_label }}</strong> since 2010. Yours joins them.</p>
+    {% endif %}
+    <p>Official records count cases, but they do not say <em>how</em> people are attacked. Your report adds the channel, what was affected and your own words. This helps identify new fraud patterns by region, and once an analyst confirms it, your report becomes an example that makes the classifier more accurate for the next person.</p>
+  {% endcall %}
+
+  {% call fold('What happens next', kicker='Follow-up', open=true) %}
+    <ol class="timeline">
+      <li class="done"><strong>Received and classified</strong><span>Your report is saved with reference {{ report.reference }}.</span></li>
+      <li class="{{ 'done' if report.status != 'received' }}"><strong>Analyst review</strong><span>An analyst checks the category and may add a note for you.</span></li>
+      <li class="{{ 'done' if report.status == 'closed' }}"><strong>Closed and added to statistics</strong><span>Anonymous data feeds the regional view of cybercrime.</span></li>
+    </ol>
+    <a class="portal-text-link" href="{{ url_for('my_reports') }}">Follow the status in My reports →</a>
+  {% endcall %}
+
+  {% call fold('Make it official', kicker='File a formal complaint', open=true) %}
+    <p>This platform does <strong>not</strong> replace a criminal complaint. If you want the authorities to investigate, use one of these official channels. Copy your summary below and paste it, so you do not have to start again.</p>
+    <div class="contact-grid">
+      <a class="contact" href="https://adenunciar.policia.gov.co" target="_blank" rel="noopener"><strong>A Denunciar</strong><b>Online complaint</b><span>National Police and Attorney General's Office · adenunciar.policia.gov.co</span></a>
+      <a class="contact" href="https://caivirtual.policia.gov.co" target="_blank" rel="noopener"><strong>CAI Virtual</strong><b>24/7 cyber police</b><span>National Police cyber center · caivirtual.policia.gov.co</span></a>
+      <div class="contact"><strong>Attorney General's Office</strong><b>122</b><span>Free national line to report crimes</span></div>
+      <div class="contact"><strong>Emergencies</strong><b>123</b><span>If someone is in danger</span></div>
+      {% if (report.confirmed_category or report.predicted_category) == 'PERSONAL_DATA' %}
+      <a class="contact" href="https://www.sic.gov.co" target="_blank" rel="noopener"><strong>Superintendence of Industry and Commerce</strong><b>Data protection</b><span>Complaints about misuse of personal data · sic.gov.co</span></a>{% endif %}
+      {% if (report.confirmed_category or report.predicted_category) == 'SYSTEM_ATTACK' %}
+      <a class="contact" href="https://www.colcert.gov.co" target="_blank" rel="noopener"><strong>ColCERT</strong><b>Organisations</b><span>National cyber emergency response team · colcert.gov.co</span></a>{% endif %}
+    </div>
+  {% endcall %}
+
+  {% call fold('Your report summary', kicker='Copy or print') %}
+    <dl class="summary-list" id="summary">
+      <dt>Reference</dt><dd>{{ report.reference }}</dd>
+      <dt>Date of the incident</dt><dd>{{ report.occurred_on }}</dd>
+      <dt>Place</dt><dd>{{ report.municipality ~ ', ' if report.municipality }}{{ report.department_label }}</dd>
+      <dt>How it started</dt><dd>{{ report.channel_label }}</dd>
+      <dt>What was affected</dt><dd>{{ report.affected_list|join(', ') }}</dd>
+      {% if report.amount_lost %}<dt>Amount lost</dt><dd>COP {{ '{:,}'.format(report.amount_lost) }}</dd>{% endif %}
+      <dt>Type of incident</dt><dd>{{ info.label }} ({{ info.law }})</dd>
+      <dt>Description</dt><dd>{{ report.description }}</dd>
+    </dl>
+    <div class="actions-row no-print" style="margin-top:16px">
+      <button type="button" class="button button-secondary" id="copy-summary">Copy summary</button>
+      <button type="button" class="button button-secondary" onclick="window.print()">Print or save as PDF</button>
+      <span id="copy-status" class="panel-note" role="status"></span>
+    </div>
+  {% endcall %}
+
+  <div class="actions-row no-print" style="margin-top:26px">
+    <a class="button button-primary" href="{{ url_for('dashboard') }}">Go to my dashboard <span aria-hidden="true">↗</span></a>
+    <a class="portal-text-link" href="{{ url_for('report_new') }}">Report another incident →</a>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script>
+document.getElementById('copy-summary')?.addEventListener('click', async () => {
+  const rows = [...document.querySelectorAll('#summary dt')].map(dt => dt.textContent + ': ' + dt.nextElementSibling.textContent.trim());
+  const status = document.getElementById('copy-status');
+  try { await navigator.clipboard.writeText(rows.join('\n')); status.textContent = 'Copied.'; }
+  catch (e) { status.textContent = 'Select the text above and copy it manually.'; }
+});
+</script>{% endblock %}

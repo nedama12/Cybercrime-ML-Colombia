@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="portal-page container report-shell" id="top">
+  <div class="portal-page-heading" style="margin-bottom:18px">
+    <p class="eyebrow">New report · about 90 seconds</p>
+    <h1>What <span>happened?</span></h1>
+  </div>
+
+  <div class="step-progress" aria-hidden="true"><span class="done" data-bar="1"></span><span data-bar="2"></span><span data-bar="3"></span></div>
+  <div class="step-progress-label"><span id="step-label">Step 1 of 3</span><span id="time-left">About 90 seconds left</span></div>
+
+  {% if errors %}<div class="portal-alert error form-errors" role="alert"><strong>Please check:</strong><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+
+  <form method="post" id="report-form" {% if errors %}data-show-all="1"{% endif %} novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="started_at" value="{{ request.form.get('started_at', started_at) }}">
+
+    <section class="report-step" data-step="1">
+      <h2>When and where</h2>
+      <p class="hint">An approximate date is fine.</p>
+      <div class="question"><label for="occurred_on">When did it happen?</label>
+        <input id="occurred_on" name="occurred_on" type="date" required max="{{ today }}" min="{{ min_date }}" value="{{ values.occurred_on }}"></div>
+      <div class="two-fields">
+        <div class="question"><label for="department">Department</label>
+          <select id="department" name="department" required>
+            <option value="">Choose…</option>
+            {% for value, label in departments %}<option value="{{ value }}" {% if values.department == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select></div>
+        <div class="question"><label for="municipality">City or town <small>(optional)</small></label>
+          <input id="municipality" name="municipality" type="text" maxlength="80" autocomplete="address-level2" value="{{ values.municipality|default('') }}"></div>
+      </div>
+      <div class="step-nav"><span class="spacer"></span><button type="button" class="button button-primary" data-next>Continue <span aria-hidden="true">→</span></button></div>
+    </section>
+
+    <section class="report-step" data-step="2">
+      <h2>How it happened</h2>
+      <p class="hint">Choose the options closest to your case.</p>
+      <fieldset class="question"><legend>How did it start?</legend>
+        <div class="choice-grid">{% for key, label in channels.items() %}
+          <label class="choice"><input type="radio" name="channel" value="{{ key }}" required {% if values.channel == key %}checked{% endif %}><span>{{ label }}</span></label>{% endfor %}
+        </div></fieldset>
+      <fieldset class="question" data-group-required="affected"><legend>What was affected? <small>(choose all that apply)</small></legend>
+        <div class="choice-grid">{% for key, label in affected.items() %}
+          <label class="choice"><input type="checkbox" name="affected" value="{{ key }}" {% if key in values.affected %}checked{% endif %}><span>{{ label }}</span></label>{% endfor %}
+        </div></fieldset>
+      <div class="question" id="amount-field" {% if 'money' not in values.affected %}hidden{% endif %}><label for="amount_lost">Approximate amount lost in pesos <small>(optional)</small></label>
+        <input id="amount_lost" name="amount_lost" type="text" inputmode="numeric" maxlength="15" placeholder="e.g. 500000" value="{{ values.amount_lost|default('') }}"></div>
+      <div class="step-nav"><button type="button" class="button button-secondary" data-back>← Back</button><button type="button" class="button button-primary" data-next>Continue <span aria-hidden="true">→</span></button></div>
+    </section>
+
+    <section class="report-step" data-step="3">
+      <h2>In your own words</h2>
+      <p class="hint">One or two sentences are enough. Never include passwords, card numbers or codes.</p>
+      <div class="question"><label for="description">What happened? <span class="char-count" id="char-count">0 / 600</span></label>
+        <textarea id="description" name="description" required minlength="15" maxlength="600" placeholder="Example: I received a text message from my bank with a link, I entered my password and then money was taken from my account.">{{ values.description|default('') }}</textarea>
+        <div class="examples" aria-label="Writing starters">
+          <button type="button" data-starter="I received a message that ">I received a message…</button>
+          <button type="button" data-starter="Money was taken from my ">Money was taken…</button>
+          <button type="button" data-starter="Someone got into my ">Someone got into my…</button>
+          <button type="button" data-starter="I paid for something and ">I paid and…</button>
+          <button type="button" data-starter="My phone or computer ">My device…</button>
+        </div></div>
+      <label class="consent"><input type="checkbox" name="consent" value="yes" required {% if values.consent %}checked{% endif %}><span>I authorise the processing of this report for analysis and anonymous statistics, under Law 1581 of 2012.</span></label>
+      <div class="step-nav" style="margin-top:18px"><button type="button" class="button button-secondary" data-back>← Back</button><button type="submit" class="button button-primary">Send report <span aria-hidden="true">↗</span></button></div>
+      <p class="privacy-note">Only you and the platform analysts can see this report.</p>
+    </section>
+  </form>
+</section>
+{% endblock %}
+{% block scripts %}<script>
+(function () {
+  document.documentElement.classList.add('js');
+  const form = document.getElementById('report-form');
+  const steps = [...form.querySelectorAll('.report-step')];
+  const bars = [...document.querySelectorAll('[data-bar]')];
+  const label = document.getElementById('step-label');
+  const timeLeft = document.getElementById('time-left');
+  const remaining = ['About 90 seconds left', 'About 60 seconds left', 'About 30 seconds left'];
+  let current = 0;
+
+  function show(index) {
+    current = index;
+    steps.forEach((step, i) => { step.hidden = i !== index; });
+    bars.forEach((bar, i) => bar.classList.toggle('done', i <= index));
+    label.textContent = 'Step ' + (index + 1) + ' of ' + steps.length;
+    timeLeft.textContent = remaining[index];
+    const focusable = steps[index].querySelector('input:not([type=hidden]), select, textarea');
+    if (focusable && index > 0) focusable.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function stepValid(step) {
+    for (const field of step.querySelectorAll('input[required], select[required], textarea[required]')) {
+      if (!field.checkValidity()) { field.reportValidity(); return false; }
+    }
+    const group = step.querySelector('[data-group-required]');
+    if (group && !group.querySelector('input:checked')) {
+      const first = group.querySelector('input');
+      first.setCustomValidity('Select at least one option.');
+      first.reportValidity();
+      setTimeout(() => first.setCustomValidity(''), 1500);
+      return false;
+    }
+    return true;
+  }
+
+  form.querySelectorAll('[data-next]').forEach(btn => btn.addEventListener('click', () => {
+    if (stepValid(steps[current])) show(current + 1);
+  }));
+  form.querySelectorAll('[data-back]').forEach(btn => btn.addEventListener('click', () => show(current - 1)));
+  form.addEventListener('submit', e => { if (!stepValid(steps[current])) e.preventDefault(); });
+
+  const money = form.querySelector('input[name=affected][value=money]');
+  const amount = document.getElementById('amount-field');
+  money.addEventListener('change', () => { amount.hidden = !money.checked; });
+
+  const text = document.getElementById('description');
+  const count = document.getElementById('char-count');
+  const update = () => { count.textContent = text.value.length + ' / 600'; };
+  text.addEventListener('input', update); update();
+  form.querySelectorAll('[data-starter]').forEach(btn => btn.addEventListener('click', () => {
+    if (!text.value.trim()) text.value = btn.dataset.starter;
+    text.focus(); text.setSelectionRange(text.value.length, text.value.length); update();
+  }));
+
+  if (form.dataset.showAll) { steps.forEach(s => { s.hidden = false; }); bars.forEach(b => b.classList.add('done'));
+    form.querySelectorAll('[data-next],[data-back]').forEach(b => { b.hidden = true; }); label.textContent = 'Review your answers'; timeLeft.textContent = ''; }
+  else { show(0); }
+})();
+</script>{% endblock %}
