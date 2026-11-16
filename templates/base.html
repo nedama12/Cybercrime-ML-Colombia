@@ -18,19 +18,25 @@
       <label class="menu-toggle" for="menu-toggle-checkbox" aria-label="Open navigation"><span></span><span></span><span></span></label>
       <div class="nav-links portal-nav-links" id="nav-links">
         <a href="{{ url_for('dashboard') }}">Dashboard</a>
-        <a href="{{ url_for('dataset') }}">Dataset</a>
-        <a href="{{ url_for('territorial_analysis') }}">Territorial Analysis</a>
-        <a href="{{ url_for('preprocessing') }}">Data Preparation</a>
-        <a href="{{ url_for('models') }}">Models</a>
-        <a href="{{ url_for('evaluation') }}">Evaluation</a>
-        <a href="{{ url_for('reports') }}">Reports</a>
+        <a href="{{ url_for('cybersecurity_assistant') }}">Intelligent Cybersecurity Assistant</a>
+        {% if current_role in ['admin', 'analyst'] %}
+          <a href="{{ url_for('dataset') }}">Dataset</a>
+          <a href="{{ url_for('territorial_analysis') }}">Territorial Analysis</a>
+          <a href="{{ url_for('preprocessing') }}">Data Preparation</a>
+          <a href="{{ url_for('models') }}">Models</a>
+          <a href="{{ url_for('evaluation') }}">Evaluation</a>
+          <a href="{{ url_for('reports') }}">Reports</a>
+        {% endif %}
         {% if current_user %}
+          <a href="{{ url_for('incidents') }}">My Incidents</a>
+          {% if current_role == 'admin' %}<a href="{{ url_for('admin_users') }}">User Administration</a>{% endif %}
           <a href="{{ url_for('history') }}">My History</a>
-          <a class="nav-cta" href="{{ url_for('prediction') }}">Make Prediction <span aria-hidden="true">↗</span></a>
+          <a class="nav-cta" href="{{ url_for('cybersecurity_assistant') }}">Get Guidance <span aria-hidden="true">↗</span></a>
           <form class="nav-logout" action="{{ url_for('logout') }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Log Out · {{ current_user }}</button></form>
         {% else %}
           <a href="{{ url_for('login') }}">Sign in</a>
-          <a class="nav-cta" href="{{ url_for('register') }}">Create account <span aria-hidden="true">↗</span></a>
+          <a href="{{ url_for('register') }}">Create account</a>
+          <a class="nav-cta" href="{{ url_for('cybersecurity_assistant') }}">Get Guidance <span aria-hidden="true">↗</span></a>
         {% endif %}
       </div>
     </nav>

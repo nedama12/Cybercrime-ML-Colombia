@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading">
+    <p class="eyebrow">Incident workflow</p>
+    <h1>Incident <span>management.</span></h1>
+    <p>Register an incident, receive an automated category suggestion, and follow its progress. Submitting here does not contact a bank, police service, or other organization.</p>
+  </div>
+
+  <form method="post" action="{{ url_for('incidents') }}" class="portal-panel prediction-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <p class="eyebrow">New incident record</p>
+    <div class="form-grid">
+      <div class="portal-field">
+        <label for="category">Your incident category</label>
+        <select id="category" name="category" required>
+          <option value="">Choose a category</option>
+          {% for category in categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}
+        </select>
+        <small>This is your initial selection. The model will make a separate suggestion.</small>
+      </div>
+      <div class="portal-field">
+        <label for="occurred_at">Incident date (optional)</label>
+        <input id="occurred_at" name="occurred_at" type="date">
+      </div>
+    </div>
+
+    <div class="portal-field">
+      <label for="channel">Where did it happen?</label>
+      <select id="channel" name="channel" required>
+        {% for value, label in channels.items() %}
+          <option value="{{ value }}" {% if value == 'unknown' %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <fieldset class="portal-field">
+      <legend>What was affected? (Select all that apply)</legend>
+      <div class="form-grid">
+        {% for value, label in affected_options.items() %}
+          <label class="checkbox-field"><input type="checkbox" name="affected" value="{{ value }}"> {{ label }}</label>
+        {% endfor %}
+      </div>
+    </fieldset>
+
+    <div class="portal-field">
+      <label for="description">Describe what happened</label>
+      <textarea id="description" name="description" rows="4" minlength="20" maxlength="4000" required></textarea>
+      <small>Do not include passwords, one-time codes, full card numbers, or unnecessary sensitive details. The model provides decision support, not a legal determination.</small>
+    </div>
+    <button class="button button-primary" type="submit">Record and classify incident</button>
+  </form>
+
+  <div class="portal-panel">
+    <div class="panel-heading"><div><p class="eyebrow">{{ incidents|length }} records</p><h2>{% if current_role in ['admin','analyst'] %}All incidents{% else %}My incidents{% endif %}</h2></div></div>
+    {% if incidents %}
+      <div class="table-wrap"><table class="portal-table">
+        <thead><tr><th>Incident</th>{% if current_role in ['admin','analyst'] %}<th>Reported by</th>{% endif %}<th>Model suggestion</th><th>Date</th><th>Status</th><th></th></tr></thead>
+        <tbody>{% for incident in incidents %}
+          <tr>
+            <td>{{ incident.category }}</td>
+            {% if current_role in ['admin','analyst'] %}<td>{{ incident.reporter_name or incident.reporter_email }}</td>{% endif %}
+            <td>{% if incident.predicted_category %}{{ incident.predicted_category.replace('_', ' ').title() }}{% else %}Pending review{% endif %}</td>
+            <td>{{ incident.occurred_at or incident.created_at }}</td>
+            <td>{{ incident.status }}</td>
+            <td><a href="{{ url_for('incident_detail', incident_id=incident.id) }}">View workflow →</a></td>
+          </tr>
+        {% endfor %}</tbody>
+      </table></div>
+    {% else %}<p>No incidents have been recorded.</p>{% endif %}
+  </div>
+</section>
+{% endblock %}

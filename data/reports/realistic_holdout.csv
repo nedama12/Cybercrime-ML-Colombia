@@ -1,0 +1,47 @@
+description,channel,affected,category
+"I checked the app and saw three payments in a supermarket in Cali, I live in Bogota and never went there",unknown,money,ELECTRONIC_THEFT
+"My debit card statement shows withdrawals at night while I was sleeping",unknown,money,ELECTRONIC_THEFT
+"Nequi shows a payment of 600 thousand to someone I do not know, I did not do it",website_app,money;account,ELECTRONIC_THEFT
+"me descontaron plata de la tarjeta en una tienda virtual que no conozco",unknown,money,ELECTRONIC_THEFT
+"There were small charges every day on my credit card from a foreign website",website_app,money,ELECTRONIC_THEFT
+"compraron pasajes de avion con mi tarjeta",unknown,money,ELECTRONIC_THEFT
+"I sold my motorbike, the buyer sent a fake receipt and I handed it over, then asked me to return a deposit",social_media,money,TRANSFER_FRAUD
+"A woman on WhatsApp said she was my cousin with a new number and needed money urgently, I sent it",sms_whatsapp,money,TRANSFER_FRAUD
+"Paid a deposit for a puppy advertised on Facebook, they blocked me after",social_media,money,TRANSFER_FRAUD
+"me llamaron diciendo que era del banco y me hicieron pasar el dinero a otra cuenta segura",phone_call,money,TRANSFER_FRAUD
+"I invested in a crypto group on Telegram and cannot withdraw anything",social_media,money,TRANSFER_FRAUD
+"consigne para una oferta de trabajo en el exterior y nunca mas respondieron",sms_whatsapp,money,TRANSFER_FRAUD
+"Got a mail saying my DIAN tax refund was ready, the link asked for my bank login",email,personal_data;account,PHISHING_SPOOFING
+"SMS from 'Servientrega' asking to pay customs on a page, it asked for card number and code",sms_whatsapp,personal_data;money,PHISHING_SPOOFING
+"I clicked a link in an email from Netflix about a failed payment and typed my card",email,personal_data,PHISHING_SPOOFING
+"me mandaron un link por whatsapp de una pagina igualita a la del banco y puse mis datos",sms_whatsapp,personal_data;account,PHISHING_SPOOFING
+"the login page had a weird address with extra letters but looked like Bancolombia",website_app,personal_data,PHISHING_SPOOFING
+"recibi un correo de supuesta multa de transito con un enlace para pagar",email,personal_data,PHISHING_SPOOFING
+"My Instagram now has a different email and my followers get crypto offers from me",social_media,account,ABUSIVE_ACCESS
+"Gmail warned me of a sign in from Russia and my sent folder has emails I did not write",email,account;personal_data,ABUSIVE_ACCESS
+"A former employee still logs into our accounting software",website_app,account;business_system,ABUSIVE_ACCESS
+"perdi el acceso a mi whatsapp, alguien lo tiene y pide plata a mis contactos",sms_whatsapp,account,ABUSIVE_ACCESS
+"someone read my private chats, they got into my cloud account",unknown,account;personal_data,ABUSIVE_ACCESS
+"mi facebook lo tiene otra persona y no puedo recuperarlo",social_media,account,ABUSIVE_ACCESS
+"A bank I never used sends me collection letters for a loan under my ID number",phone_call,personal_data,PERSONAL_DATA
+"My medical records appeared in a public group chat",social_media,personal_data,PERSONAL_DATA
+"Someone opened a phone line with my cedula",unknown,personal_data,PERSONAL_DATA
+"una pagina publico mi direccion y mi telefono para acosarme",social_media,personal_data,PERSONAL_DATA
+"telemarketing companies have my data and I never authorized it",phone_call,personal_data,PERSONAL_DATA
+"crearon un perfil falso con mis fotos y mi nombre",social_media,personal_data,PERSONAL_DATA
+"All the documents on the office PC changed to .locked and a text asks for bitcoin",device,device;business_system,MALWARE
+"After installing a free game my phone battery drains and apps open alone",device,device,MALWARE
+"descargue una factura en zip y el computador empezo a funcionar raro, el antivirus dice troyano",email,device,MALWARE
+"a pop up made me install a flash update and now my browser redirects everywhere",website_app,device,MALWARE
+"Keylogger found on my laptop by the technician",device,device;personal_data,MALWARE
+"le instale una app al celular desde un link y me empezo a llegar publicidad sola",sms_whatsapp,device,MALWARE
+"Our e-commerce site is unreachable, the hosting says millions of requests are hitting it",website_app,business_system,SYSTEM_ATTACK
+"Someone wiped the backups and the production database of the clinic",unknown,business_system,SYSTEM_ATTACK
+"the municipality homepage shows an image placed by hackers",website_app,business_system,SYSTEM_ATTACK
+"tumbaron el servidor del colegio y nadie puede entrar a la plataforma",website_app,business_system,SYSTEM_ATTACK
+"they captured traffic on our wifi and read the communications",device,business_system,SYSTEM_ATTACK
+"alteraron los datos del sistema de inventario de la empresa",unknown,business_system,SYSTEM_ATTACK
+"The cellphone robbed last month is active again, the operator says the IMEI was changed",device,device,MOBILE_DEVICES
+"Bought a phone in a mall stand and it is blocked because the IMEI is duplicated",device,device;money,MOBILE_DEVICES
+"a technician offered to change the IMEI of my reported phone",device,device,MOBILE_DEVICES
+"el celular que me robaron ya esta funcionando con otro imei",device,device,MOBILE_DEVICES

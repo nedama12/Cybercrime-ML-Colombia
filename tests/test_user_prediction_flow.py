@@ -73,6 +73,7 @@ class UserPredictionFlowTest(unittest.TestCase):
         self.assertIn(b"saved to your account", prediction.data)
         self.assertEqual(user_a.get("/history").status_code, 200)
         self.assertIn(b"Prediction #1", user_a.get("/history").data)
+        self.assertIn(b"model version", user_a.get("/history").data)
 
         connection = sqlite3.connect(web.USER_DB_PATH)
         try:
@@ -146,6 +147,27 @@ class UserPredictionFlowTest(unittest.TestCase):
         })
         self.assertEqual(accepted.status_code, 302)
         self.assertEqual(user_b.get("/dashboard").status_code, 200)
+
+    def test_phishing_rejects_non_http_url_without_saving(self):
+        original_path = web.USER_DB_PATH
+        with tempfile.TemporaryDirectory(prefix="phishing-invalid-url-") as directory:
+            web.USER_DB_PATH = Path(directory) / "test.sqlite3"
+            try:
+                client = web.app.test_client()
+                token = self.csrf(client, "/register")
+                registered = client.post("/register", data={
+                    "csrf_token": token, "name": "URL Tester",
+                    "email": "url-tester@example.test", "password": "StrongPassword123"})
+                self.assertEqual(registered.status_code, 302)
+                token = self.csrf(client, "/prediction?model=phishing")
+                response = client.post("/prediction", data={
+                    "csrf_token": token, "model": "phishing", "url": "javascript:alert(1)"})
+                self.assertEqual(response.status_code, 200)
+                self.assertIn(b"valid HTTP or HTTPS URL", response.data)
+                with web.connect_db() as connection:
+                    self.assertEqual(connection.execute("SELECT COUNT(*) FROM predictions").fetchone()[0], 0)
+            finally:
+                web.USER_DB_PATH = original_path
 
     def test_additive_migration_preserves_existing_records(self):
         legacy_path = Path(self.temp_dir.name) / "legacy.sqlite3"

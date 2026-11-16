@@ -106,6 +106,14 @@ class TerritorialAnalysisTest(unittest.TestCase):
             web.app.config.update(TESTING=True, SECRET_KEY="territorial-test-secret")
             try:
                 client = web.app.test_client()
+                web.ensure_user_database()
+                with web.connect_db() as connection:
+                    connection.execute(
+                        "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)",
+                        ("Test Analyst", "territorial@example.test", "test-only", "analyst"),
+                    )
+                with client.session_transaction() as session:
+                    session["user_id"] = 1
                 response = client.get("/territorial-analysis?scope=national&basis=report&year=2025")
                 self.assertEqual(response.status_code, 200)
                 self.assertIn(b"Cybercrime Territorial and Temporal Analysis", response.data)
@@ -115,14 +123,6 @@ class TerritorialAnalysisTest(unittest.TestCase):
                 for route in ("/", "/dataset", "/preprocessing", "/models", "/evaluation", "/reports"):
                     self.assertEqual(client.get(route).status_code, 200, route)
 
-                web.ensure_user_database()
-                with web.connect_db() as connection:
-                    connection.execute(
-                        "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
-                        ("Test User", "territorial@example.test", "test-only"),
-                    )
-                with client.session_transaction() as session:
-                    session["user_id"] = 1
                 phishing_form = client.get("/prediction?model=phishing")
                 self.assertEqual(phishing_form.status_code, 200)
                 token = re.search(rb'name="csrf_token" value="([^"]+)"', phishing_form.data)

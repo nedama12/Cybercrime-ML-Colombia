@@ -1,63 +1,101 @@
 # Model Engineering Report
 
-## Purpose
+## 1. Goal
 
-This project trains supervised classifiers to predict the `categoria` label in a processed Colombian cybercrime dataset. The task is multiclass classification over nine target categories. It does not predict whether a report is true, determine legal responsibility, or forecast future crime rates.
+Classify a citizen's short incident report into the legal category of cybercrime defined by
+Law 1273 of 2009, so the platform can give the right first steps, route the report to an analyst
+and build regional evidence of new fraud patterns. Decision Tree, Random Forest and Logistic
+Regression were compared with the same protocol on two problems:
 
-## Dataset and target
+| Problem | Question | Role in the platform |
+|---|---|---|
+| Report classifier | Which category does the citizen's report describe? | In production |
+| Location benchmark | Can the category be predicted from where and when a case was registered? | Exploratory |
 
-The application dataset is `data/processed/delitos_procesado.csv`. It contains 66,400 rows and 20 columns. Rows are aggregated by offense, period, and territory; `total_procesos` is an aggregate count. The target `categoria` was created by an approximate mapping from legal offense text. It is therefore an imperfect label, and the rows are not independent incident-level observations.
+## 2. Data
 
-The target distribution is imbalanced:
+- **Official records**: `data/processed/crimes_processed.csv`, 66,400 aggregated rows from the
+  Attorney General's Office (2010-2026, 565,050 cases) after cleaning 66,422 raw rows
+  (`analysis/03_cleaning.py`, evidence in `reports/data_quality.json`).
+- **Seed corpus**: `data/reports/seed_reports.csv`, 2,080 victim-style reports (260 per category,
+  English and Spanish) generated from 93 base phrases written by the team from the legal
+  definitions (`src/build_seed_corpus.py`, seed 42). Each row keeps its `template_id`.
+- **Realistic holdout**: `data/reports/realistic_holdout.csv`, 46 reports written separately with
+  different wording. Final evaluation only.
 
-| Category | Rows |
-| --- | ---: |
-| `HURTO_ELECTRONICO` | 20,473 |
-| `ACCESO_ABUSIVO` | 15,990 |
-| `DATOS_PERSONALES` | 12,911 |
-| `PHISHING_SUPLANTACION` | 5,694 |
-| `FRAUDE_TRANSFERENCIA` | 4,921 |
-| `ATAQUE_A_SISTEMAS` | 4,725 |
-| `MALWARE` | 982 |
-| `EQUIPOS_MOVILES` | 375 |
-| `NO_ESPECIFICADO` | 329 |
+## 3. Features and leakage control
 
-## Inputs and preprocessing
+Report classifier inputs: `description` (word TF-IDF 1-2 grams + character TF-IDF 3-5 grams),
+`channel` (one-hot) and five yes/no `affected_*` columns, i.e. only what the citizen knows.
+`src/report_features.py` builds the same input for training and inference. All transformations
+live inside a scikit-learn `Pipeline`, so they are fitted only on training data.
 
-The model uses `criminalidad`, `departamento_hecho`, `municipio_hecho`, `seccional`, `ano_hechos`, `ano_entrada`, `ano_denuncia`, and `anio_parcial`. `delito` and `articulo` were excluded because they contribute directly to the target mapping. Legal text derivatives, aggregate counts, and case outcome fields were also excluded.
+The benchmark uses `criminality`, `department`, `municipality`, `regional_office`, `offense_year`,
+`entry_year`, `report_year` and `partial_year`; the columns the category is derived from and the
+procedural stage columns are excluded.
 
-Each saved scikit-learn pipeline imputes numeric values with the median, scales numeric values, imputes categorical values with the most frequent value, and applies one-hot encoding. Unseen categories are ignored by the encoder. Classifiers use balanced class weights. The web form restricts inputs to observed categorical values and numeric ranges in the training dataset.
+## 4. Protocol
 
-## Models and saved evaluation
+1. 80/20 split with `StratifiedGroupKFold` grouped by `template_id`: 1,658 training reports
+   (74 base phrases) and 422 test reports whose 19 base phrases never appear in training.
+2. `GridSearchCV` with 5-fold `StratifiedGroupKFold` on the training split only, metric macro F1.
+   Grids: Decision Tree `max_depth` {None, 30} × `min_samples_leaf` {1, 3, 5}; Random Forest
+   `max_depth` {None, 40} × `min_samples_leaf` {1, 2}; Logistic Regression `C` {0.5, 2, 8, 32}.
+   All 14 configurations are logged in `reports/report_classifier/experiments.csv`.
+3. Selection: highest mean cross-validated macro F1.
+4. Final evaluation on the test split and on the realistic holdout, never used for tuning or
+   selection.
 
-The artifacts compare Decision Tree, Random Forest, and Logistic Regression using a stratified 80/20 split with `random_state=42` (53,120 training rows and 13,280 test rows).
+## 5. Results
 
-| Model | Accuracy | Macro precision | Macro recall | Macro F1 | Weighted F1 |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Decision Tree | 0.1422 | 0.1265 | 0.1804 | 0.1123 | 0.1613 |
-| Random Forest | 0.1717 | 0.1461 | 0.2322 | 0.1326 | 0.1935 |
-| Logistic Regression | 0.1398 | 0.1513 | 0.2481 | 0.1176 | 0.1625 |
+| Model | Best parameters | CV macro F1 | Training F1 | Test accuracy | Test macro F1 | Holdout accuracy | Mean confidence (test) |
+|---|---|---:|---:|---:|---:|---:|---:|
+| Decision Tree | max_depth None, min_samples_leaf 1 | 0.743 ± 0.087 | 1.000 | 0.737 | 0.705 | 0.761 | 1.000 |
+| Random Forest | max_depth None, min_samples_leaf 1 | 0.828 ± 0.070 | 1.000 | 0.884 | 0.878 | 0.739 | 0.594 |
+| **Logistic Regression** | **C = 8** | **0.956 ± 0.010** | 1.000 | **0.967** | **0.965** | **0.978** | 0.860 |
 
-The stored artifact selects Logistic Regression using a score that combines macro F1 (40%), macro precision (20%), macro recall (20%), and average recall across classes below 2% prevalence (20%). The selected model favors minority-class recall and macro precision, while Random Forest has the best accuracy and macro F1 in the saved comparison.
+**Logistic Regression (C = 8) is in production.** It is also the most stable model across folds.
+The trees reach F1 = 1.0 on training but lose 0.17-0.26 in cross-validation (overfitting to the
+training phrases); the Decision Tree is over-confident and the Random Forest under-confident.
+Stronger regularisation (C = 0.5) lowered the CV F1 to 0.931 (underfitting).
 
-## Evaluation limitation
+On the realistic holdout the selected model reaches accuracy 0.978, macro F1 0.979 and top-2
+accuracy 1.000; 97.8 % of the reports are answered above the 45 % confidence threshold. Reports
+below the threshold are sent to an analyst instead of showing an uncertain answer.
 
-The current training procedure calculates the selection score from the same test results shown above. The test split therefore influenced model selection and is not an untouched final evaluation set. Do not describe these results as an unbiased estimate of future performance. For a final evaluation, select hyperparameters and models on training/validation data, freeze the choice, and evaluate once on a held-out test set. Consider a temporal or group-based split because rows can share territory, period, and other patterns.
+**Location benchmark** (66,400 official rows, stratified 80/20): accuracy 0.145-0.160 and
+macro F1 0.112-0.128 for the three algorithms. Location and time do not identify the offense,
+which is why the platform asks the citizen what happened.
 
-The saved macro F1 is 0.1176 and accuracy is 0.1398. These are low scores. Probabilities shown in the application come from `predict_proba`; no probability calibration has been performed, so they should not be interpreted as calibrated confidence.
+## 6. Deployment and monitoring
 
-## Artifacts
+`models/report_classifier.joblib` stores the full pipeline; `models/report_classifier_info.json`
+stores version, parameters, metrics and threshold; `models/report_reference_stats.json` stores
+the training distributions used for drift detection. `src/report_model.py` is the single entry
+point used by `app.py`. Every report stores the prediction, confidence, model version, inference
+time and the time the citizen needed to complete it.
 
-- `models/best_model.joblib`: selected preprocessing and classifier pipeline used by the application.
-- `models/best_model_info.json`: feature schema, class counts, training split, selection rule, and saved metrics.
-- `reports/model_comparison.csv`: model-level metrics.
-- `reports/classification_reports/`: per-class metrics.
-- `reports/confusion_matrices/`: confusion matrices for each model.
+`python -m src.monitoring` runs the model on 600 **simulated** operational reports over four
+weeks. Weeks 1-2 stay within thresholds; weeks 3-4 introduce new fraud wording and more
+social-media reports and raise drift alerts (PSI of the channel 0.38-0.39 > 0.25) while the
+agreement stays above 98 %.
 
-Serialized models were generated with scikit-learn 1.8.0. Load them with that version to avoid compatibility warnings or unsupported behavior.
+## 7. Limitations
 
-## Application behavior and scope
+- The training text is written by the team, not real victim reports, and the realistic holdout
+  is small (46 reports). Real performance must be tracked with the analyst agreement rate.
+- The official data is aggregated and its categories come from an approximate mapping of legal
+  articles.
+- The platform does not replace a criminal complaint.
 
-`src/predict.py` loads the saved pipeline and returns the predicted class and class probabilities. The Flask application validates form values and stores inputs and results in the signed-in user's history. These predictions demonstrate model inference only. They are not suitable for law enforcement, legal, or resource allocation decisions.
+## 8. Reproduce
 
-The separate phishing dataset mentioned by the analysis project is not included in the repository and is not used by this classifier.
+```
+python -m src.data_quality
+python -m src.build_seed_corpus
+python -m src.train_report_model
+python -m src.train
+python -m src.monitoring
+python -m src.verify_models
+python -m unittest discover -s tests
+```

@@ -8,6 +8,8 @@ import os
 import secrets
 import sqlite3
 import hmac
+import csv
+import io
 import time
 from collections import defaultdict, deque
 from functools import lru_cache
@@ -17,12 +19,15 @@ from datetime import timedelta
 
 import pandas as pd
 from flask import (Flask, abort, flash, redirect, render_template, request,
-                   send_from_directory, session, url_for)
+                   send_from_directory, session, url_for, Response)
+import click
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from src.predict import MODEL_PATH, predict_incident
-from src.phishing_predict import MODEL_PATH as PHISHING_MODEL_PATH, predict_url
+from src.phishing_predict import MODEL_PATH as PHISHING_MODEL_PATH, INFO_PATH as PHISHING_INFO_PATH, predict_url
 from src.territorial_analysis import build_analysis_context
+from src.cybersecurity_guidance import assess_situation
+from src.report_model import classify_report, category_info as report_category_info, model_available as report_model_available
 
 ROOT = Path(__file__).resolve().parent
 DATA_PATH = ROOT / "data/processed/delitos_procesado.csv"
@@ -38,6 +43,10 @@ SECRET_KEY_PATH = INSTANCE_DIR / "flask_secret_key"
 LOGIN_ATTEMPT_WINDOW_SECONDS = 10 * 60
 LOGIN_LOCK_SECONDS = 2 * 60
 LOGIN_MAX_FAILURES = 5
+USER_ROLES = {"admin", "analyst", "user"}
+INCIDENT_CATEGORIES = {"Phishing", "Account Theft", "Banking or Transfer Fraud", "Malware",
+                       "Identity Impersonation", "Suspicious Website", "Other Cybersecurity Incident"}
+INCIDENT_STATES = {"Open", "Under Review", "In Progress", "Resolved", "Closed"}
 _login_failures: dict[tuple[str, str], deque[float]] = defaultdict(deque)
 _login_blocked_until: dict[tuple[str, str], float] = {}
 logger = logging.getLogger(__name__)
@@ -92,6 +101,10 @@ def ensure_user_database() -> None:
         user_columns = {row["name"] for row in connection.execute("PRAGMA table_info(users)")}
         if "name" not in user_columns:
             connection.execute("ALTER TABLE users ADD COLUMN name TEXT NOT NULL DEFAULT ''")
+        if "role" not in user_columns:
+            connection.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'")
+        if "is_active" not in user_columns:
+            connection.execute("ALTER TABLE users ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1")
         connection.execute("""CREATE TABLE IF NOT EXISTS predictions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
@@ -103,9 +116,77 @@ def ensure_user_database() -> None:
         )""")
         connection.execute("CREATE INDEX IF NOT EXISTS idx_predictions_user_created "
                            "ON predictions(user_id, created_at DESC)")
+        connection.execute("""CREATE TABLE IF NOT EXISTS incidents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            category TEXT NOT NULL,
+            description TEXT NOT NULL,
+            occurred_at TEXT,
+            status TEXT NOT NULL DEFAULT 'Open',
+            analyst_notes TEXT NOT NULL DEFAULT '',
+            channel TEXT NOT NULL DEFAULT 'unknown',
+            affected_json TEXT NOT NULL DEFAULT '[]',
+            predicted_category TEXT,
+            prediction_confidence REAL,
+            alternatives_json TEXT NOT NULL DEFAULT '[]',
+            model_version TEXT,
+            needs_review INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+        )""")
+        # Backward-compatible migration for existing SQLite databases.
+        incident_columns = {row["name"] for row in connection.execute("PRAGMA table_info(incidents)")}
+        incident_migrations = {
+            "channel": "TEXT NOT NULL DEFAULT 'unknown'",
+            "affected_json": "TEXT NOT NULL DEFAULT '[]'",
+            "predicted_category": "TEXT",
+            "prediction_confidence": "REAL",
+            "alternatives_json": "TEXT NOT NULL DEFAULT '[]'",
+            "model_version": "TEXT",
+            "needs_review": "INTEGER NOT NULL DEFAULT 1",
+        }
+        for column, definition in incident_migrations.items():
+            if column not in incident_columns:
+                connection.execute(f"ALTER TABLE incidents ADD COLUMN {column} {definition}")
+        connection.execute("""CREATE TABLE IF NOT EXISTS incident_updates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            incident_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            status TEXT NOT NULL,
+            note TEXT NOT NULL DEFAULT '',
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(incident_id) REFERENCES incidents(id) ON DELETE CASCADE,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+        )""")
+        connection.execute("CREATE INDEX IF NOT EXISTS idx_incidents_user_created "
+                           "ON incidents(user_id, created_at DESC)")
+
+
+@app.cli.command("promote-admin")
+@click.argument("email")
+def promote_admin_command(email: str) -> None:
+    """Grant admin to an existing account from a trusted deployment shell."""
+    ensure_user_database()
+    with connect_db() as connection:
+        row = connection.execute("SELECT id FROM users WHERE email = ? COLLATE NOCASE", (email,)).fetchone()
+        if row is None:
+            raise click.ClickException("Create the account first, then run this command.")
+        connection.execute("UPDATE users SET role = 'admin', is_active = 1 WHERE id = ?", (row["id"],))
+    click.echo(f"Administrator role granted to {email}.")
 
 
 def save_prediction(user_id: int, incident: dict, result: dict) -> int:
+    model_key = incident.get("_model", "cybercrime")
+    if model_key == "phishing":
+        metadata = read_json(PHISHING_INFO_PATH, {}) or {}
+        training = metadata.get("scikit_learn_version", "unknown")
+        dataset_hash = (metadata.get("dataset", {}) or {}).get("sha256", "")[:12]
+        version = f"sklearn-{training}/data-{dataset_hash or 'unspecified'}"
+    else:
+        metadata = get_info()
+        version = str(metadata.get("training_date_utc") or metadata.get("algorithm") or "unknown")
+    incident.setdefault("_model_version", version)
     with connect_db() as connection:
         cursor = connection.execute(
             "INSERT INTO predictions (user_id, incident_json, category, probabilities_json) "
@@ -120,11 +201,23 @@ def current_user_email() -> str | None:
     if not user_id:
         return None
     with connect_db() as connection:
-        row = connection.execute("SELECT name, email FROM users WHERE id = ?", (user_id,)).fetchone()
-    if row is None:
+        row = connection.execute("SELECT name, email, is_active FROM users WHERE id = ?", (user_id,)).fetchone()
+    if row is None or not row["is_active"]:
         session.clear()
         return None
     return str(row["name"] or row["email"])
+
+
+def current_user_role() -> str | None:
+    user_id = session.get("user_id")
+    if not user_id:
+        return None
+    with connect_db() as connection:
+        row = connection.execute("SELECT role, is_active FROM users WHERE id = ?", (user_id,)).fetchone()
+    if row is None or not row["is_active"]:
+        session.clear()
+        return None
+    return str(row["role"] or "user")
 
 
 def _login_key(email: str) -> tuple[str, str]:
@@ -169,11 +262,37 @@ def prepare_user_database():
 def login_required(view):
     @wraps(view)
     def wrapped(*args, **kwargs):
-        if not session.get("user_id"):
+        user_id = session.get("user_id")
+        if not user_id:
             flash("Sign in to submit a prediction.", "error")
             return redirect(url_for("login", next=request.full_path.rstrip("?")))
+        with connect_db() as connection:
+            active = connection.execute("SELECT is_active FROM users WHERE id=?", (user_id,)).fetchone()
+        if active is None or not active["is_active"]:
+            session.clear()
+            flash("This account is unavailable. Contact an administrator.", "error")
+            return redirect(url_for("login"))
         return view(*args, **kwargs)
     return wrapped
+
+
+def roles_required(*roles):
+    def decorator(view):
+        @wraps(view)
+        def wrapped(*args, **kwargs):
+            if not session.get("user_id"):
+                flash("Sign in to access this page.", "error")
+                return redirect(url_for("login", next=request.full_path.rstrip("?")))
+            role = current_user_role()
+            if role not in roles:
+                abort(403)
+            return view(*args, **kwargs)
+        return wrapped
+    return decorator
+
+
+analyst_required = roles_required("analyst", "admin")
+admin_required = roles_required("admin")
 
 
 def validate_csrf() -> None:
@@ -226,6 +345,58 @@ def get_model_summaries() -> list[dict]:
     return summaries
 
 
+def prediction_report_rows() -> list[dict]:
+    with connect_db() as connection:
+        rows = connection.execute(
+            "SELECT p.id,p.user_id,p.incident_json,p.category,p.created_at,u.email "
+            "FROM predictions p JOIN users u ON u.id=p.user_id "
+            "ORDER BY p.created_at DESC,p.id DESC").fetchall()
+    results = []
+    for row in rows:
+        incident = json.loads(row["incident_json"])
+        model_key = incident.pop("_model", "cybercrime")
+        version = incident.pop("_model_version", "Unknown")
+        results.append({"id": row["id"], "user_id": row["user_id"], "email": row["email"],
+                        "created_at": row["created_at"], "analysis": model_key,
+                        "category": row["category"], "model_version": version,
+                        "department": incident.get("departamento_hecho", ""),
+                        "municipality": incident.get("municipio_hecho", "")})
+    return results
+
+
+def activity_report_context() -> dict:
+    rows = prediction_report_rows()
+    phishing = [row for row in rows if row["analysis"] == "phishing"]
+    crime = [row for row in rows if row["analysis"] != "phishing"]
+    category_counts: dict[str, int] = defaultdict(int)
+    month_counts: dict[str, int] = defaultdict(int)
+    territory_counts: dict[str, int] = defaultdict(int)
+    user_counts: dict[str, int] = defaultdict(int)
+    for row in crime:
+        category_counts[row["category"]] += 1
+        place = ", ".join(str(value) for value in (row["department"], row["municipality"]) if value)
+        if place:
+            territory_counts[place] += 1
+    for row in rows:
+        month_counts[str(row["created_at"])[:7]] += 1
+        user_counts[row["email"]] += 1
+    report = {"total_analyses": len(rows), "phishing_count": len(phishing),
+              "crime_count": len(crime),
+              "categories": sorted(({"name": k, "count": v} for k, v in category_counts.items()),
+                                   key=lambda item: (-item["count"], item["name"])),
+              "months": sorted(({"month": k, "count": v} for k, v in month_counts.items()),
+                               key=lambda item: item["month"], reverse=True)[:12],
+              "territories": sorted(({"name": k, "count": v} for k, v in territory_counts.items()),
+                                    key=lambda item: (-item["count"], item["name"]))[:15],
+              "users": sorted(({"email": k, "count": v} for k, v in user_counts.items()),
+                              key=lambda item: (-item["count"], item["email"]))}
+    for key in ("categories", "months", "territories", "users"):
+        peak = max((item["count"] for item in report[key]), default=0)
+        for item in report[key]:
+            item["percent"] = 100 * item["count"] / peak if peak else 0
+    return report
+
+
 def dataset_context() -> dict:
     df = get_dataset()
     if df.empty:
@@ -251,6 +422,7 @@ def inject_shared_context():
             "model_ready": MODEL_PATH.exists() and INFO_PATH.exists(),
             "phishing_model_ready": PHISHING_MODEL_PATH.exists(),
             "current_user": current_user_email(),
+            "current_role": current_user_role(),
             "csrf_token": session.setdefault("_csrf_token", secrets.token_urlsafe(32))}
 
 
@@ -272,13 +444,196 @@ def dashboard():
                            metrics=get_metrics(), prediction_count=prediction_count)
 
 
+@app.get("/admin/users")
+@admin_required
+def admin_users():
+    with connect_db() as connection:
+        users = connection.execute(
+            "SELECT id, name, email, role, is_active, created_at FROM users ORDER BY created_at, id"
+        ).fetchall()
+    return render_template("admin_users.html", page_title="User Administration", users=users,
+                           roles=sorted(USER_ROLES))
+
+
+@app.post("/admin/users/<int:user_id>")
+@admin_required
+def update_user(user_id: int):
+    validate_csrf()
+    role = request.form.get("role", "")
+    active = request.form.get("is_active", "") == "1"
+    if role not in USER_ROLES or request.form.get("is_active") not in {"0", "1"}:
+        abort(400)
+    with connect_db() as connection:
+        target = connection.execute("SELECT id, role, is_active FROM users WHERE id = ?", (user_id,)).fetchone()
+        if target is None:
+            abort(404)
+        if target["role"] == "admin" and target["is_active"] and (role != "admin" or not active):
+            other_admins = connection.execute(
+                "SELECT COUNT(*) FROM users WHERE role = 'admin' AND is_active = 1 AND id != ?",
+                (user_id,)).fetchone()[0]
+            if not other_admins:
+                flash("The last active administrator cannot be demoted or disabled.", "error")
+                return redirect(url_for("admin_users"))
+        connection.execute("UPDATE users SET role = ?, is_active = ? WHERE id = ?",
+                           (role, int(active), user_id))
+    flash("User access updated.", "success")
+    return redirect(url_for("admin_users"))
+
+
+INCIDENT_CHANNELS = {
+    "phone_call": "Phone call", "sms_whatsapp": "Text message or WhatsApp",
+    "email": "Email", "social_media": "Social media", "website_app": "Website or app",
+    "device": "Phone or computer", "unknown": "I am not sure",
+}
+INCIDENT_AFFECTED = {
+    "money": "Money", "account": "An online account", "personal_data": "Personal data",
+    "device": "A phone or computer", "business_system": "A company system or website",
+}
+
+
+@app.route("/incidents", methods=["GET", "POST"])
+@login_required
+def incidents():
+    if request.method == "POST":
+        validate_csrf()
+        category = request.form.get("category", "")
+        description = request.form.get("description", "").strip()
+        occurred_at = request.form.get("occurred_at", "").strip()
+        channel = request.form.get("channel", "unknown")
+        affected = request.form.getlist("affected")
+        if category not in INCIDENT_CATEGORIES:
+            abort(400, description="Choose a valid incident category.")
+        if not 20 <= len(description) <= 4000:
+            abort(400, description="Describe the incident in 20 to 4,000 characters.")
+        if channel not in INCIDENT_CHANNELS:
+            abort(400, description="Choose a valid incident channel.")
+        if not set(affected).issubset(INCIDENT_AFFECTED):
+            abort(400, description="Choose valid affected elements.")
+        if occurred_at:
+            try:
+                from datetime import date
+                date.fromisoformat(occurred_at)
+            except ValueError:
+                abort(400, description="Enter a valid incident date.")
+
+        classification = None
+        if report_model_available():
+            try:
+                classification = classify_report(description, channel, affected)
+            except (ValueError, OSError, RuntimeError, ImportError):
+                logger.exception("Incident report classification failed")
+
+        predicted = classification["category"] if classification else None
+        confidence = classification["confidence"] if classification else None
+        alternatives = classification["alternatives"] if classification else []
+        model_version = classification["model_version"] if classification else None
+        needs_review = bool(classification is None or classification["needs_review"])
+        initial_status = "Under Review" if needs_review else "Open"
+        if classification:
+            note = ("Automated classification: "
+                    f"{report_category_info(predicted)['label']} ({confidence:.1%} confidence).")
+            if needs_review:
+                note += " Analyst review required because confidence is low."
+        else:
+            note = "Automated classification unavailable. Analyst review required."
+
+        with connect_db() as connection:
+            cursor = connection.execute(
+                """INSERT INTO incidents
+                   (user_id,category,description,occurred_at,channel,affected_json,
+                    predicted_category,prediction_confidence,alternatives_json,model_version,
+                    needs_review,status)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (session["user_id"], category, description, occurred_at or None, channel,
+                 json.dumps(affected), predicted, confidence, json.dumps(alternatives),
+                 model_version, int(needs_review), initial_status))
+            incident_id = int(cursor.lastrowid)
+            connection.execute(
+                "INSERT INTO incident_updates(incident_id,user_id,status,note) VALUES(?,?,?,?)",
+                (incident_id, session["user_id"], initial_status, note))
+        if classification:
+            flash("Incident recorded and classified. Review the suggested category and recommendations.", "success")
+        else:
+            flash("Incident recorded. Automatic classification was unavailable, so an analyst must review it.", "warning")
+        return redirect(url_for("incident_detail", incident_id=incident_id))
+
+    role = current_user_role()
+    with connect_db() as connection:
+        if role in {"admin", "analyst"}:
+            rows = connection.execute(
+                "SELECT i.*, u.name AS reporter_name, u.email AS reporter_email FROM incidents i "
+                "JOIN users u ON u.id=i.user_id ORDER BY i.updated_at DESC, i.id DESC").fetchall()
+        else:
+            rows = connection.execute(
+                "SELECT i.*, u.name AS reporter_name, u.email AS reporter_email FROM incidents i "
+                "JOIN users u ON u.id=i.user_id WHERE i.user_id=? ORDER BY i.updated_at DESC, i.id DESC",
+                (session["user_id"],)).fetchall()
+    return render_template("incidents.html", page_title="Incident Management", incidents=rows,
+                           categories=sorted(INCIDENT_CATEGORIES), channels=INCIDENT_CHANNELS,
+                           affected_options=INCIDENT_AFFECTED)
+
+
+@app.get("/incidents/<int:incident_id>")
+@login_required
+def incident_detail(incident_id: int):
+    role = current_user_role()
+    with connect_db() as connection:
+        incident = connection.execute(
+            "SELECT i.*, u.name AS reporter_name, u.email AS reporter_email FROM incidents i "
+            "JOIN users u ON u.id=i.user_id WHERE i.id=?", (incident_id,)).fetchone()
+        if incident is None:
+            abort(404)
+        if role == "user" and incident["user_id"] != session["user_id"]:
+            abort(404)
+        updates = connection.execute(
+            "SELECT x.*, u.name AS actor_name, u.email AS actor_email FROM incident_updates x "
+            "JOIN users u ON u.id=x.user_id WHERE x.incident_id=? ORDER BY x.created_at, x.id",
+            (incident_id,)).fetchall()
+    incident_data = dict(incident)
+    incident_data["affected"] = json.loads(incident["affected_json"] or "[]")
+    incident_data["alternatives"] = json.loads(incident["alternatives_json"] or "[]")
+    incident_data["prediction_info"] = (report_category_info(incident["predicted_category"])
+                                        if incident["predicted_category"] else None)
+    incident_data["alternative_info"] = [
+        {"label": report_category_info(item["category"])["label"],
+         "probability": item["probability"]}
+        for item in incident_data["alternatives"]
+    ]
+    return render_template("incident_detail.html", page_title="Incident Detail", incident=incident_data,
+                           updates=updates, states=sorted(INCIDENT_STATES),
+                           can_review=role in {"admin", "analyst"},
+                           channels=INCIDENT_CHANNELS, affected_options=INCIDENT_AFFECTED)
+
+
+@app.post("/incidents/<int:incident_id>/review")
+@analyst_required
+def review_incident(incident_id: int):
+    validate_csrf()
+    status = request.form.get("status", "")
+    note = request.form.get("note", "").strip()
+    if status not in INCIDENT_STATES or len(note) > 2000:
+        abort(400)
+    with connect_db() as connection:
+        exists = connection.execute("SELECT id FROM incidents WHERE id=?", (incident_id,)).fetchone()
+        if exists is None:
+            abort(404)
+        connection.execute("UPDATE incidents SET status=?, analyst_notes=?, needs_review=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
+                           (status, note, int(status == "Under Review"), incident_id))
+        connection.execute("INSERT INTO incident_updates(incident_id,user_id,status,note) VALUES(?,?,?,?)",
+                           (incident_id, session["user_id"], status, note))
+    flash("Incident workflow updated.", "success")
+    return redirect(url_for("incident_detail", incident_id=incident_id))
+
+
 @app.get("/dataset")
+@analyst_required
 def dataset():
     data = dataset_context()
     return render_template("dataset.html", page_title="Dataset", data=data)
 
 
 @app.get("/territorial-analysis")
+@analyst_required
 def territorial_analysis():
     filters = {
         "scope": request.args.get("scope", "national"),
@@ -298,7 +653,32 @@ def territorial_analysis():
                            analysis=analysis, error=error)
 
 
+@app.route("/assistant", methods=["GET", "POST"])
+def cybersecurity_assistant():
+    result = None
+    values = {"problem": "", "status": "prevention", "description": "", "exposure": []}
+    if request.method == "POST":
+        validate_csrf()
+        values = {"problem": request.form.get("problem", "other")[:40],
+                  "status": request.form.get("status", "prevention")[:20],
+                  "description": request.form.get("description", "")[:2000],
+                  "exposure": request.form.getlist("exposure")}
+        if values["problem"] not in {"phishing", "suspicious_website", "account", "identity", "fraud", "malware", "unauthorized", "personal_data", "attack", "data_loss", "platform_fraud", "other"}:
+            abort(400)
+        if values["status"] not in {"prevention", "active", "post"}:
+            abort(400)
+        allowed_exposures = {"clicked_link", "entered_password", "shared_code", "downloaded_file",
+                             "opened_file", "sent_money", "lost_account", "shared_data"}
+        if not set(values["exposure"]).issubset(allowed_exposures):
+            abort(400)
+        result = assess_situation(values["problem"], values["description"], values["status"],
+                                  values["exposure"])
+    return render_template("assistant.html", page_title="Intelligent Cybersecurity Assistant",
+                           result=result, values=values)
+
+
 @app.get("/preprocessing")
+@analyst_required
 def preprocessing():
     info = get_info()
     data = dataset_context()
@@ -306,11 +686,13 @@ def preprocessing():
 
 
 @app.get("/models")
+@analyst_required
 def models():
     return render_template("models.html", page_title="Models", models=get_model_summaries(), info=get_info())
 
 
 @app.get("/evaluation")
+@analyst_required
 def evaluation():
     return render_template("evaluation.html", page_title="Evaluation", metrics=get_metrics(),
                            models=get_model_summaries(), info=get_info())
@@ -337,7 +719,7 @@ def register():
             try:
                 with connect_db() as connection:
                     cursor = connection.execute(
-                        "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+                        "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, 'user')",
                         (name, email, generate_password_hash(password)))
                 session.clear()
                 session["user_id"] = cursor.lastrowid
@@ -365,10 +747,10 @@ def login():
             return response, 429, {"Retry-After": str(retry_after)}
         with connect_db() as connection:
             user = connection.execute(
-                "SELECT id, email, password_hash FROM users WHERE email = ? COLLATE NOCASE",
+                "SELECT id, email, password_hash, is_active FROM users WHERE email = ? COLLATE NOCASE",
                 (email,)).fetchone()
         _record_login_failure(key)
-        if user and check_password_hash(user["password_hash"], password):
+        if user and user["is_active"] and check_password_hash(user["password_hash"], password):
             _login_failures.pop(key, None)
             _login_blocked_until.pop(key, None)
             session.clear()
@@ -404,8 +786,10 @@ def history():
         probabilities = json.loads(row["probabilities_json"])
         incident = json.loads(row["incident_json"])
         model_key = incident.pop("_model", "cybercrime")
+        model_version = incident.pop("_model_version", "Unknown")
         entries.append({"id": row["id"], "incident": incident,
                         "model_title": "Phishing Detection" if model_key == "phishing" else "Cybercrime Analysis",
+                        "model_version": model_version,
                         "category": row["category"],
                         "probabilities": sorted(
                             [{"name": name, "value": value} for name, value in probabilities.items()],
@@ -494,20 +878,36 @@ def prediction():
 
 
 @app.get("/reports")
+@analyst_required
 def reports():
     info = get_info()
     data = dataset_context()
     return render_template("reports.html", page_title="Reports", info=info, data=data,
-                           metrics=get_metrics())
+                           metrics=get_metrics(), activity=activity_report_context())
+
+
+@app.get("/reports/export.csv")
+@analyst_required
+def export_activity_report():
+    rows = prediction_report_rows()
+    output = io.StringIO(newline="")
+    writer = csv.DictWriter(output, fieldnames=("id", "created_at", "analysis", "category",
+                                               "model_version", "email", "department", "municipality"))
+    writer.writeheader()
+    writer.writerows(rows)
+    return Response(output.getvalue(), mimetype="text/csv; charset=utf-8",
+                    headers={"Content-Disposition": "attachment; filename=activity-report.csv"})
 
 
 @app.get("/reports/files/<path:filename>")
+@analyst_required
 def report_file(filename: str):
     # send_from_directory evita que nombres manipulados salgan de reports/.
     return send_from_directory(REPORTS_DIR, filename, as_attachment=filename.endswith(".md"))
 
 
 @app.get("/reports/confusion/<model>.png")
+@analyst_required
 def confusion_image(model: str):
     if model not in {"decision_tree", "random_forest", "logistic_regression"}:
         abort(404)
@@ -515,6 +915,7 @@ def confusion_image(model: str):
 
 
 @app.get("/reports/model-comparison.png")
+@analyst_required
 def comparison_image():
     return send_from_directory(REPORTS_DIR, "model_comparison.png")
 

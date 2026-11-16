@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading">
+    <p class="eyebrow">Incident #{{ incident.id }} · {{ incident.status }}</p>
+    <h1>{{ incident.category }}</h1>
+    <p>Submitted by {{ incident.reporter_name or incident.reporter_email }} on {{ incident.created_at }} · Reported date: {{ incident.occurred_at or 'Not provided' }}</p>
+  </div>
+
+  <article class="portal-panel">
+    <p class="eyebrow">Description</p>
+    <p class="incident-description">{{ incident.description }}</p>
+    <p><strong>Reported through:</strong> {{ channels.get(incident.channel, incident.channel) }}</p>
+    <p><strong>Affected elements:</strong>
+      {% if incident.affected %}{{ incident.affected|map('replace', '_', ' ')|join(', ') }}{% else %}Not specified{% endif %}
+    </p>
+  </article>
+
+  <article class="portal-panel">
+    <p class="eyebrow">Machine learning assessment</p>
+    {% if incident.prediction_info %}
+      <h2>{{ incident.prediction_info.label }}</h2>
+      <p>{{ incident.prediction_info.summary }}</p>
+      <p><strong>Model confidence:</strong> {{ '%.1f'|format(incident.prediction_confidence * 100) }}%</p>
+      <p><strong>Model version:</strong> {{ incident.model_version or 'Not recorded' }}</p>
+      {% if incident.needs_review %}
+        <p class="status-warning"><strong>Analyst review required.</strong> This result is uncertain and must not be treated as a confirmed classification.</p>
+      {% else %}
+        <p>The model suggestion is available for guidance. An analyst can still review and correct it.</p>
+      {% endif %}
+      {% if incident.alternative_info %}
+        <h3>Other possible categories</h3>
+        <ul>{% for item in incident.alternative_info %}
+          <li>{{ item.label }} — {{ '%.1f'|format(item.probability * 100) }}%</li>
+        {% endfor %}</ul>
+      {% endif %}
+      <h3>Suggested next steps</h3>
+      <ol>{% for step in incident.prediction_info.steps %}<li>{{ step }}</li>{% endfor %}</ol>
+      <p><strong>Legal reference for guidance:</strong> {{ incident.prediction_info.law }}</p>
+    {% else %}
+      <h2>Classification pending</h2>
+      <p>The automated classifier was unavailable when this report was submitted. An analyst must review the incident manually.</p>
+    {% endif %}
+    <small>This is an automated decision-support suggestion, not a legal conclusion or a substitute for an analyst's assessment.</small>
+  </article>
+
+  {% if incident.analyst_notes %}
+    <article class="portal-panel"><h2>Latest analyst note</h2><p>{{ incident.analyst_notes }}</p></article>
+  {% endif %}
+
+  {% if can_review %}
+    <form class="portal-panel prediction-form" method="post" action="{{ url_for('review_incident', incident_id=incident.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <p class="eyebrow">Analyst workflow</p>
+      <div class="portal-field"><label for="status">Update status</label>
+        <select id="status" name="status">{% for state in states %}<option value="{{ state }}" {% if incident.status == state %}selected{% endif %}>{{ state }}</option>{% endfor %}</select>
+      </div>
+      <div class="portal-field"><label for="note">Observation</label><textarea id="note" name="note" rows="3" maxlength="2000">{{ incident.analyst_notes }}</textarea></div>
+      <button class="button button-primary" type="submit">Save review</button>
+    </form>
+  {% endif %}
+
+  <div class="portal-panel">
+    <h2>Workflow history</h2>
+    <ol class="incident-timeline">{% for update in updates %}
+      <li><strong>{{ update.status }}</strong> · {{ update.created_at }}<p>{{ update.actor_name or update.actor_email }}{% if update.note %}: {{ update.note }}{% endif %}</p></li>
+    {% endfor %}</ol>
+  </div>
+  <a class="portal-text-link" href="{{ url_for('incidents') }}">← Back to incidents</a>
+</section>
+{% endblock %}
