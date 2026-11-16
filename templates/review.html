@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% from '_ui.html' import fold, status_badge, pct %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading"><p class="eyebrow">Analyst workspace</p><h1>Review <span>reports.</span></h1><p>Confirm or correct the category, add a note for the citizen and close the case. Confirmed reports become training data.</p></div>
+
+  <div class="portal-stat-grid">
+    <article class="portal-stat"><span>Reports received</span><strong>{{ stats.total or 0 }}</strong><small>all time</small></article>
+    <article class="portal-stat"><span>Average time to report</span><strong>{% if stats.avg_duration %}{{ (stats.avg_duration|int) // 60 }}:{{ '%02d'|format((stats.avg_duration|int) % 60) }}{% else %}—{% endif %}</strong><small>goal: under 1:30</small></article>
+    <article class="portal-stat"><span>Analyst agreement</span><strong>{% if stats.confirmed %}{{ pct(stats.matches / stats.confirmed) }}{% else %}—{% endif %}</strong><small>{{ stats.confirmed or 0 }} confirmed reports</small></article>
+    <article class="portal-stat"><span>Low-confidence share</span><strong>{% if stats.total %}{{ pct((stats.low_confidence or 0) / stats.total) }}{% else %}—{% endif %}</strong><small>sent to manual review</small></article>
+  </div>
+
+  {% call fold('Model monitoring', kicker=model.algorithm|default('')|replace('_',' ')|title ~ ' · version ' ~ model.version|default('-')) %}
+    <div class="mini-metrics">
+      <div><span>Average confidence</span><strong>{{ pct(stats.avg_confidence or 0) }}</strong></div>
+      <div><span>Average inference time</span><strong>{{ '%.0f'|format(stats.avg_inference or 0) }} ms</strong></div>
+      <div><span>Citizen agreement</span><strong>{% if stats.agreement is not none %}{{ pct(stats.agreement) }}{% else %}—{% endif %}</strong></div>
+      <div><span>Holdout accuracy at training</span><strong>{{ pct(model.metrics.holdout_accuracy|default(0)) }}</strong></div>
+    </div>
+    <p class="panel-note" style="margin-top:12px">If analyst agreement drops below 80 % or the low-confidence share rises above 25 %, retrain with <code>python -m src.train_report_model --include-confirmed</code>.</p>
+  {% endcall %}
+
+  <nav class="filter-tabs" aria-label="Filter by status">
+    {% for key, label in [('open','Open'), ('received','Received'), ('in_review','In review'), ('closed','Closed'), ('all','All')] %}
+      <a href="{{ url_for('review', status=key) }}" {% if status == key %}aria-current="true"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </nav>
+
+  {% for r in reports %}
+    <article class="portal-panel" style="margin:10px 0">
+      <div class="panel-heading">
+        <div><p class="eyebrow">{{ r.reference }} · {{ r.created_at }} · {{ r.reporter }}</p>
+          <h3 style="margin:0">{{ r.predicted_info.label }} <small class="panel-note">{{ pct(r.confidence) }}{% if r.needs_review %} · low confidence{% endif %}{% if r.user_agrees == 0 %} · citizen disagrees{% endif %}</small></h3></div>
+        {{ status_badge(r) }}
+      </div>
+      <p class="quote">{{ r.description }}</p>
+      <p style="margin-top:8px">{% for a in r.affected_list %}<span class="tag">{{ a }}</span>{% endfor %}<span class="tag">{{ r.channel_label }}</span><span class="tag">{{ r.department_label }}</span>{% if r.amount_lost %}<span class="tag">COP {{ '{:,}'.format(r.amount_lost) }}</span>{% endif %}</p>
+      <form class="review-form" method="post" action="{{ url_for('review_update', report_id=r.id, status=status) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <select name="status" aria-label="Status">{% for key, label in statuses.items() %}<option value="{{ key }}" {% if r.status == key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+        <select name="confirmed_category" aria-label="Confirmed category"><option value="">Category not confirmed</option>{% for key, item in CATEGORY_INFO.items() %}<option value="{{ key }}" {% if (r.confirmed_category or '') == key %}selected{% endif %}>{{ item.label }}</option>{% endfor %}</select>
+        <input name="analyst_note" maxlength="500" placeholder="Note for the citizen (optional)" value="{{ r.analyst_note }}">
+        <button class="button button-primary" type="submit">Save</button>
+      </form>
+    </article>
+  {% else %}
+    <div class="portal-panel empty-history"><h2>No reports in this view.</h2></div>
+  {% endfor %}
+</section>
+{% endblock %}
