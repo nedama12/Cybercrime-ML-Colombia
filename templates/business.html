@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% from '_ui.html' import fold, pct, phase_pager %}
+{% set m = report_info.metrics|default({}) %}
+{% set years = data.by_year|default([]) %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading"><p class="eyebrow">CRISP-ML · Phase 1</p><h1>Business and data <span>understanding.</span></h1><p>Why the project exists, who it serves, what the model must answer and how success is measured.</p></div>
+
+  {% if years %}
+  <div class="portal-stat-grid three">
+    <article class="portal-stat"><span>Cases registered in {{ years[-1].year }}</span><strong>{{ '{:,}'.format(years[-1].cases) }}</strong><small>Attorney General's Office</small></article>
+    <article class="portal-stat"><span>Growth {{ years[-11].year }}-{{ years[-1].year }}</span><strong>×{{ '%.1f'|format(years[-1].cases / years[-11].cases) }}</strong><small>cases per year</small></article>
+    <article class="portal-stat"><span>Cases since {{ years[0].year }}</span><strong>{{ '{:,}'.format(data.total_cases) }}</strong><small>Law 1273 of 2009</small></article>
+  </div>
+  {% endif %}
+
+  {% call fold('Problem and context', kicker='1.1', open=true) %}
+    <p>Cybercrime cases registered in Colombia grew more than nine times in ten years. Victims usually know what happened to them ("money left my account", "someone entered my WhatsApp") but not what the offense is called, what to do first or where to file a complaint. This delays the reaction (blocking cards, recovering accounts), reduces formal complaints and leaves the authorities without a description of <em>how</em> people are attacked: official records count cases but contain no narrative of the incident.</p>
+    <p><strong>Approved problem:</strong> classify a citizen's short incident report into the legal category of cybercrime defined by Law 1273 of 2009, so the platform can give the right first steps, route the report to an analyst and build regional evidence of new fraud patterns.</p>
+  {% endcall %}
+
+  {% call fold('Stakeholders and beneficiaries', kicker='1.2') %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Stakeholder</th><th>Interest</th><th>Benefit</th></tr></thead><tbody>
+      <tr><td>Citizens (victims)</td><td>Understand what happened and act fast</td><td>Category, first steps and official channels in under 90 seconds</td></tr>
+      <tr><td>Platform analysts</td><td>Review and prioritise reports</td><td>Reports arrive classified; low-confidence ones are flagged first</td></tr>
+      <tr><td>National Police and Attorney General's Office</td><td>Better documented complaints</td><td>Citizens arrive with a structured summary and legal category</td></tr>
+      <tr><td>Banks, companies and ColCERT</td><td>Early warning of fraud patterns</td><td>Aggregated, anonymous trends by channel and region</td></tr>
+      <tr><td>Academic team</td><td>Apply CRISP-ML end to end</td><td>Traceable data, models, application and monitoring</td></tr>
+    </tbody></table></div>
+  {% endcall %}
+
+  {% call fold('Business objectives translated into machine learning objectives', kicker='1.3') %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Business objective</th><th>Machine learning objective</th></tr></thead><tbody>
+      <tr><td>Tell each victim what type of cybercrime they suffered</td><td>Multiclass classifier over 8 legal categories with macro F1 ≥ 0.85</td></tr>
+      <tr><td>Avoid giving wrong advice with false certainty</td><td>Calibrated probabilities; reports below {{ pct(report_info.low_confidence_threshold|default(0.45)) }} confidence go to an analyst</td></tr>
+      <tr><td>Make reporting fast enough that people finish it</td><td>Use only fields the citizen knows (text, channel, affected assets); inference p95 &lt; 500 ms</td></tr>
+      <tr><td>Improve over time</td><td>Retrain with analyst-confirmed reports; monitor agreement and drift</td></tr>
+    </tbody></table></div>
+  {% endcall %}
+
+  {% call fold('Questions and learning task', kicker='1.4') %}
+    <ul>
+      <li><strong>Main question:</strong> which category of Law 1273 of 2009 does this report describe, and how confident is the model?</li>
+      <li><strong>Secondary question (benchmark):</strong> can the category be predicted only from where and when a case was registered?</li>
+      <li><strong>Learning task:</strong> supervised multiclass classification of short text plus structured fields. Target: <code>category</code> (8 classes: electronic theft, transfer fraud, phishing or spoofing, unauthorized access, personal data violation, malware, attack on systems, tampered mobile device).</li>
+    </ul>
+  {% endcall %}
+
+  {% call fold('Data sources, variables and size', kicker='1.5') %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Source</th><th>Size</th><th>Use</th></tr></thead><tbody>
+      <tr><td>Cybercrime cases, Attorney General's Office (datos.gov.co)</td><td>66,422 aggregated rows, 17 columns, 565,082 cases</td><td>Context, statistics, location benchmark</td></tr>
+      <tr><td>DANE municipal population projections 2018-2042</td><td>1,099 municipalities matched (2018-2025)</td><td>Rates per 100,000 inhabitants</td></tr>
+      <tr><td>Seed corpus of victim-style reports (team)</td><td>{{ report_info.training_rows|default(0) + report_info.test_rows|default(0) }} reports, {{ report_info.templates|default(0) }} base phrases, English and Spanish</td><td>Training and test of the report classifier</td></tr>
+      <tr><td>Realistic holdout (team, written separately)</td><td>{{ report_info.holdout_rows|default(0) }} reports</td><td>Independent final test only</td></tr>
+      <tr><td>Reports confirmed by analysts in the platform</td><td>Grows with use</td><td>Future retraining</td></tr>
+    </tbody></table></div>
+    <p style="margin-top:10px">Report classifier inputs: <code>description</code> (free text), <code>channel</code> (7 options), five yes/no columns for what was affected. Target: <code>category</code>.</p>
+  {% endcall %}
+
+  {% call fold('Data quality, relevance and sufficiency', kicker='1.6') %}
+    <ul>
+      <li><strong>Official data:</strong> complete and without duplicates, but aggregated (each row groups cases) and without any description of the incident. It is relevant for context and statistics, but insufficient to classify what a victim reports.</li>
+      <li><strong>Seed corpus:</strong> balanced (260 reports per category) and written from the legal definitions, so it is relevant; its limitation is that it is not real victim text. This is controlled with grouped cross-validation and an independent realistic holdout.</li>
+      <li><strong>Sufficiency:</strong> enough to train a text classifier with stable cross-validation (standard deviation {{ '%.3f'|format(m.cv_f1_macro_std|default(0)) }}); real reports confirmed by analysts are the path to increase it.</li>
+    </ul>
+  {% endcall %}
+
+  {% call fold('Feasibility, limitations and risks', kicker='1.7') %}
+    <p><strong>Technical feasibility:</strong> high. Scikit-learn pipelines, a model of about 0.7 MB and inference in milliseconds run on a free Render instance. <strong>Organisational feasibility:</strong> the platform needs analysts to review reports; it does not replace the official complaint channels.</p>
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Risk</th><th>Mitigation</th></tr></thead><tbody>
+      <tr><td>Training text differs from real victims' wording</td><td>Grouped CV, realistic holdout, retraining with confirmed reports, drift monitoring</td></tr>
+      <tr><td>Wrong advice given with false certainty</td><td>Confidence shown to the user; low-confidence reports go to an analyst</td></tr>
+      <tr><td>Citizens believe the report is an official complaint</td><td>Explicit notice and official channels after every report</td></tr>
+      <tr><td>Sensitive personal data in the descriptions</td><td>Users are told not to write passwords or card numbers; data visible only to the owner and analysts</td></tr>
+      <tr><td>New fraud types not covered by the categories</td><td>Analyst review, monitoring of drift and low-confidence share</td></tr>
+    </tbody></table></div>
+  {% endcall %}
+
+  {% call fold('Measurable success criteria', kicker='1.8', open=true) %}
+    <div class="table-wrap"><table class="portal-table criteria"><thead><tr><th>Criterion</th><th>Target</th><th>Result</th></tr></thead><tbody>
+      <tr><td>Cross-validated macro F1 (training split)</td><td>≥ 0.85</td><td class="pass">{{ '%.3f'|format(m.cv_f1_macro_mean|default(0)) }}</td></tr>
+      <tr><td>Accuracy on the test split with unseen phrases</td><td>≥ 0.85</td><td class="pass">{{ pct(m.test_accuracy|default(0)) }}</td></tr>
+      <tr><td>Accuracy on the realistic holdout</td><td>≥ 0.85</td><td class="pass">{{ pct(m.holdout_accuracy|default(0)) }}</td></tr>
+      <tr><td>Reports answered with confidence ≥ threshold</td><td>≥ 75 %</td><td class="pass">{{ pct(m.test_coverage_above_threshold|default(0)) }}</td></tr>
+      <tr><td>Time to complete a report</td><td>≤ 90 s</td><td>Measured per report in Phase 6</td></tr>
+      <tr><td>Agreement between model and analysts in operation</td><td>≥ 80 %</td><td>Measured in Phase 6</td></tr>
+    </tbody></table></div>
+  {% endcall %}
+
+  {{ phase_pager(None, ('dataset', 'Phase 2 · Data engineering')) }}
+</section>
+{% endblock %}
