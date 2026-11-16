@@ -25,9 +25,10 @@
         {% endfor %}
         {% if current_user %}
           <a href="{{ url_for('dashboard') }}" {% if here == 'dashboard' %}aria-current="page"{% endif %}>Dashboard</a>
-          {% if is_analyst %}<a href="{{ url_for('review') }}" {% if here == 'review' %}aria-current="page"{% endif %}>Review</a>{% endif %}
+          {% if is_staff %}<a href="{{ url_for('review') }}" {% if here == 'review' %}aria-current="page"{% endif %}>Review</a>{% endif %}
+          {% if is_admin %}<a href="{{ url_for('admin_operations') }}" {% if here in ('admin_operations', 'admin_users') %}aria-current="page"{% endif %}>Admin</a>{% endif %}
           <a class="nav-cta" href="{{ url_for('report_intro') }}">Report an incident <span aria-hidden="true">↗</span></a>
-          <a href="{{ url_for('account') }}" {% if here == 'account' %}aria-current="page"{% endif %} title="Account security">{{ current_user }}</a>
+          <a href="{{ url_for('account') }}" {% if here == 'account' %}aria-current="page"{% endif %} title="Account · {{ role_label }}">{{ current_user }}</a>
           <form class="nav-logout" action="{{ url_for('logout') }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Log out</button></form>
         {% else %}
           <a href="{{ url_for('report_intro') }}" {% if here == 'report_intro' %}aria-current="page"{% endif %}>Report an incident</a>
@@ -44,7 +45,7 @@
     {% block content %}{% endblock %}
   </main>
   <footer class="site-footer">
-    <div class="container footer-inner"><a class="brand footer-brand" href="{{ url_for('home') }}"><span class="brand-mark">⌁</span> Cybercrime <span>Colombia</span></a><p>Academic project · Machine Learning · Colombia. This platform does not replace a formal criminal complaint.</p><a class="back-top" href="#top">Back to top ↑</a></div>
+    <div class="container footer-inner"><a class="brand footer-brand" href="{{ url_for('home') }}"><span class="brand-mark">⌁</span> Cybercrime <span>Colombia</span></a><p>Academic project · Machine Learning · Colombia. This platform does not replace a formal criminal complaint. <a href="{{ url_for('system_design') }}">System design</a> · <a href="{{ url_for('user_help') }}">User manual</a></p><a class="back-top" href="#top">Back to top ↑</a></div>
     <div class="container footer-bottom"><span>Emergencies 123 · Police CAI Virtual · Attorney General 122</span><span>Real data <i class="footer-dot"></i> Research <i class="footer-dot"></i> {{ 'Classifier ready' if model_ready else 'Classifier unavailable' }}</span></div>
   </footer>
   {% block scripts %}{% endblock %}

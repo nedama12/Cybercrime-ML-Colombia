@@ -58,7 +58,29 @@
       <li class="{{ 'done' if report.status != 'received' }}"><strong>Analyst review</strong><span>An analyst checks the category and may add a note for you.</span></li>
       <li class="{{ 'done' if report.status == 'closed' }}"><strong>Closed and added to statistics</strong><span>Anonymous data feeds the regional view of cybercrime.</span></li>
     </ol>
+    {% if report.analyst_note %}<p class="quote">Analyst note: {{ report.analyst_note }}</p>{% endif %}
     <a class="portal-text-link" href="{{ url_for('my_reports') }}">Follow the status in My reports →</a>
+  {% endcall %}
+
+  {% call fold('Report history', kicker='Audit trail') %}
+    <table class="portal-table history-table"><thead><tr><th>Date (UTC)</th><th>Event</th><th>Detail</th></tr></thead><tbody>
+      {% for e in events %}<tr><td>{{ e.created_at }}</td><td>{{ e.label }}</td><td>{{ e.detail }}</td></tr>{% else %}<tr><td colspan="3">No events recorded.</td></tr>{% endfor %}
+    </tbody></table>
+  {% endcall %}
+
+  {% call fold('Manage this report', kicker='Edit, delete or ask for help') %}
+    {% if report.editable %}
+      <p>No analyst has started reviewing this report, so you can still correct it or delete it.</p>
+      <div class="actions-row">
+        <a class="button button-secondary" href="{{ url_for('report_edit', report_id=report.id) }}">Edit report</a>
+        <form method="post" action="{{ url_for('report_delete', report_id=report.id) }}" onsubmit="return confirm('Delete this report? This cannot be undone.');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="button button-secondary danger" type="submit">Delete report</button></form>
+      </div>
+    {% else %}
+      <p>The report is under review or closed, so it is kept unchanged for the audit trail.</p>
+    {% endif %}
+    <p style="margin-top:12px"><a class="portal-text-link" href="{{ url_for('support', report=report.id) }}">Something is wrong with this report? Open a support request →</a></p>
+    <p><a class="portal-text-link" href="{{ url_for('territorial_analysis', scope='department', department=report.department, category=report.confirmed_category or report.predicted_category) }}">See official cases of this type in {{ report.department_label }} →</a></p>
   {% endcall %}
 
   {% call fold('Make it official', kicker='File a formal complaint', open=true) %}

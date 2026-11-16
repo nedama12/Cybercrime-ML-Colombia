@@ -2,7 +2,7 @@
 {% from '_ui.html' import fold, status_badge %}
 {% block content %}
 <section class="portal-page container" id="top">
-  <div class="portal-page-heading"><p class="eyebrow">Your account</p><h1>Hello, <span>{{ current_user|default('there') }}.</span></h1><p>Report an incident or follow the reports you already sent.</p></div>
+  <div class="portal-page-heading"><p class="eyebrow">Your account · {{ role_label }}</p><h1>Hello, <span>{{ current_user|default('there') }}.</span></h1><p>Report an incident, follow your reports and open the modules of your role.</p></div>
 
   <div class="cta-band">
     <div><h2>Did something happen to you?</h2><p>Report it in about 90 seconds and get clear next steps.</p></div>
@@ -16,6 +16,26 @@
   </div>
 
   <div class="portal-panel">
+    <div class="panel-heading"><div><p class="eyebrow">Modules</p><h2>What you can do</h2></div></div>
+    <div class="module-grid">
+      <a class="module-card" href="{{ url_for('report_intro') }}"><span>Citizen</span><h3>Report an incident</h3><p>Three short steps; the classifier identifies the type of cybercrime.</p></a>
+      <a class="module-card" href="{{ url_for('my_reports') }}"><span>Citizen</span><h3>My reports</h3><p>Status, analyst notes and history. Edit or delete while not reviewed.</p></a>
+      <a class="module-card" href="{{ url_for('territorial_analysis') }}"><span>All roles</span><h3>Territorial analysis</h3><p>Official cases by department, municipality, category and year, with an annual outlook.</p></a>
+      <a class="module-card" href="{{ url_for('support') }}"><span>All roles</span><h3>Help and feedback</h3><p>Report a wrong result, a technical problem or a data request.</p></a>
+      {% if is_staff %}
+      <a class="module-card staff" href="{{ url_for('review') }}"><span>Analyst</span><h3>Review queue</h3><p>Confirm or correct categories, add notes and close reports by priority.</p></a>
+      <a class="module-card staff" href="{{ url_for('indicators') }}"><span>Analyst</span><h3>Indicators</h3><p>Reports by category, department, channel and week; corrections; CSV export.</p></a>
+      <a class="module-card staff" href="{{ url_for('inference_history') }}"><span>Analyst</span><h3>Inference history</h3><p>Every prediction with date, user, result, confidence and model version.</p></a>
+      <a class="module-card staff" href="{{ url_for('support_manage') }}"><span>Analyst</span><h3>Support desk</h3><p>Answer and resolve the requests sent by users.</p></a>
+      {% endif %}
+      {% if is_admin %}
+      <a class="module-card admin" href="{{ url_for('admin_users') }}"><span>Administrator</span><h3>Users and roles</h3><p>Assign roles, deactivate accounts and read the audit log.</p></a>
+      <a class="module-card admin" href="{{ url_for('admin_operations') }}"><span>Administrator</span><h3>Operations</h3><p>Errors, response times, drift, model registry and operational reviews.</p></a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="portal-panel">
     <div class="panel-heading"><div><p class="eyebrow">Latest activity</p><h2>Your recent reports</h2></div><a class="portal-text-link" href="{{ url_for('my_reports') }}">See all →</a></div>
     {% for r in recent %}
       <div class="report-row"><div><h3>{{ r.final_info.label }}</h3><p><span class="ref">{{ r.reference }}</span> · {{ r.occurred_on }} · {{ r.department_label }}</p></div><div class="actions-row">{{ status_badge(r) }}<a class="portal-text-link" style="margin:0" href="{{ url_for('report_submitted', report_id=r.id) }}">Open →</a></div></div>
@@ -24,8 +44,9 @@
     {% endfor %}
   </div>
 
-  {% call fold('How does the platform work?', kicker='In three steps') %}
-    <div class="process-flow"><span>You describe what happened</span><i>→</i><span>The classifier identifies the type</span><i>→</i><span>You get next steps</span><i>→</i><span>An analyst confirms it</span></div>
+  {% call fold('How does the platform work?', kicker='In four steps') %}
+    <div class="process-flow"><span>You describe what happened</span><i>→</i><span>The classifier identifies the type and priority</span><i>→</i><span>You get next steps</span><i>→</i><span>An analyst confirms it and closes the case</span></div>
+    <p style="margin-top:12px"><a class="portal-text-link" href="{{ url_for('user_help') }}">Read the user manual →</a></p>
   {% endcall %}
 </section>
 {% endblock %}

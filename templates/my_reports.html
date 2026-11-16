@@ -11,7 +11,7 @@
         <p><span class="ref">{{ r.reference }}</span> · {{ r.occurred_on }} · {{ r.department_label }} · {{ r.channel_label }}</p>
         {% if r.analyst_note %}<p class="quote">Analyst note: {{ r.analyst_note }}</p>{% endif %}
       </div>
-      <div class="actions-row">{{ status_badge(r) }}<a class="portal-text-link" style="margin:0" href="{{ url_for('report_submitted', report_id=r.id) }}">Open →</a></div>
+      <div class="actions-row">{{ status_badge(r) }}{% if r.editable %}<a class="portal-text-link" style="margin:0" href="{{ url_for('report_edit', report_id=r.id) }}">Edit</a>{% endif %}<a class="portal-text-link" style="margin:0" href="{{ url_for('report_submitted', report_id=r.id) }}">Open →</a></div>
     </article>
   {% else %}
     <div class="portal-panel empty-history"><p class="eyebrow">Nothing here yet</p><h2>You have not sent any report.</h2><p>When you report an incident it will appear here with its status.</p><a class="portal-text-link" href="{{ url_for('report_intro') }}">Report an incident →</a></div>

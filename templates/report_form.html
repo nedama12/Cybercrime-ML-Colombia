@@ -2,8 +2,14 @@
 {% block content %}
 <section class="portal-page container report-shell" id="top">
   <div class="portal-page-heading" style="margin-bottom:18px">
+    {% if editing %}
+    <p class="eyebrow">Edit report {{ editing.reference }} · allowed until an analyst starts the review</p>
+    <h1>Correct your <span>report.</span></h1>
+    <p>If you change the description, the channel or what was affected, the classifier runs again and the change is recorded in the report history.</p>
+    {% else %}
     <p class="eyebrow">New report · about 90 seconds</p>
     <h1>What <span>happened?</span></h1>
+    {% endif %}
   </div>
 
   <div class="step-progress" aria-hidden="true"><span class="done" data-bar="1"></span><span data-bar="2"></span><span data-bar="3"></span></div>
@@ -61,8 +67,8 @@
           <button type="button" data-starter="My phone or computer ">My device…</button>
         </div></div>
       <label class="consent"><input type="checkbox" name="consent" value="yes" required {% if values.consent %}checked{% endif %}><span>I authorise the processing of this report for analysis and anonymous statistics, under Law 1581 of 2012.</span></label>
-      <div class="step-nav" style="margin-top:18px"><button type="button" class="button button-secondary" data-back>← Back</button><button type="submit" class="button button-primary">Send report <span aria-hidden="true">↗</span></button></div>
-      <p class="privacy-note">Only you and the platform analysts can see this report.</p>
+      <div class="step-nav" style="margin-top:18px"><button type="button" class="button button-secondary" data-back>← Back</button><button type="submit" class="button button-primary">{{ 'Save changes' if editing else 'Send report' }} <span aria-hidden="true">↗</span></button></div>
+      <p class="privacy-note">Only you and the platform analysts can see this report.{% if editing %} <a href="{{ url_for('report_submitted', report_id=editing.id) }}">Cancel and go back</a>{% endif %}</p>
     </section>
   </form>
 </section>

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% from '_ui.html' import fold, pct %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading"><p class="eyebrow">Analyst workspace · queries and reports</p><h1>Business <span>indicators.</span></h1><p>Volume, categories, territories, channels, review times and model corrections of the reports received by the platform.</p></div>
+
+  <div class="panel-heading">
+    <nav class="filter-tabs" aria-label="Period">{% for d in (7, 30, 90, 365) %}<a href="{{ url_for('indicators', days=d) }}" {% if days == d %}aria-current="true"{% endif %}>Last {{ d }} days</a>{% endfor %}</nav>
+    <a class="button button-secondary" href="{{ url_for('export_reports') }}">Export reports (CSV, anonymous)</a>
+  </div>
+
+  <div class="portal-stat-grid">
+    <article class="portal-stat"><span>Reports</span><strong>{{ summary.total or 0 }}</strong><small>{{ summary.open or 0 }} open · {{ summary.closed or 0 }} closed</small></article>
+    <article class="portal-stat"><span>High priority open</span><strong>{{ summary.high_open or 0 }}</strong><small>waiting for an analyst</small></article>
+    <article class="portal-stat"><span>Average time to close</span><strong>{% if summary.hours_to_close is not none %}{{ '%.1f'|format(summary.hours_to_close) }} h{% else %}—{% endif %}</strong><small>from report to closing</small></article>
+    <article class="portal-stat"><span>Model agreement</span><strong>{% if summary.confirmed %}{{ pct(summary.matches / summary.confirmed) }}{% else %}—{% endif %}</strong><small>{{ summary.confirmed or 0 }} confirmed by analysts</small></article>
+  </div>
+  <div class="portal-stat-grid three">
+    <article class="portal-stat"><span>Money reported lost</span><strong>COP {{ '{:,}'.format(summary.amount_lost or 0) }}</strong><small>sum of the amounts given by citizens</small></article>
+    <article class="portal-stat"><span>Average time to report</span><strong>{% if summary.avg_duration %}{{ (summary.avg_duration|int) // 60 }}:{{ '%02d'|format((summary.avg_duration|int) % 60) }}{% else %}—{% endif %}</strong><small>goal: under 1:30</small></article>
+    <article class="portal-stat"><span>Support requests pending</span><strong>{{ tickets.pending or 0 }}</strong><small>of {{ tickets.total or 0 }} received</small></article>
+  </div>
+
+  <div class="portal-panel">
+    <p class="eyebrow">Weekly volume</p><h2>Reports per week</h2>
+    {% if by_week %}<div class="bar-list">{% for w in by_week %}<div><span>{{ w.week }}</span><i style="width: {{ (w.reports / peak * 100)|round(0) }}%"></i><b>{{ w.reports }}</b></div>{% endfor %}</div>
+    {% else %}<p>No reports in this period.</p>{% endif %}
+  </div>
+
+  <div class="two-col">
+    <div class="portal-panel"><p class="eyebrow">Final category (confirmed or predicted)</p><h2>By category</h2>
+      <div class="table-wrap"><table class="portal-table"><thead><tr><th>Category</th><th>Reports</th><th>Closed</th><th>COP lost</th></tr></thead><tbody>
+      {% for c in by_category %}<tr><td>{{ category_info(c.category).label }}</td><td>{{ c.reports }}</td><td>{{ c.closed }}</td><td>{{ '{:,}'.format(c.amount or 0) }}</td></tr>{% else %}<tr><td colspan="4">No data.</td></tr>{% endfor %}
+      </tbody></table></div></div>
+    <div class="portal-panel"><p class="eyebrow">Where it happened</p><h2>Top departments</h2>
+      <div class="table-wrap"><table class="portal-table"><thead><tr><th>Department</th><th>Reports</th><th>COP lost</th></tr></thead><tbody>
+      {% for d in by_department %}<tr><td>{{ d.label }}</td><td>{{ d.reports }}</td><td>{{ '{:,}'.format(d.amount or 0) }}</td></tr>{% else %}<tr><td colspan="3">No data.</td></tr>{% endfor %}
+      </tbody></table></div></div>
+  </div>
+
+  <div class="two-col">
+    <div class="portal-panel"><p class="eyebrow">How it started</p><h2>By channel</h2>
+      <div class="table-wrap"><table class="portal-table"><thead><tr><th>Channel</th><th>Reports</th></tr></thead><tbody>
+      {% for c in by_channel %}<tr><td>{{ c.label }}</td><td>{{ c.reports }}</td></tr>{% else %}<tr><td colspan="2">No data.</td></tr>{% endfor %}
+      </tbody></table></div></div>
+    <div class="portal-panel"><p class="eyebrow">Prediction vs confirmed outcome</p><h2>Model corrections</h2>
+      <div class="table-wrap"><table class="portal-table"><thead><tr><th>Model said</th><th>Analyst confirmed</th><th>Reports</th></tr></thead><tbody>
+      {% for c in corrections %}<tr><td>{{ category_info(c.predicted_category).label }}</td><td>{{ category_info(c.confirmed_category).label }}</td><td>{{ c.reports }}</td></tr>{% else %}<tr><td colspan="3">No corrections in this period.</td></tr>{% endfor %}
+      </tbody></table></div>
+      <p class="panel-note">Corrections are the real outcomes used to measure the model and to retrain it.</p></div>
+  </div>
+</section>
+{% endblock %}

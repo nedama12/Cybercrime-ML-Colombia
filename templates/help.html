@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% from '_ui.html' import fold %}
+{% block content %}
+<section class="portal-page container" id="top" style="max-width:960px">
+  <div class="portal-page-heading"><p class="eyebrow">User manual · training guide</p><h1>How to use <span>the platform.</span></h1><p>Short guides for each role, a ten-minute training exercise and the procedures to give feedback or report a problem.</p></div>
+
+  {% call fold('Citizen', kicker='Report and follow an incident', open=true) %}
+    <ol class="step-list inline">
+      <li><div>Create an account with your name, email and a password of at least 8 characters with letters and numbers. The bar under the password shows its strength.</div></li>
+      <li><div>Choose <strong>Report an incident</strong>. Answer three steps: when and where, how it started and what was affected, and what happened in your own words. Never write passwords or card numbers.</div></li>
+      <li><div>Read the result: the type of incident, the confidence of the classifier, the first steps and the official channels. If the type does not describe your case, press <strong>Not really</strong>: an analyst will review it first.</div></li>
+      <li><div>Open <strong>My reports</strong> to follow the status (Received, In review, Closed) and read the analyst note. While the status is Received you can edit or delete the report.</div></li>
+      <li><div>To file a formal complaint, copy the summary and use A Denunciar or CAI Virtual. The platform does not replace a complaint.</div></li>
+      <li><div>In <strong>Territorial analysis</strong> you can see how many cases of each type were registered in your department and how they changed over the years.</div></li>
+    </ol>
+  {% endcall %}
+
+  {% call fold('Analyst', kicker='Review, indicators and support') %}
+    <ol class="step-list inline">
+      <li><div>Open <strong>Review</strong>. Reports are ordered by priority; use the filters by status, category or text.</div></li>
+      <li><div>Read the description, the predicted category and confidence and the history. Choose the confirmed category only when the description supports it.</div></li>
+      <li><div>Change the status to In review while you work, write a short note for the citizen and close the report with a confirmed category.</div></li>
+      <li><div>Check <strong>Indicators</strong> weekly: volume, categories, departments, channels, time to close and model corrections. Export the anonymous CSV when needed.</div></li>
+      <li><div>Answer the requests in the <strong>Support desk</strong> and resolve them with a written answer.</div></li>
+    </ol>
+  {% endcall %}
+
+  {% call fold('Administrator', kicker='Accounts and operations') %}
+    <ol class="step-list inline">
+      <li><div>In <strong>Users and roles</strong>, give the analyst or administrator role to trusted accounts and deactivate accounts that should no longer have access. Every change is recorded in the audit log.</div></li>
+      <li><div>In <strong>Operations</strong>, review the alerts, errors, response times, inference volume, agreement and drift for the last 7 days every week, and record an operational review with the findings and actions.</div></li>
+      <li><div>Check the model registry after each deployment: the active version must match <code>models/report_classifier_info.json</code>.</div></li>
+    </ol>
+  {% endcall %}
+
+  {% call fold('Training exercise (10 minutes)', kicker='Guided demonstration') %}
+    <table class="portal-table"><thead><tr><th>Step</th><th>Who</th><th>Action</th><th>Expected result</th></tr></thead><tbody>
+      <tr><td>1</td><td>Citizen</td><td>Register and report: "I received a WhatsApp from my bank with a link, typed my password and money left my account", channel WhatsApp, affected money and account, amount 800000.</td><td>Electronic theft or phishing with high confidence, Medium priority, first steps and channels.</td></tr>
+      <tr><td>2</td><td>Citizen</td><td>Answer "Not really", then edit the description.</td><td>The report moves to High priority; the history shows the edit and the new classification.</td></tr>
+      <tr><td>3</td><td>Citizen</td><td>Open Help and feedback and send a "classification looks wrong" request linked to the report.</td><td>The request appears as Open.</td></tr>
+      <tr><td>4</td><td>Analyst</td><td>Open Review, confirm the category, add a note and close the report; answer the support request.</td><td>The citizen sees Closed, the note and the answer.</td></tr>
+      <tr><td>5</td><td>Analyst</td><td>Open Indicators and Inference history.</td><td>The report and its two inferences appear with the model version.</td></tr>
+      <tr><td>6</td><td>Administrator</td><td>Open Operations and record a review.</td><td>The review is saved with the indicators of the period.</td></tr>
+    </tbody></table>
+  {% endcall %}
+
+  {% call fold('Feedback and incident procedures', kicker='When something goes wrong') %}
+    <ul>
+      <li><strong>Wrong classification:</strong> answer "Not really" on the result, or send a request of type "The classification looks wrong". The report gets High priority and an analyst decides the category.</li>
+      <li><strong>Error or technical problem:</strong> send a request of type "Technical problem" with the page, what you did, the message you saw, the date and time and your browser. Errors are also recorded automatically in the request log, which the administrator reviews.</li>
+      <li><strong>Personal data:</strong> to access, correct or delete your data use a "Personal data request", or delete your account from the Account page (Law 1581 of 2012).</li>
+      <li><strong>Severity and response:</strong> staff set the request In progress, fix or escalate it and resolve it with a written answer. Platform failures are recorded in the operational review with the action taken.</li>
+      <li><strong>Never share</strong> passwords, verification codes, card numbers or cookies in any request.</li>
+    </ul>
+  {% endcall %}
+</section>
+{% endblock %}

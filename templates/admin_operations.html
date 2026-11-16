@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% from '_ui.html' import fold, pct %}
+{% macro ms(v) -%}{% if v is not none %}{{ '%.0f'|format(v) }} ms{% else %}—{% endif %}{%- endmacro %}
+{% macro share(v) -%}{% if v is not none %}{{ pct(v) }}{% else %}—{% endif %}{%- endmacro %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading"><p class="eyebrow">Administration · monitoring and maintenance</p><h1>Platform <span>operations.</span></h1><p>Errors, response times and inference requests come from the request log and the inference history stored by the application. Model performance is measured against the categories confirmed by analysts; drift compares the incoming reports with the training data.</p></div>
+
+  <div class="panel-heading">
+    <nav class="filter-tabs" aria-label="Period">{% for d, label in [(1, 'Last 24 h'), (7, 'Last 7 days'), (30, 'Last 30 days')] %}<a href="{{ url_for('admin_operations', days=d) }}" {% if days == d %}aria-current="true"{% endif %}>{{ label }}</a>{% endfor %}</nav>
+    <a class="portal-text-link" style="margin:0" href="{{ url_for('admin_users') }}">Users and roles →</a>
+  </div>
+
+  {% if m.alerts %}<div class="portal-alert error" role="alert"><strong>Alerts</strong><ul>{% for a in m.alerts %}<li>{{ a }}</li>{% endfor %}</ul></div>
+  {% else %}<div class="portal-alert success" role="status">No indicator is outside its threshold in this period.</div>{% endif %}
+
+  <div class="portal-stat-grid">
+    <article class="portal-stat"><span>Requests</span><strong>{{ m.requests }}</strong><small>{{ m.client_errors }} client errors (4xx)</small></article>
+    <article class="portal-stat"><span>Server errors</span><strong>{{ m.server_errors }}</strong><small>rate {{ share(m.error_rate) }} · limit {{ pct(thresholds.error_rate_max) }}</small></article>
+    <article class="portal-stat"><span>Response time p50 / p95</span><strong>{{ ms(m.p50_ms) }} / {{ ms(m.p95_ms) }}</strong><small>all pages and forms</small></article>
+    <article class="portal-stat"><span>Inferences</span><strong>{{ m.inferences }}</strong><small>{% for k, v in m.inference_sources.items() %}{{ k }} {{ v }}{% if not loop.last %} · {% endif %}{% endfor %}</small></article>
+  </div>
+  <div class="portal-stat-grid">
+    <article class="portal-stat"><span>Inference time p50 / p95</span><strong>{{ ms(m.inference_p50_ms) }} / {{ ms(m.inference_p95_ms) }}</strong><small>limit p95 {{ thresholds.p95_latency_ms_max }} ms</small></article>
+    <article class="portal-stat"><span>Low-confidence share</span><strong>{{ share(m.low_confidence_share) }}</strong><small>sent to an analyst · limit {{ pct(thresholds.low_confidence_max) }}</small></article>
+    <article class="portal-stat"><span>Analyst agreement</span><strong>{{ share(m.agreement) }}</strong><small>{{ m.confirmed }} confirmed · minimum {{ pct(thresholds.agreement_min) }}</small></article>
+    <article class="portal-stat"><span>Citizen agreement</span><strong>{{ share(m.citizen_agreement) }}</strong><small>answers to “does this describe it?”</small></article>
+  </div>
+
+  {% call fold('Input drift against the training data', kicker='Population Stability Index', open=true) %}
+    <div class="mini-metrics">
+      <div><span>Reports in the period</span><strong>{{ m.drift.reports }}</strong></div>
+      <div><span>PSI channel</span><strong>{% if m.drift.channel is defined %}{{ '%.2f'|format(m.drift.channel) }}{% else %}—{% endif %}</strong></div>
+      <div><span>PSI predicted category</span><strong>{% if m.drift.predicted_category is defined %}{{ '%.2f'|format(m.drift.predicted_category) }}{% else %}—{% endif %}</strong></div>
+      <div><span>Thresholds</span><strong>{{ thresholds.psi_warning }} / {{ thresholds.psi_alert }}</strong></div>
+    </div>
+    <p class="panel-note" style="margin-top:10px">{% if not m.drift.enough %}With fewer than {{ thresholds.min_reports_for_drift }} reports the PSI is shown for information only and does not raise alerts.{% else %}A PSI above {{ thresholds.psi_alert }} for two consecutive weeks triggers the retraining review.{% endif %} The reference distribution is <code>models/report_reference_stats.json</code>.</p>
+  {% endcall %}
+
+  {% call fold('Predictions compared with confirmed outcomes', kicker='Model performance in production') %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Confirmed category</th><th>Confirmed reports</th><th>Model was right</th><th>Agreement</th></tr></thead><tbody>
+      {% for cat, item in m.agreement_by_category.items() %}<tr><td>{{ category_info(cat).label }}</td><td>{{ item.confirmed }}</td><td>{{ item.matches }}</td><td>{{ pct(item.matches / item.confirmed) }}</td></tr>{% else %}<tr><td colspan="4">No confirmed reports in this period.</td></tr>{% endfor %}
+    </tbody></table></div>
+  {% endcall %}
+
+  {% call fold('Errors and slowest pages', kicker='Request log') %}
+    <div class="two-col">
+      <div class="table-wrap"><table class="portal-table"><thead><tr><th>Date (UTC)</th><th>Page</th><th>Status</th><th>Error</th></tr></thead><tbody>
+        {% for e in m.recent_errors %}<tr><td>{{ e.created_at }}</td><td>{{ e.endpoint }}</td><td>{{ e.status }}</td><td>{{ e.error or '—' }}</td></tr>{% else %}<tr><td colspan="4">No server errors.</td></tr>{% endfor %}
+      </tbody></table></div>
+      <div class="table-wrap"><table class="portal-table"><thead><tr><th>Page</th><th>Requests</th><th>p95</th></tr></thead><tbody>
+        {% for e in m.slowest %}<tr><td>{{ e.endpoint }}</td><td>{{ e.requests }}</td><td>{{ ms(e.p95_ms) }}</td></tr>{% else %}<tr><td colspan="3">No requests.</td></tr>{% endfor %}
+      </tbody></table></div>
+    </div>
+  {% endcall %}
+
+  {% call fold('Model registry', kicker='Versioning') %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Model</th><th>Version</th><th>Artifact</th><th>scikit-learn</th><th>Trained (UTC)</th><th>CV macro F1</th><th>Holdout accuracy</th><th>Registered</th><th>Status</th></tr></thead><tbody>
+      {% for v in registry %}<tr><td>{{ v.model_name }}</td><td><code>{{ v.version }}</code></td><td>{{ v.artifact }}</td><td>{{ v.sklearn_version }}</td><td>{{ v.trained_at[:16] }}</td><td>{{ '%.3f'|format(v.cv_f1) if v.cv_f1 is not none else '—' }}</td><td>{{ pct(v.holdout_accuracy) if v.holdout_accuracy is not none else '—' }}</td><td>{{ v.registered_at }}</td><td>{{ 'Active' if v.active else 'Retired' }}</td></tr>{% endfor %}
+    </tbody></table></div>
+    <p class="panel-note">Inference versions in this period: {% for k, v in m.versions.items() %}<code>{{ k }}</code> ({{ v }}){% if not loop.last %}, {% endif %}{% else %}none{% endfor %}. A new version is registered automatically when the application starts with a retrained model; the previous files stay in Git for rollback.</p>
+  {% endcall %}
+
+  <div class="portal-panel" id="review">
+    <p class="eyebrow">Operational review</p><h2>Record a review</h2>
+    <p>Save the findings and the actions decided. The indicators shown on this page for the selected period are stored with the review.</p>
+    <form method="post" action="{{ url_for('admin_operations', days=days) }}" class="support-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div class="question"><label for="findings">Findings</label><textarea id="findings" name="findings" required minlength="10" maxlength="2000"></textarea></div>
+      <div class="question"><label for="actions">Actions decided</label><textarea id="actions" name="actions" required minlength="5" maxlength="2000"></textarea></div>
+      <button class="button button-primary" type="submit">Save review</button>
+    </form>
+    {% for r in reviews %}
+      <article class="report-row"><div><h3>Review #{{ r.id }} · {{ r.created_at }} · {{ r.reviewer or '—' }} · last {{ r.period_days }} day(s)</h3>
+        <p>{{ r.snapshot.requests }} requests · {{ r.snapshot.server_errors }} server errors · p95 {{ ms(r.snapshot.p95_ms) }} · {{ r.snapshot.inferences }} inferences · inference p95 {{ ms(r.snapshot.inference_p95_ms) }}</p>
+        <p class="quote">Findings: {{ r.findings }}</p><p class="quote">Actions: {{ r.actions }}</p></div></article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
