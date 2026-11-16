@@ -1,49 +1,58 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Plataforma académica de análisis y clasificación de ciberdelitos en Colombia.">
-  <title>{{ page_title or 'Plataforma' }} · {{ project_name }}</title>
+  <meta name="description" content="Report cybercrime incidents in Colombia and get clear next steps, supported by machine learning.">
+  <title>{{ page_title or 'Platform' }} · {{ project_name }}</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/report.css') }}">
   {% block head %}{% endblock %}
 </head>
 <body class="portal-body">
+  <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
-    <nav class="navbar container portal-navbar" aria-label="Navegación principal">
+    <nav class="navbar container portal-navbar" aria-label="Main navigation">
       <a class="brand" href="{{ url_for('home') }}"><span class="brand-mark" aria-hidden="true">⌁</span> Cybercrime <span>Colombia</span></a>
-      <input class="menu-checkbox" type="checkbox" id="menu-toggle-checkbox" aria-label="Abrir navegación">
-      <label class="menu-toggle" for="menu-toggle-checkbox" aria-label="Abrir navegación"><span></span><span></span><span></span></label>
+      <input class="menu-checkbox" type="checkbox" id="menu-toggle-checkbox" aria-label="Open navigation">
+      <label class="menu-toggle" for="menu-toggle-checkbox" aria-label="Open navigation"><span></span><span></span><span></span></label>
       <div class="nav-links portal-nav-links" id="nav-links">
-        <a href="{{ url_for('dashboard') }}">Panel</a>
-        <a href="{{ url_for('dataset') }}">Datos</a>
-        <a href="{{ url_for('preprocessing') }}">Preparación</a>
-        <a href="{{ url_for('models') }}">Modelos</a>
-        <a href="{{ url_for('evaluation') }}">Evaluación</a>
-        <a href="{{ url_for('reports') }}">Informes</a>
+        {% set here = request.endpoint %}
+        {% for endpoint, number, label in [('business','1','Business'), ('dataset','2','Data'), ('models','3','Models'), ('evaluation','4','Evaluation'), ('deployment','5','Deployment'), ('monitoring','6','Monitoring')] %}
+        <a class="phase-link" href="{{ url_for(endpoint) }}" title="CRISP-ML phase {{ number }}" {% if here == endpoint %}aria-current="page"{% endif %}><small>{{ number }}</small>{{ label }}</a>
+        {% endfor %}
         {% if current_user %}
-          <a href="{{ url_for('history') }}">Mi historial</a>
-          <a class="nav-cta" href="{{ url_for('prediction') }}">Predecir <span aria-hidden="true">↗</span></a>
-          <form class="nav-logout" action="{{ url_for('logout') }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Salir · {{ current_user }}</button></form>
+          <a href="{{ url_for('dashboard') }}" {% if here == 'dashboard' %}aria-current="page"{% endif %}>Dashboard</a>
+          {% if is_analyst %}<a href="{{ url_for('review') }}" {% if here == 'review' %}aria-current="page"{% endif %}>Review</a>{% endif %}
+          <a class="nav-cta" href="{{ url_for('report_intro') }}">Report an incident <span aria-hidden="true">↗</span></a>
+          <a href="{{ url_for('account') }}" {% if here == 'account' %}aria-current="page"{% endif %} title="Account security">{{ current_user }}</a>
+          <form class="nav-logout" action="{{ url_for('logout') }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Log out</button></form>
         {% else %}
-          <a href="{{ url_for('login') }}">Ingresar</a>
-          <a class="nav-cta" href="{{ url_for('register') }}">Crear cuenta <span aria-hidden="true">↗</span></a>
+          <a href="{{ url_for('report_intro') }}" {% if here == 'report_intro' %}aria-current="page"{% endif %}>Report an incident</a>
+          <a href="{{ url_for('login') }}" {% if here == 'login' %}aria-current="page"{% endif %}>Log in</a>
+          <a class="nav-cta" href="{{ url_for('register') }}">Create account <span aria-hidden="true">↗</span></a>
         {% endif %}
       </div>
     </nav>
   </header>
-  <main class="portal-main">
+  <main class="portal-main" id="main">
     {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}<div class="container portal-flashes">{% for category, message in messages %}<div class="portal-alert {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+      {% if messages %}<div class="container portal-flashes">{% for category, message in messages %}<div class="portal-alert {{ category }}" role="status">{{ message }}</div>{% endfor %}</div>{% endif %}
     {% endwith %}
     {% block content %}{% endblock %}
   </main>
   <footer class="site-footer">
-    <div class="container footer-inner"><a class="brand footer-brand" href="{{ url_for('home') }}"><span class="brand-mark">⌁</span> Cybercrime <span>Colombia</span></a><p>Proyecto académico · Machine Learning · Colombia</p><a class="back-top" href="#top">Volver arriba ↑</a></div>
-    <div class="container footer-bottom"><span>Model Engineering</span><span>Datos reales <i class="footer-dot"></i> Investigación <i class="footer-dot"></i> {{ 'Modelo listo' if model_ready else 'Modelo no disponible' }}</span></div>
+    <div class="container footer-inner"><a class="brand footer-brand" href="{{ url_for('home') }}"><span class="brand-mark">⌁</span> Cybercrime <span>Colombia</span></a><p>Academic project · Machine Learning · Colombia. This platform does not replace a formal criminal complaint.</p><a class="back-top" href="#top">Back to top ↑</a></div>
+    <div class="container footer-bottom"><span>Emergencies 123 · Police CAI Virtual · Attorney General 122</span><span>Real data <i class="footer-dot"></i> Research <i class="footer-dot"></i> {{ 'Classifier ready' if model_ready else 'Classifier unavailable' }}</span></div>
   </footer>
   {% block scripts %}{% endblock %}
+  <script>
+  // Open every collapsible section when printing or when the URL ends with #expand.
+  const openAll = () => document.querySelectorAll('details.fold').forEach(d => { d.open = true; });
+  if (location.hash === '#expand') openAll();
+  window.addEventListener('beforeprint', openAll);
+  </script>
 </body>
 </html>
