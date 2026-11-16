@@ -1,0 +1,78 @@
+{# Shared pieces for the login, register and account forms. #}
+{% macro password_field(id, name, label, autocomplete, hint='', minlength=0, strength=false, email='', person='') -%}
+<div class="portal-field"><label for="{{ id }}">{{ label }}</label>
+  <div class="password-wrap">
+    <input id="{{ id }}" name="{{ name }}" type="password" autocomplete="{{ autocomplete }}" maxlength="128" {% if minlength %}minlength="{{ minlength }}"{% endif %} required{% if strength %} data-strength="{{ id }}-strength" data-email="{{ email }}" data-person="{{ person }}" aria-describedby="{{ id }}-strength"{% endif %}>
+    <button type="button" class="show-password" data-toggle-password="{{ id }}" aria-label="Show password" aria-pressed="false">Show</button>
+  </div>
+  {% if strength %}
+  {# Password strength: same rules as the server (app.password_problem) plus extra points for length, case mix and symbols. #}
+  <div class="strength" id="{{ id }}-strength" data-level="0">
+    <div class="strength-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <p class="strength-label" aria-live="polite">Password strength: <strong>—</strong></p>
+    <ul class="strength-rules">
+      <li data-rule="length">At least 8 characters</li>
+      <li data-rule="mix">Letters and numbers</li>
+      <li data-rule="personal">Not a common password and without your name or email</li>
+    </ul>
+    <p class="strength-tip">Tip: 12+ characters with upper and lower case and a symbol make it strong.</p>
+  </div>
+  {% elif hint %}<small>{{ hint }}</small>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro report_banner() -%}
+{% if (request.args.get('next') or '').startswith('/report') %}
+<div class="auth-context"><strong>One step before your report.</strong> Log in or create a free account so you can follow your report and receive the analyst's answer.</div>
+{% endif %}
+{%- endmacro %}
+
+{% macro password_script() -%}
+<script>
+document.querySelectorAll('[data-toggle-password]').forEach(btn => btn.addEventListener('click', () => {
+  const input = document.getElementById(btn.dataset.togglePassword);
+  const show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  btn.textContent = show ? 'Hide' : 'Show';
+  btn.setAttribute('aria-pressed', String(show));
+  btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+}));
+const COMMON_PASSWORDS = new Set({{ common_passwords|tojson }});
+const LEVELS = [['—', ''], ['Too weak', 'weak'], ['Fair', 'fair'], ['Good', 'good'], ['Strong', 'strong']];
+document.querySelectorAll('input[data-strength]').forEach(input => {
+  const box = document.getElementById(input.dataset.strength);
+  const field = id => document.getElementById(id);
+  function evaluate() {
+    const pw = input.value, lower = pw.toLowerCase();
+    const email = (field('email')?.value || input.dataset.email || '').toLowerCase();
+    const name = (field('name')?.value || input.dataset.person || '').toLowerCase();
+    const personal = [email.split('@')[0].replace(/\./g, ''), name.replace(/\s+/g, ''), ...name.split(/\s+/)]
+      .filter(part => part.length >= 4);
+    const rules = {
+      length: pw.length >= 8,
+      mix: /[A-Za-z]/.test(pw) && /\d/.test(pw),
+      personal: pw.length > 0 && !COMMON_PASSWORDS.has(lower) && !personal.some(part => lower.includes(part)),
+    };
+    let level = 0;
+    if (pw) {
+      if (!rules.length || !rules.mix || !rules.personal) { level = 1; }
+      else {
+        const extra = (pw.length >= 12) + (pw.length >= 16) + (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) + /[^A-Za-z0-9]/.test(pw);
+        level = extra >= 3 ? 4 : extra >= 1 ? 3 : 2;
+      }
+    }
+    box.dataset.level = level;
+    box.className = 'strength ' + LEVELS[level][1];
+    box.querySelector('strong').textContent = LEVELS[level][0];
+    box.querySelectorAll('[data-rule]').forEach(li => li.classList.toggle('ok', rules[li.dataset.rule]));
+    input.setCustomValidity(level === 1 ? 'Your password does not meet the requirements yet.' : '');
+  }
+  input.addEventListener('input', evaluate);
+  ['email', 'name'].forEach(id => field(id)?.addEventListener('input', () => { if (input.value) evaluate(); }));
+});
+document.querySelectorAll('form[data-once]').forEach(form => form.addEventListener('submit', () => {
+  const button = form.querySelector('button[type=submit]');
+  if (button) { setTimeout(() => { button.disabled = true; }, 0); }
+}));
+</script>
+{%- endmacro %}
