@@ -1119,7 +1119,7 @@ def report_edit(report_id: int):
                                                  "affected": ";".join(values["affected"]),
                                                  "amount": amount, "description": values["description"]}[name] or "")]
             # A citizen who disagreed keeps the report at the top of the queue after editing it.
-            keep_high = row["user_agrees"] == 0 or row["priority"] == "high" and not row["needs_review"]
+            keep_high = row["user_agrees"] == 0
 
             def priority_for(result: dict) -> str:
                 return "high" if keep_high else report_priority(result, amount, values["affected"])
@@ -1145,15 +1145,14 @@ def report_edit(report_id: int):
                            needs_review = ?, model_version = ?, inference_ms = ?, priority = ? WHERE id = ?""",
                         (result["category"], result["confidence"], json.dumps(result["alternatives"]),
                          int(result["needs_review"]), result["model_version"], inference_ms,
-                         report_priority(result, amount, values["affected"]), report_id))
+                         priority_for(result), report_id))
                     record_inference(connection, result, inference_ms, "edit", values["channel"],
                                      values["description"], report_id)
                     add_event(connection, report_id, "reclassified",
                               f"{category_info(result['category'])['label']} ({result['confidence']:.0%})")
                 else:
                     connection.execute("UPDATE incident_reports SET priority = ? WHERE id = ?",
-                                       (report_priority({"needs_review": row["needs_review"]}, amount,
-                                                        values["affected"]), report_id))
+                                       (priority_for({"needs_review": row["needs_review"]}), report_id))
             flash("Your report was updated.", "success")
             return redirect(url_for("report_submitted", report_id=report_id))
     return render_template("report_form.html", page_title="Edit report", values=values, errors=errors,

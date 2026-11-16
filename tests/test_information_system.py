@@ -173,6 +173,14 @@ class InformationSystemTest(unittest.TestCase):
                                                                  "agrees": "no"})
         self.assertEqual(self.db("SELECT priority FROM incident_reports WHERE id = ?", report_id)[0]["priority"],
                          "high")
+        # Editing the report keeps it at the top of the queue.
+        edit = self.new_report_payload(self.citizen, f"/report/{report_id}/edit", channel="social_media",
+                                       affected=["personal_data"], amount_lost="",
+                                       description="A stranger posted my phone number and home address in a public "
+                                                   "Facebook group and now I receive threats")
+        self.citizen.post(f"/report/{report_id}/edit", data=edit)
+        self.assertEqual(self.db("SELECT priority FROM incident_reports WHERE id = ?", report_id)[0]["priority"],
+                         "high")
 
     # ------------------------------------------------------------------ support requests
     def test_support_ticket_lifecycle(self):
