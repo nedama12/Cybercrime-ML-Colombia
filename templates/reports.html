@@ -1,9 +1,46 @@
 {% extends 'base.html' %}
+{% from '_ui.html' import fold, pct %}
 {% block content %}
 <section class="portal-page container" id="top">
-  <div class="portal-page-heading"><p class="eyebrow">Documentación académica</p><h1>Informes y <span>conclusiones.</span></h1><p>Resumen generado con el dataset y los resultados disponibles en este repositorio.</p></div>
-  <div class="portal-panel"><p class="eyebrow">Resumen ejecutivo</p><h2>{{ data.rows }} filas procesadas · {{ info.algorithm|default('Sin modelo')|replace('_',' ')|title }}</h2><p>Se entrenaron tres clasificadores multiclase con una partición estratificada común. {{ info.target|default('categoria') }} se predice con variables de tiempo, ubicación y el indicador criminalidad. El F1 macro del modelo seleccionado es {{ '%.4f'|format(info.metrics.get('f1_macro',0)|float) }}; es bajo y debe leerse junto con la evaluación por clase.</p></div>
-  <div class="portal-grid two-col"><article class="portal-panel"><p class="eyebrow">Conclusión</p><h2>Exploratorio, no operativo</h2><p>Los modelos muestran dificultades para separar las categorías con las características disponibles. Logistic Regression recupera mejor las categorías pequeñas, a cambio de baja precisión. La validación futura requiere ejemplos a nivel incidente y evaluación temporal o por grupos.</p></article><article class="portal-panel"><p class="eyebrow">Limitaciones</p><ul><li>Datos agregados, no registros independientes de incidentes individuales.</li><li>Distribución desbalanceada y clases minoritarias pequeñas.</li><li>Etiqueta creada mediante un mapeo aproximado de artículos legales.</li><li>Advertencia de convergencia de Logistic Regression.</li><li>La partición aleatoria no mide generalización a territorios/períodos nuevos.</li><li>Dataset de phishing descrito en README ausente del repositorio.</li></ul></article></div>
-  <div class="portal-panel"><p class="eyebrow">Artefactos disponibles</p><div class="download-list"><a href="{{ url_for('report_file', filename='INFORME_MODEL_ENGINEERING.md') }}">Informe Model Engineering <span>Descargar Markdown ↗</span></a><a href="{{ url_for('report_file', filename='model_comparison.csv') }}">Comparación de métricas <span>Descargar CSV ↗</span></a><a href="{{ url_for('comparison_image') }}">Gráfico comparativo <span>Abrir PNG ↗</span></a>{% for model in ['decision_tree','random_forest','logistic_regression'] %}<a href="{{ url_for('confusion_image', model=model) }}">Matriz de confusión · {{ model|replace('_',' ')|title }} <span>Abrir PNG ↗</span></a><a href="{{ url_for('report_file', filename='classification_reports/' ~ model ~ '.json') }}">Classification Report · {{ model|replace('_',' ')|title }} <span>Descargar JSON ↗</span></a>{% endfor %}</div></div>
+  <div class="portal-page-heading"><p class="eyebrow">Academic documentation</p><h1>Project <span>conclusions.</span></h1><p>The main results in short. Open a section to read more.</p></div>
+
+  <div class="portal-stat-grid three">
+    <article class="portal-stat"><span>Selected model · realistic holdout accuracy</span><strong>{{ pct(report_info.metrics.holdout_accuracy|default(0)) }}</strong><small>{{ report_info.algorithm|default('')|replace('_',' ')|title }}</small></article>
+    <article class="portal-stat"><span>Location benchmark · F1 macro</span><strong>{{ '%.2f'|format(info.metrics.f1_macro|default(0)|float) }}</strong><small>place and year are not enough</small></article>
+    <article class="portal-stat"><span>Official cases analysed</span><strong>{{ '{:,}'.format(data.total_cases|default(0)) }}</strong><small>{{ data.years|default('') }}</small></article>
+  </div>
+
+  {% call fold('Conclusion', kicker='Summary', open=true) %}
+    <p>The type of cybercrime cannot be inferred from where and when a case was registered, but it can be identified from a short description of what the victim experienced. The platform therefore asks citizens three simple questions, classifies the report, gives practical steps and keeps every report for analyst review. Each confirmed report becomes new training data.</p>
+  {% endcall %}
+
+  {% call fold('Limitations', kicker='What to keep in mind') %}
+    <ul>
+      <li>The report classifier was trained on a seed corpus written by the team, not on real victim reports. The realistic holdout is small ({{ report_info.holdout_rows|default(0) }} reports).</li>
+      <li>The official data is aggregated: each row is a group of cases, not an individual incident.</li>
+      <li>The categories come from an approximate mapping of legal articles, and the classes are imbalanced.</li>
+      <li>The platform does not replace a criminal complaint; it helps citizens prepare one.</li>
+    </ul>
+  {% endcall %}
+
+  {% call fold('Next steps', kicker='Improvement plan') %}
+    <ul>
+      <li>Retrain monthly with analyst-confirmed reports and track agreement between model and analysts.</li>
+      <li>Compare regional patterns from citizen reports with the official yearly figures.</li>
+      <li>Validate the categories and wording with cybercrime specialists.</li>
+    </ul>
+  {% endcall %}
+
+  {% call fold('Downloadable files', kicker='Artifacts') %}
+    <div class="download-list">
+      <a href="{{ url_for('report_file', filename='MODEL_ENGINEERING_REPORT.md') }}">Model Engineering report <span>Download Markdown ↗</span></a>
+      <a href="{{ url_for('report_file', filename='report_classifier/model_comparison.csv') }}">Report classifier comparison <span>Download CSV ↗</span></a>
+      <a href="{{ url_for('report_file', filename='report_classifier/experiments.csv') }}">Experiment log (grid search) <span>Download CSV ↗</span></a>
+      <a href="{{ url_for('report_file', filename='data_quality.json') }}">Data quality before/after <span>Open JSON ↗</span></a>
+      <a href="{{ url_for('report_file', filename='monitoring/monitoring_log.csv') }}">Monitoring log (simulated data) <span>Download CSV ↗</span></a>
+      <a href="{{ url_for('report_file', filename='model_comparison.csv') }}">Location benchmark comparison <span>Download CSV ↗</span></a>
+      <a href="{{ url_for('comparison_image') }}">Location benchmark chart <span>Open PNG ↗</span></a>
+    </div>
+  {% endcall %}
 </section>
 {% endblock %}

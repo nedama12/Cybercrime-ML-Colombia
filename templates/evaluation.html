@@ -1,16 +1,80 @@
 {% extends 'base.html' %}
-{% block head %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>{% endblock %}
+{% from '_ui.html' import fold, pct, phase_pager %}
+{% set m = report_info.metrics|default({}) %}
 {% block content %}
 <section class="portal-page container" id="top">
-  <div class="portal-page-heading"><p class="eyebrow">Prueba común · random_state 42</p><h1>Evaluación <span>comparativa.</span></h1><p>Los tres algoritmos se evaluaron sobre las mismas 13.280 filas de prueba.</p></div>
-  <div class="portal-panel"><p class="eyebrow">Tabla de métricas</p><div class="table-wrap"><table class="portal-table"><thead><tr><th>Modelo</th><th>Accuracy</th><th>Precision macro</th><th>Recall macro</th><th>F1 macro</th><th>F1 weighted</th><th>Precision weighted</th><th>Recall weighted</th></tr></thead><tbody>{% for row in metrics %}<tr><td>{{ row.model|replace('_',' ')|title }}{% if row.model == info.algorithm %}<span class="model-badge">Elegido</span>{% endif %}</td>{% for key in ['accuracy','precision_macro','recall_macro','f1_macro','f1_weighted','precision_weighted','recall_weighted'] %}<td>{{ '%.4f'|format(row[key]|float) }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div></div>
-  <div class="portal-panel"><p class="eyebrow">Comparación visual</p><h2>Métricas por algoritmo</h2><p class="panel-note">Escala de 0 a 1. Se muestra una gráfica independiente por métrica.</p><div class="metric-chart-grid">{% for key,label in [('accuracy','Accuracy'),('precision_macro','Precision macro'),('recall_macro','Recall macro'),('f1_macro','F1 macro'),('f1_weighted','F1 weighted')] %}<div class="metric-chart"><h3>{{ label }}</h3><canvas id="chart-{{ key }}"></canvas></div>{% endfor %}</div></div>
-  <div class="portal-panel"><p class="eyebrow">Elección documentada</p><h2>{{ info.algorithm|default('—')|replace('_',' ')|title }}</h2><p>Se eligió con una combinación explícita de F1 macro (40 %), precision macro (20 %), recall macro (20 %) y recall medio de clases minoritarias (20 %). Random Forest conserva mejores F1 macro, weighted y accuracy; la selección prioriza recuperación y balance de categorías. Las métricas globales son bajas y no bastan para uso operativo.</p></div>
-  <div class="portal-panel"><p class="eyebrow">Matrices de confusión</p><div class="confusion-grid">{% for model in models %}<figure id="{{ model.key }}"><img src="{{ url_for('confusion_image', model=model.key) }}" alt="Matriz de confusión de {{ model.title }}" loading="lazy"><figcaption>{{ model.title }} · filas reales, columnas predichas</figcaption></figure>{% endfor %}</div></div>
-  <div class="portal-panel"><p class="eyebrow">Classification Reports</p>{% for model in models %}<details class="report-details"><summary id="report-{{ model.key }}">{{ model.title }} — precisión, recall y F1 por categoría</summary><div class="table-wrap"><table class="portal-table"><thead><tr><th>Categoría</th><th>Precision</th><th>Recall</th><th>F1</th><th>Soporte</th></tr></thead><tbody>{% for category, values in model.report.items() if values is mapping and 'precision' in values %}<tr><td>{{ category }}</td><td>{{ '%.3f'|format(values.precision) }}</td><td>{{ '%.3f'|format(values.recall) }}</td><td>{{ '%.3f'|format(values['f1-score']) }}</td><td>{{ values.support|int }}</td></tr>{% endfor %}</tbody></table></div></details>{% endfor %}</div>
+  <div class="portal-page-heading"><p class="eyebrow">CRISP-ML · Phase 4</p><h1>Model <span>evaluation.</span></h1><p>Metrics, cross-validation, over- and underfitting, risks, expert review and the final result on data never used for tuning or selection.</p></div>
+
+  <div class="portal-stat-grid">
+    <article class="portal-stat"><span>CV macro F1 (selection)</span><strong>{{ '%.3f'|format(m.cv_f1_macro_mean|default(0)) }}</strong><small>± {{ '%.3f'|format(m.cv_f1_macro_std|default(0)) }} over 5 folds</small></article>
+    <article class="portal-stat"><span>Test · unseen phrases</span><strong>{{ pct(m.test_accuracy|default(0)) }}</strong><small>accuracy · macro F1 {{ '%.3f'|format(m.test_f1_macro|default(0)) }}</small></article>
+    <article class="portal-stat"><span>Realistic holdout</span><strong>{{ pct(m.holdout_accuracy|default(0)) }}</strong><small>accuracy · {{ report_info.holdout_rows|default(0) }} reports</small></article>
+    <article class="portal-stat"><span>Mean confidence</span><strong>{{ pct(m.test_mean_confidence|default(0)) }}</strong><small>on the test split</small></article>
+  </div>
+
+  {% call fold('Metrics and why they were chosen', kicker='4.1', open=true) %}
+    <ul>
+      <li><strong>Macro F1</strong> (selection metric): every category weighs the same, so rare offenses such as malware or tampered devices are not hidden by frequent ones.</li>
+      <li><strong>Accuracy</strong>: easy to communicate (share of reports classified correctly); valid here because the classes are balanced.</li>
+      <li><strong>Top-2 accuracy</strong>: the platform shows the second option, so it matters whether the right answer is among the first two.</li>
+      <li><strong>Mean confidence, coverage and accuracy above the threshold</strong>: the citizen sees a probability, so it must be reliable.</li>
+    </ul>
+  {% endcall %}
+
+  {% call fold('Model comparison and cross-validation', kicker='4.2', open=true) %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Model</th><th>CV macro F1</th><th>± std</th><th>Training F1</th><th>Test accuracy</th><th>Test macro F1</th><th>Holdout accuracy</th><th>Mean confidence</th></tr></thead><tbody>
+      {% for r in report_metrics %}<tr><td>{{ r.model|replace('_',' ')|title }}{% if r.model == report_info.algorithm %}<span class="model-badge">Selected</span>{% endif %}</td><td>{{ '%.3f'|format(r.cv_f1_macro_mean) }}</td><td>{{ '%.3f'|format(r.cv_f1_macro_std) }}</td><td>{{ '%.3f'|format(r.train_f1_macro) }}</td><td>{{ '%.3f'|format(r.test_accuracy) }}</td><td>{{ '%.3f'|format(r.test_f1_macro) }}</td><td>{{ '%.3f'|format(r.holdout_accuracy) }}</td><td>{{ '%.3f'|format(r.test_mean_confidence) }}</td></tr>{% endfor %}
+    </tbody></table></div>
+    <img class="figure-img" src="{{ url_for('report_figure', name='cv-comparison') }}" alt="Training, cross-validation and test macro F1 per model" loading="lazy">
+  {% endcall %}
+
+  {% call fold('Overfitting, underfitting, bias and risks', kicker='4.3') %}
+    <ul>
+      <li><strong>Overfitting:</strong> the three models reach F1 = 1.0 on training. The Decision Tree and the Random Forest drop to {{ '%.2f'|format(report_metrics[0].cv_f1_macro_mean|default(0)) }} and {{ '%.2f'|format(report_metrics[1].cv_f1_macro_mean|default(0)) }} in cross-validation and vary a lot between folds: they memorise the training phrases. Logistic Regression keeps {{ '%.2f'|format(m.cv_f1_macro_mean|default(0)) }} with a standard deviation of {{ '%.3f'|format(m.cv_f1_macro_std|default(0)) }}, so its gap is small and stable.</li>
+      <li><strong>Underfitting:</strong> stronger regularisation (C = 0.5) lowered the CV F1 to 0.931, so C = 8 balances fit and generalisation.</li>
+      <li><strong>Confidence bias:</strong> the Decision Tree gives near 100 % confidence even when wrong; the Random Forest spreads its probabilities (about 50 %). Only Logistic Regression gives useful confidence.</li>
+      <li><strong>Data bias:</strong> the training text is written by the team, so the scores are optimistic for real victims. Mitigations: grouped validation, realistic holdout, low-confidence routing to analysts and monitoring of agreement in operation.</li>
+      <li><strong>Ethical risk:</strong> a wrong category could lead to the wrong first step. The platform shows the confidence and the alternative, lets the citizen say "Not really", and an analyst confirms every report.</li>
+    </ul>
+  {% endcall %}
+
+  {% call fold('Domain expert review', kicker='4.4') %}
+    {% if review.reviewer %}
+      <dl class="kv"><dt>Reviewer</dt><dd>{{ review.reviewer }}</dd><dt>Role</dt><dd>{{ review.role }}</dd><dt>Date</dt><dd>{{ review.date }}</dd></dl>
+      <div class="table-wrap" style="margin-top:12px"><table class="portal-table"><thead><tr><th>Feedback</th><th>Action taken</th></tr></thead><tbody>
+        {% for item in review.feedback|default([]) %}<tr><td>{{ item.comment }}</td><td>{{ item.action }}</td></tr>{% endfor %}
+      </tbody></table></div>
+    {% else %}
+      <p>The practical relevance of the results is reviewed with a person who knows cybercrime attention in Colombia (police cyber center, prosecutor's office or a bank fraud team), following this protocol:</p>
+      <ol>
+        <li>Classify 20 holdout reports without seeing the model's answer, then compare with the model.</li>
+        <li>Check that each category, its legal article and its first steps are correct and useful for a victim.</li>
+        <li>Check that the official channels shown after a report are current.</li>
+        <li>Record the comments and the changes made in <code>reports/expert_review.json</code>.</li>
+      </ol>
+    {% endif %}
+  {% endcall %}
+
+  {% call fold('Final result on independent data', kicker='4.5 · selected model', open=true) %}
+    <p>The selected model was chosen only with cross-validation on the training split. These two sets were never used for tuning or selection:</p>
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Set</th><th>Accuracy</th><th>Macro F1</th><th>Top-2</th><th>Answered with confidence ≥ {{ pct(report_info.low_confidence_threshold|default(0.45)) }}</th><th>Accuracy of those answers</th></tr></thead><tbody>
+      <tr><td>Test split · {{ report_info.test_rows|default(0) }} reports with unseen phrases</td><td>{{ '%.3f'|format(m.test_accuracy|default(0)) }}</td><td>{{ '%.3f'|format(m.test_f1_macro|default(0)) }}</td><td>{{ '%.3f'|format(m.test_top2_accuracy|default(0)) }}</td><td>{{ pct(m.test_coverage_above_threshold|default(0)) }}</td><td>{{ pct(m.test_accuracy_above_threshold|default(0)) }}</td></tr>
+      <tr><td>Realistic holdout · {{ report_info.holdout_rows|default(0) }} reports</td><td>{{ '%.3f'|format(m.holdout_accuracy|default(0)) }}</td><td>{{ '%.3f'|format(m.holdout_f1_macro|default(0)) }}</td><td>{{ '%.3f'|format(m.holdout_top2_accuracy|default(0)) }}</td><td>{{ pct(m.holdout_coverage_above_threshold|default(0)) }}</td><td>{{ pct(m.holdout_accuracy_above_threshold|default(0)) }}</td></tr>
+    </tbody></table></div>
+    {% for model in models if model.report_best %}
+    <div class="table-wrap" style="margin-top:12px"><table class="portal-table"><thead><tr><th>Category (realistic holdout)</th><th>Precision</th><th>Recall</th><th>F1</th><th>Support</th></tr></thead><tbody>{% for category, v in model.report_classes.items() if v is mapping and 'precision' in v and category in CATEGORY_INFO %}<tr><td>{{ CATEGORY_INFO[category].label }}</td><td>{{ '%.2f'|format(v.precision) }}</td><td>{{ '%.2f'|format(v.recall) }}</td><td>{{ '%.2f'|format(v['f1-score']) }}</td><td>{{ v.support|int }}</td></tr>{% endfor %}</tbody></table></div>
+    {% endfor %}
+  {% endcall %}
+
+  {% call fold('Confusion matrices on the realistic holdout', kicker='4.6') %}
+    <div class="confusion-grid">{% for model in models %}<figure><img src="{{ url_for('report_confusion_image', model=model.key) }}" alt="Confusion matrix of {{ model.title }}" loading="lazy"><figcaption>{{ model.title }} · rows = actual, columns = predicted</figcaption></figure>{% endfor %}</div>
+  {% endcall %}
+
+  {% call fold('Location benchmark (exploratory)', kicker='4.7') %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Model</th><th>Accuracy</th><th>Precision macro</th><th>Recall macro</th><th>F1 macro</th><th>F1 weighted</th></tr></thead><tbody>{% for row in metrics %}<tr><td>{{ row.model|replace('_',' ')|title }}</td>{% for key in ['accuracy','precision_macro','recall_macro','f1_macro','f1_weighted'] %}<td>{{ '%.3f'|format(row[key]|float) }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+    <p class="panel-note" style="margin-top:8px">Predicting the category from department, municipality, regional office and years on 66,400 official rows (stratified 80/20 split). Macro F1 around 0.12 confirms that location and time do not identify the offense.</p>
+  {% endcall %}
+
+  {{ phase_pager(('models', 'Phase 3 · Model engineering'), ('deployment', 'Phase 5 · Deployment')) }}
 </section>
 {% endblock %}
-{% block scripts %}<script>
-const rows={{ metrics|tojson }}; const names=rows.map(r=>r.model.replaceAll('_',' '));
-for (const [key,label] of [['accuracy','Accuracy'],['precision_macro','Precision macro'],['recall_macro','Recall macro'],['f1_macro','F1 macro'],['f1_weighted','F1 weighted']]) { new Chart(document.getElementById('chart-'+key),{type:'bar',data:{labels:names,datasets:[{label,data:rows.map(r=>r[key]),backgroundColor:['#ff596b','#39d9e8','#8294ff'],borderRadius:5}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{min:0,max:1,grid:{color:'#252a31'},ticks:{color:'#aeb5be'}},x:{grid:{display:false},ticks:{color:'#d8dde3'}}}}}); }
-</script>{% endblock %}

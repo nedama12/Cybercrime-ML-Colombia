@@ -1,12 +1,31 @@
 {% extends 'base.html' %}
+{% from '_ui.html' import fold, status_badge %}
 {% block content %}
 <section class="portal-page container" id="top">
-  <div class="portal-page-heading"><p class="eyebrow">Resumen de cuenta</p><h1>Hola, <span>{{ current_user|default('usuario') }}.</span></h1><p>Desde aquí puedes clasificar un incidente y revisar tus propios registros.</p><a class="button button-primary" href="{{ url_for('prediction') }}">Registrar incidente <span aria-hidden="true">↗</span></a> <a class="portal-text-link" href="{{ url_for('history') }}">Ver mi historial →</a></div>
-  <div class="portal-stat-grid three"><article class="portal-stat"><span>Tus predicciones</span><strong>{{ prediction_count }}</strong><small>guardadas en tu cuenta</small></article><article class="portal-stat"><span>Modelo actual</span><strong class="stat-status">{{ info.algorithm|default('—')|replace('_',' ')|title }}</strong><small>clasificación multiclase</small></article><article class="portal-stat"><span>F1 macro de prueba</span><strong>{{ '%.3f'|format(info.metrics.get('f1_macro',0)|float) }}</strong><small>rendimiento global bajo; ver limitaciones</small></article></div>
-  {% if not data.available %}<div class="portal-alert error">No se encontró el dataset procesado en data/processed.</div>{% else %}
-  <div class="portal-stat-grid"><article class="portal-stat"><span>Registros</span><strong>{{ '{:,}'.format(data.rows).replace(',', '.') }}</strong><small>delitos procesados</small></article><article class="portal-stat"><span>Variables</span><strong>{{ data.column_count }}</strong><small>columnas del archivo</small></article><article class="portal-stat"><span>Categorías</span><strong>{{ data.distribution|length }}</strong><small>valores de categoria</small></article><article class="portal-stat"><span>Estado entrenamiento</span><strong class="stat-status">{{ 'Listo' if model_ready else 'Pendiente' }}</strong><small>artefactos del pipeline</small></article></div>
-  <div class="portal-grid two-col"><article class="portal-panel"><p class="eyebrow">Modelo seleccionado</p><h2>{{ info.algorithm|default('Sin selección')|replace('_',' ')|title }}</h2><p>Objetivo: <code>{{ info.target|default('—') }}</code>. División: {{ info.train_rows|default(0) }} entrenamiento / {{ info.test_rows|default(0) }} prueba.</p><a class="portal-text-link" href="{{ url_for('evaluation') }}">Revisar evaluación →</a></article><article class="portal-panel"><p class="eyebrow">Métricas del seleccionado</p><div class="mini-metrics">{% for key,label in [('accuracy','Accuracy'),('precision_macro','Precision macro'),('recall_macro','Recall macro'),('f1_macro','F1 macro')] %}<div><span>{{ label }}</span><strong>{{ '%.3f'|format(info.metrics.get(key,0)|float) }}</strong></div>{% endfor %}</div></article></div>
-  <div class="portal-panel"><div class="panel-heading"><div><p class="eyebrow">Proceso ML</p><h2>Flujo de trabajo</h2></div><a class="portal-text-link" href="{{ url_for('preprocessing') }}">Ver preparación →</a></div><div class="process-flow"><span>Dataset procesado</span><i>→</i><span>Pipeline de preparación</span><i>→</i><span>Entrenamiento 80/20</span><i>→</i><span>Evaluación multiclase</span></div></div>
-  {% endif %}
+  <div class="portal-page-heading"><p class="eyebrow">Your account</p><h1>Hello, <span>{{ current_user|default('there') }}.</span></h1><p>Report an incident or follow the reports you already sent.</p></div>
+
+  <div class="cta-band">
+    <div><h2>Did something happen to you?</h2><p>Report it in about 90 seconds and get clear next steps.</p></div>
+    <a class="button button-primary" href="{{ url_for('report_intro') }}">Report an incident <span aria-hidden="true">↗</span></a>
+  </div>
+
+  <div class="portal-stat-grid three">
+    <article class="portal-stat"><span>Your reports</span><strong>{{ total }}</strong><small>saved in your account</small></article>
+    <article class="portal-stat"><span>Reports on the platform</span><strong>{{ platform_total }}</strong><small>citizens helping each other</small></article>
+    <article class="portal-stat"><span>Official cases since 2010</span><strong>{{ '{:,}'.format(data.total_cases|default(0)) }}</strong><small>Attorney General's Office</small></article>
+  </div>
+
+  <div class="portal-panel">
+    <div class="panel-heading"><div><p class="eyebrow">Latest activity</p><h2>Your recent reports</h2></div><a class="portal-text-link" href="{{ url_for('my_reports') }}">See all →</a></div>
+    {% for r in recent %}
+      <div class="report-row"><div><h3>{{ r.final_info.label }}</h3><p><span class="ref">{{ r.reference }}</span> · {{ r.occurred_on }} · {{ r.department_label }}</p></div><div class="actions-row">{{ status_badge(r) }}<a class="portal-text-link" style="margin:0" href="{{ url_for('report_submitted', report_id=r.id) }}">Open →</a></div></div>
+    {% else %}
+      <p>You have not sent any report yet.</p>
+    {% endfor %}
+  </div>
+
+  {% call fold('How does the platform work?', kicker='In three steps') %}
+    <div class="process-flow"><span>You describe what happened</span><i>→</i><span>The classifier identifies the type</span><i>→</i><span>You get next steps</span><i>→</i><span>An analyst confirms it</span></div>
+  {% endcall %}
 </section>
 {% endblock %}
