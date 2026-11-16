@@ -1,0 +1,20 @@
+{# Reusable building blocks. A "fold" is a section that opens when its title is clicked. #}
+{% macro fold(title, kicker='', open=false, id='') -%}
+<details class="fold"{% if open %} open{% endif %}{% if id %} id="{{ id }}"{% endif %}>
+  <summary><span>{% if kicker %}<small>{{ kicker }}</small>{% endif %}{{ title }}</span><i aria-hidden="true">+</i></summary>
+  <div class="fold-body">{{ caller() }}</div>
+</details>
+{%- endmacro %}
+
+{% macro pct(value) -%}{{ '%.0f'|format((value|float) * 100) }}%{%- endmacro %}
+
+{% macro status_badge(report) -%}
+<span class="status-badge status-{{ report.status }}">{{ report.status_label }}</span>
+{%- endmacro %}
+
+{% macro phase_pager(prev=None, next=None) -%}
+<nav class="phase-pager" aria-label="CRISP-ML phases">
+  <span>{% if prev %}<a href="{{ url_for(prev[0]) }}">← {{ prev[1] }}</a>{% endif %}</span>
+  <span>{% if next %}<a href="{{ url_for(next[0]) }}">{{ next[1] }} →</a>{% endif %}</span>
+</nav>
+{%- endmacro %}

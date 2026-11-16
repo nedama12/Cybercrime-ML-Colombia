@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% from '_ui.html' import fold %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading"><p class="eyebrow">Information system · public documentation</p><h1>System <span>design.</span></h1><p>Users, business processes, modules, rules, architecture and data model of the platform that manages citizen cybercrime reports and uses the classifier selected in the CRISP-ML process.</p></div>
+
+  {% call fold('Users and roles', kicker='Who uses the system', open=true) %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Function</th><th>Visitor</th><th>Citizen</th><th>Analyst</th><th>Administrator</th></tr></thead><tbody>
+      <tr><td>Read the CRISP-ML documentation, system design and user manual</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Try the public model demo (nothing is stored except metadata)</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Create, read, edit and delete own reports; feedback on the result</td><td>No</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Territorial analysis; support requests</td><td>No</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Review queue: confirm or correct category, notes, close</td><td>No</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Indicators, CSV export, inference history, support desk</td><td>No</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Users and roles, delete reports, operations, model registry, operational reviews</td><td>No</td><td>No</td><td>No</td><td>Yes</td></tr>
+    </tbody></table></div>
+    <p class="panel-note">Every account is created as a citizen. Roles are granted only by an administrator (or by the server configuration), and every operational route checks the role on the server; a user without permission receives "Access denied" (HTTP 403).</p>
+  {% endcall %}
+
+  {% call fold('Business processes', kicker='What the system manages', open=true) %}
+    <ol class="step-list">
+      <li><div><strong>P1 Account and access management.</strong> Registration, login, logout, password change, account deletion, roles and deactivation.</div></li>
+      <li><div><strong>P2 Incident reporting and classification.</strong> The citizen reports in three steps; the classifier assigns the legal category, confidence and priority; the platform shows first steps and official channels.</div></li>
+      <li><div><strong>P3 Review and closing.</strong> Analysts work the queue by priority, confirm or correct the category, add a note and close the report; every change is kept in the report history.</div></li>
+      <li><div><strong>P4 Feedback and incident handling.</strong> Users send requests (wrong result, technical problem, data request, suggestion); staff answer and resolve them.</div></li>
+      <li><div><strong>P5 Analysis and indicators.</strong> Business indicators of the reports and territorial and temporal analysis of the official records.</div></li>
+      <li><div><strong>P6 Model operation.</strong> Inference history, model registry, monitoring of errors, response times, agreement and drift, and operational reviews.</div></li>
+    </ol>
+  {% endcall %}
+
+  {% call fold('Business rules', kicker='Rules enforced by the server') %}
+    <ul>
+      <li>Report statuses: {% for key, label in statuses.items() %}{{ label }}{% if not loop.last %} → {% endif %}{% endfor %}. A report can be closed only with a confirmed category.</li>
+      <li>The citizen can edit or delete a report only while it is "Received"; after that it is kept unchanged for the audit trail.</li>
+      <li>If the description, channel or affected items change, the report is classified again and the new inference is recorded.</li>
+      <li>Priority: High when the classifier confidence is below {{ '%.0f'|format((report_info.low_confidence_threshold|default(0.45)) * 100) }} %, the citizen disagrees with the result, the loss is COP 1,000,000 or more, or a company system was affected; Medium when money or an account was affected; otherwise Normal.</li>
+      <li>Reports with low confidence show "Needs analyst review" instead of a category.</li>
+      <li>Each citizen sees only their own reports and requests; analysts see all reports but the CSV export contains no names, emails or free text.</li>
+      <li>A support request cannot be resolved without an answer for the user. Messages that contain a password are rejected.</li>
+      <li>Administrators cannot change their own role and the last administrator cannot delete their account. Every administrative action is written to the audit log.</li>
+      <li>Login: 5 failed attempts for one email from one address within 10 minutes, or 20 from one address, block new attempts for 2 minutes.</li>
+    </ul>
+  {% endcall %}
+
+  {% call fold('Architecture', kicker='Layers') %}
+    <div class="arch">
+      <div class="arch-box"><strong>Browser</strong><span>Visitor, citizen, analyst, administrator</span></div><i>→</i>
+      <div class="arch-box"><strong>Flask application</strong><span>Routes and templates · sessions, CSRF · role checks · validation and business rules · request log</span></div><i>→</i>
+      <div class="arch-stack">
+        <div class="arch-box"><strong>ML service</strong><span>src/report_model.py · saved scikit-learn pipeline (models/report_classifier.joblib), same features as training (src/report_features.py)</span></div>
+        <div class="arch-box"><strong>Analytics</strong><span>src/territorial_analysis.py · src/operations.py</span></div>
+        <div class="arch-box"><strong>Persistence</strong><span>SQLite database (USER_DB_PATH) on a persistent disk</span></div>
+      </div>
+    </div>
+    <p class="panel-note">Deployed on Render with gunicorn. Inference runs on the server inside the request; the model is loaded once when the application starts.</p>
+  {% endcall %}
+
+  {% call fold('Data model', kicker='Tables and relations') %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Table</th><th>Main fields</th><th>Relations</th></tr></thead><tbody>
+      <tr><td>users</td><td>id, name, email (unique), password_hash (scrypt), role, active, session_version, created_at, last_login_at</td><td>1 → N reports, requests, inferences</td></tr>
+      <tr><td>incident_reports</td><td>id, occurred_on, department, municipality, channel, affected, amount_lost, description, predicted_category, confidence, needs_review, model_version, priority, status, confirmed_category, analyst_note, closed_at</td><td>user_id → users; reviewed_by → users</td></tr>
+      <tr><td>report_events</td><td>id, action, detail, created_at</td><td>report_id → incident_reports; actor_id → users</td></tr>
+      <tr><td>inferences</td><td>id, source, model_version, predicted_category, confidence, needs_review, channel, input_chars, inference_ms, created_at</td><td>user_id → users; report_id → incident_reports</td></tr>
+      <tr><td>support_tickets</td><td>id, kind, subject, message, status, staff_response, created_at, resolved_at</td><td>user_id, handled_by → users; report_id → incident_reports</td></tr>
+      <tr><td>model_versions</td><td>id, model_name, version, algorithm, artifact, sklearn_version, metrics_json, active</td><td>referenced by inferences.model_version</td></tr>
+      <tr><td>request_log</td><td>id, method, endpoint, status, duration_ms, error, created_at</td><td>user_id (optional)</td></tr>
+      <tr><td>operational_reviews</td><td>id, period_days, metrics_json, findings, actions, created_at</td><td>reviewer_id → users</td></tr>
+      <tr><td>audit_log · login_attempts</td><td>administrative actions · failed logins (email, IP, time)</td><td>actor_id → users</td></tr>
+    </tbody></table></div>
+  {% endcall %}
+
+  {% call fold('Where machine learning contributes', kicker='Decisions supported') %}
+    <ul>
+      <li><strong>Category of the incident.</strong> The classifier ({{ report_info.algorithm|default('')|replace('_',' ')|title }}, version {{ report_info.version|default('-') }}) turns the citizen's description, channel and affected items into one of eight legal categories. The category decides the first steps and the official channels shown to the citizen.</li>
+      <li><strong>Who decides.</strong> When the confidence is low the platform does not show a category: the report goes to the top of the analyst queue. The analyst always confirms or corrects the category before closing.</li>
+      <li><strong>Priority of the queue.</strong> Low confidence and citizen disagreement raise the priority, so human attention goes where the model is least reliable.</li>
+      <li><strong>Learning loop.</strong> Confirmed categories are the real outcomes: they measure the model in production and become training data for the next version.</li>
+    </ul>
+  {% endcall %}
+</section>
+{% endblock %}

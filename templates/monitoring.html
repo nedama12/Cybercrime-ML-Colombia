@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% from '_ui.html' import fold, pct, phase_pager %}
+{% set t = simulated.thresholds|default({}) %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading"><p class="eyebrow">CRISP-ML · Phase 6</p><h1>Monitoring and <span>maintenance.</span></h1><p>Indicators, drift detection, review schedule, retraining criteria and an initial monitoring test.</p></div>
+
+  <div class="portal-stat-grid">
+    <article class="portal-stat"><span>Reports in the platform</span><strong>{{ live.total or 0 }}</strong><small>live data</small></article>
+    <article class="portal-stat"><span>Mean confidence</span><strong>{% if live.avg_confidence %}{{ pct(live.avg_confidence) }}{% else %}—{% endif %}</strong><small>live data</small></article>
+    <article class="portal-stat"><span>Average inference time</span><strong>{% if live.avg_inference %}{{ '%.0f'|format(live.avg_inference) }} ms{% else %}—{% endif %}</strong><small>live data</small></article>
+    <article class="portal-stat"><span>Average time to report</span><strong>{% if live.avg_duration %}{{ (live.avg_duration|int) // 60 }}:{{ '%02d'|format((live.avg_duration|int) % 60) }}{% else %}—{% endif %}</strong><small>goal ≤ 1:30 · live data</small></article>
+  </div>
+
+  {% call fold('Indicators', kicker='6.1', open=true) %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Indicator</th><th>What it shows</th><th>Threshold</th></tr></thead><tbody>
+      <tr><td>Agreement with analysts</td><td>Share of confirmed reports where the analyst kept the predicted category (real accuracy)</td><td>≥ {{ pct(t.agreement_min|default(0.8)) }}</td></tr>
+      <tr><td>Low-confidence share</td><td>Reports below the confidence threshold</td><td>≤ {{ pct(t.low_confidence_max|default(0.25)) }}</td></tr>
+      <tr><td>Mean confidence</td><td>Early sign of degradation before labels arrive</td><td>Drop &gt; 10 points vs training</td></tr>
+      <tr><td>Citizen agreement</td><td>"Yes" answers to "Does this describe what happened to you?"</td><td>≥ 80 %</td></tr>
+      <tr><td>PSI of channel, affected assets and predicted category</td><td>Change in the input and output distributions vs training</td><td>warning &gt; {{ t.psi_warning|default(0.1) }}, alert &gt; {{ t.psi_alert|default(0.25) }}</td></tr>
+      <tr><td>p95 inference time · time to report</td><td>Service performance and usability</td><td>&lt; {{ t.p95_latency_ms_max|default(500) }} ms · ≤ 90 s</td></tr>
+    </tbody></table></div>
+  {% endcall %}
+
+  {% call fold('Initial monitoring test', kicker='6.2 · Simulated operational data', open=true) %}
+    <p class="simulated-banner">{{ simulated.label|default('SIMULATED OPERATIONAL DATA') }}</p>
+    <p>{{ (simulated.weeks|default([]))|map(attribute='reports')|sum }} simulated reports over four weeks were classified by the production model (<code>python -m src.monitoring</code>). Weeks 3 and 4 include new fraud wording (AI-cloned voices, fake QR payments, crypto influencers) and more social-media reports, to test that drift is detected.</p>
+    <img class="figure-img" src="{{ url_for('report_figure', name='monitoring') }}" alt="Simulated weekly agreement, confidence and drift" loading="lazy">
+    <div class="table-wrap" style="margin-top:12px"><table class="portal-table"><thead><tr><th>Week</th><th>Reports</th><th>Agreement</th><th>Mean confidence</th><th>Low confidence</th><th>PSI channel</th><th>PSI category</th><th>p95 ms</th><th>Status</th></tr></thead><tbody>
+      {% for w in simulated.weeks|default([]) %}<tr><td>{{ w.week }}</td><td>{{ w.reports }}</td><td>{{ pct(w.agreement) }}</td><td>{{ pct(w.mean_confidence) }}</td><td>{{ pct(w.low_confidence_share) }}</td><td>{{ '%.2f'|format(w.psi_channel) }}</td><td>{{ '%.2f'|format(w.psi_predicted_category) }}</td><td>{{ '%.0f'|format(w.p95_latency_ms) }}</td><td class="{{ 'pass' if w.status == 'ok' else 'fail' }}">{{ w.status|upper }}</td></tr>{% endfor %}
+    </tbody></table></div>
+    <p class="panel-note" style="margin-top:8px">Log of every simulated prediction: <code>reports/monitoring/monitoring_log.csv</code> (column <code>simulated = 1</code>).</p>
+  {% endcall %}
+
+  {% call fold('Drift and degradation detection', kicker='6.3') %}
+    <ul>
+      <li><strong>Data drift:</strong> weekly PSI of the channel, the affected assets and the predicted categories against <code>models/report_reference_stats.json</code>, saved at training time.</li>
+      <li><strong>Performance degradation:</strong> agreement between model and analysts on confirmed reports, plus citizen agreement; mean confidence and the low-confidence share act as early signals while labels arrive.</li>
+      <li>In the simulated test, drift was detected in weeks 3-4 while agreement stayed high: the alert triggers a review of the new reports before the accuracy drops.</li>
+    </ul>
+  {% endcall %}
+
+  {% call fold('Review schedule, responsibilities and retraining criteria', kicker='6.4') %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Activity</th><th>Frequency</th><th>Responsible</th></tr></thead><tbody>
+      <tr><td>Confirm categories of new reports</td><td>Daily</td><td>Analysts</td></tr>
+      <tr><td>Indicators and drift report (<code>python -m src.monitoring</code> on real logs)</td><td>Weekly</td><td>Model engineer</td></tr>
+      <tr><td>Retraining with confirmed reports (<code>--include-confirmed</code>)</td><td>Monthly, or when a criterion below is met</td><td>Model engineer</td></tr>
+      <tr><td>Review of categories, first steps and official channels</td><td>Quarterly</td><td>Team with a domain expert</td></tr>
+    </tbody></table></div>
+    <p style="margin-top:10px"><strong>Retrain when:</strong> agreement &lt; {{ pct(t.agreement_min|default(0.8)) }} for two weeks, any PSI &gt; {{ t.psi_alert|default(0.25) }} for two weeks, low-confidence share &gt; {{ pct(t.low_confidence_max|default(0.25)) }}, or 200 new confirmed reports are available.</p>
+  {% endcall %}
+
+  {% call fold('Risks, quality controls and update procedure', kicker='6.5') %}
+    <ul>
+      <li><strong>Quality controls:</strong> 21 automated tests (accounts, reports, privacy, review, classifier) and <code>python -m src.verify_models</code> must pass before any deployment.</li>
+      <li><strong>Update procedure:</strong> retrain → compare the new version with the current one on the same test and holdout → deploy only if macro F1 does not drop → new version string in the info JSON → keep the previous files to roll back.</li>
+      <li><strong>Risks:</strong> new fraud types, change in how people write, mislabelled confirmations, and analysts trusting the model blindly. Controls: drift alerts, a second analyst for corrected categories, and the confidence always visible.</li>
+    </ul>
+  {% endcall %}
+
+  {{ phase_pager(('deployment', 'Phase 5 · Deployment'), ('reports', 'Conclusions')) }}
+</section>
+{% endblock %}

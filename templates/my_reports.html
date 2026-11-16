@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% from '_ui.html' import status_badge, pct %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading"><p class="eyebrow">Account · private</p><h1>My <span>reports.</span></h1><p>Only you and the platform analysts can see these reports.</p></div>
+  <div class="panel-heading"><div><p class="eyebrow">{{ reports|length }} report{{ '' if reports|length == 1 else 's' }}</p></div><a class="button button-primary" href="{{ url_for('report_intro') }}">Report an incident <span aria-hidden="true">↗</span></a></div>
+  {% for r in reports %}
+    <article class="report-row">
+      <div>
+        <h3>{{ r.final_info.label }}</h3>
+        <p><span class="ref">{{ r.reference }}</span> · {{ r.occurred_on }} · {{ r.department_label }} · {{ r.channel_label }}</p>
+        {% if r.analyst_note %}<p class="quote">Analyst note: {{ r.analyst_note }}</p>{% endif %}
+      </div>
+      <div class="actions-row">{{ status_badge(r) }}{% if r.editable %}<a class="portal-text-link" style="margin:0" href="{{ url_for('report_edit', report_id=r.id) }}">Edit</a>{% endif %}<a class="portal-text-link" style="margin:0" href="{{ url_for('report_submitted', report_id=r.id) }}">Open →</a></div>
+    </article>
+  {% else %}
+    <div class="portal-panel empty-history"><p class="eyebrow">Nothing here yet</p><h2>You have not sent any report.</h2><p>When you report an incident it will appear here with its status.</p><a class="portal-text-link" href="{{ url_for('report_intro') }}">Report an incident →</a></div>
+  {% endfor %}
+</section>
+{% endblock %}

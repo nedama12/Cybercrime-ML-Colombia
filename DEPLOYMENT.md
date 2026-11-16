@@ -1,31 +1,91 @@
-# Deployment configuration
+# Deployment and security configuration
 
-The application reads these environment variables:
+This guide describes the configuration expected by the Flask application. Confirm each
+setting against the current `app.py`, `render.yaml` and Render service before deploying:
+the existence of a setting in this document does not prove it is configured in the live service.
 
-- `APP_ENV=production` requires an externally supplied secret key.
-- `FLASK_SECRET_KEY` must be a private, stable value of at least 32 characters. Generate one with `python -c "import secrets; print(secrets.token_urlsafe(48))"` and store it in the deployment secret manager.
-- `COOKIE_SECURE=1` enables secure session cookies. Use it when serving the site over HTTPS.
-- `USER_DB_PATH` optionally points to an existing SQLite database. Preserve the current database path if account and prediction history must be retained.
-- `PORT` optionally sets the HTTP port.
+## Environment variables
 
-In development, the application creates a local key at `instance/flask_secret_key`. Do not use it as a production secret. Sessions last eight hours; cookies use `HttpOnly` and `SameSite=Lax`, and all write forms require a CSRF token.
+- `APP_ENV=production`: enables production configuration and requires an externally supplied secret.
+- `FLASK_SECRET_KEY`: private, stable secret of at least 32 characters. Generate one with
+  `python -c "import secrets; print(secrets.token_urlsafe(48))"` and store it in Render's
+  environment settings. Never commit it.
+- `COOKIE_SECURE=1`: enables secure session cookies when serving over HTTPS.
+- `USER_DB_PATH`: optional path to the SQLite database. On a Render persistent disk, a typical
+  value is `/var/data/cybercrime.sqlite3`.
+- `ANALYST_EMAILS`: comma-separated addresses, only if the current application supports
+  granting analyst role from this setting.
+- `ADMIN_EMAILS`: comma-separated addresses, only if the current application supports
+  administrator bootstrap from this setting.
+- `BEHIND_PROXY=1`: use only if the application is configured to trust the Render proxy.
+- `PORT`: optional HTTP port; Render normally supplies it.
 
-Login attempts are limited by email and IP address. Five failed attempts within ten minutes trigger a two-minute wait. The in-memory counter is per process, so each worker has a separate counter.
+In development, the application may create a local secret under `instance/`. Do not reuse a
+development secret in production. Keep passwords, API keys, database files and private user
+data out of Git.
 
-The Render start command is `gunicorn app:app` (also declared in `Procfile`); build with `pip install -r requirements.txt`. The Flask prediction page exposes Cybercrime Analysis and Phishing Detection as separate modules. Deploy `models/phishing_detector.joblib` and `models/phishing_detector_info.json` with the application to enable the phishing form. The large random forest artifact is tracked through Git LFS; verify the Render checkout has hydrated LFS content. The phishing model only analyzes URL text; it does not fetch submitted sites. Train it from the original CSV with `python -m src.train_phishing --data "path\to\PhiUSIIL_Phishing_URL_Dataset.csv"`.
+## Build and start
 
-## Accounts, roles, and first administrator
+The expected Render build command is:
 
-Public registration always creates a `user`. To establish the initial administrator, create the account normally, then open a trusted local or Render shell and run:
-
-```powershell
-flask --app app.py promote-admin admin@example.com
+```bash
+pip install -r requirements.txt
 ```
 
-The command promotes only an existing account. Admins can assign the `analyst` or `user` role and suspend/reactivate accounts at **User Administration**. Analysis pages and report exports require analyst/admin access. Users can view only their own prediction history and incident records.
+The expected start command is:
 
-## Persistent storage on Render
+```bash
+gunicorn app:app
+```
 
-The current backend is SQLite. SQLite files stored on a Render web service's default filesystem are ephemeral and can be lost on replacement/redeploy. If the service plan supports a persistent disk, mount it (for example at `/var/data`) and set `USER_DB_PATH=/var/data/cybercrime.sqlite3`; preserve and back up that disk when redeploying. This path and disk behavior have not been tested against the live service. If a persistent disk is unavailable, PostgreSQL support and a data migration must be implemented before relying on durable production accounts, incident records, or histories. Do not set `USER_DB_PATH` to an ephemeral path and assume it is durable.
+Use these commands only after confirming that `requirements.txt`, `app.py` and `Procfile`
+match the deployed branch. Deploy the model artifacts required by the application; do not
+assume Git LFS files have been downloaded correctly. Check the Render build log for LFS
+pointer files or missing model artifacts.
 
-After deploying, verify `/`, registration/login, `/assistant`, analyst-only `/territorial-analysis`, phishing and crime predictions, `/incidents`, and analyst/admin `/reports`. Confirm the admin bootstrap command, model loading, LFS artifacts, session cookie settings, and a database record surviving a service restart. Production could not be reached from the development environment during this implementation; local tests do not establish that Render is healthy.
+## Persistent database storage
+
+The application uses SQLite according to the project configuration. Files on a web service's
+ephemeral filesystem can be lost when the service is replaced or redeployed. If the selected
+Render plan supports a persistent disk, mount it (for example at `/var/data`) and set
+`USER_DB_PATH=/var/data/cybercrime.sqlite3` only if the application reads that variable.
+Back up the database before deployments and test that records survive a service restart.
+
+If a persistent disk is not available, do not treat local SQLite storage as durable production
+storage. A PostgreSQL backend and data migration would be a separate implementation task.
+
+## Accounts and roles
+
+Public registration should create an ordinary citizen/user account. Privileged roles must
+never be assigned from untrusted browser input. Create or promote the first administrator
+only through a supported command or a controlled database procedure that exists in the
+deployed version of `app.py`. Do not assume a CLI command is available without checking
+`flask --app app.py --help`.
+
+Expected role separation in the incident-reporting design:
+
+| Role | Expected access |
+|---|---|
+| Citizen / user | Submit and follow their own incident reports |
+| Analyst | Review submitted reports, add review notes and confirm classifications |
+| Administrator | Manage users, roles and administrative functions |
+
+Every protected route must enforce authorization on the server, not only hide navigation links.
+
+## Post-deployment smoke test
+
+After deployment, verify each route that actually exists in `python -m flask --app app routes`:
+
+1. Open the home page and register a test citizen.
+2. Sign in and submit a clearly fictional test incident; do not use real personal or banking data.
+3. Confirm the report receives a classification from the incident-report classifier (Astrith, if
+   that is the name configured in the application) and is saved to the correct account.
+4. Sign in as an analyst and verify that the report appears in the review queue.
+5. Confirm that an ordinary citizen cannot access analyst/admin routes.
+6. Check the territorial analysis and any separate URL-phishing module, if those routes and
+   artifacts are present in the deployed version.
+7. Restart the service and confirm that the test account and report remain available.
+8. Review Render logs for missing packages, missing model files, database errors and failed imports.
+
+A successful local run does not establish that the public Render deployment is healthy.
+Do not claim deployment success until these checks have been completed.

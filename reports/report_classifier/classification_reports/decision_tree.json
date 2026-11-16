@@ -1,0 +1,128 @@
+{
+  "test": {
+    "ABUSIVE_ACCESS": {
+      "precision": 0.6417910447761194,
+      "recall": 0.9347826086956522,
+      "f1-score": 0.7610619469026548,
+      "support": 46.0
+    },
+    "ELECTRONIC_THEFT": {
+      "precision": 0.821917808219178,
+      "recall": 0.9836065573770492,
+      "f1-score": 0.8955223880597015,
+      "support": 61.0
+    },
+    "MALWARE": {
+      "precision": 0.5490196078431373,
+      "recall": 1.0,
+      "f1-score": 0.7088607594936709,
+      "support": 56.0
+    },
+    "MOBILE_DEVICES": {
+      "precision": 1.0,
+      "recall": 0.15254237288135594,
+      "f1-score": 0.2647058823529412,
+      "support": 59.0
+    },
+    "PERSONAL_DATA": {
+      "precision": 0.7115384615384616,
+      "recall": 0.8043478260869565,
+      "f1-score": 0.7551020408163265,
+      "support": 46.0
+    },
+    "PHISHING_SPOOFING": {
+      "precision": 1.0,
+      "recall": 0.32653061224489793,
+      "f1-score": 0.49230769230769234,
+      "support": 49.0
+    },
+    "SYSTEM_ATTACK": {
+      "precision": 0.7719298245614035,
+      "recall": 0.7457627118644068,
+      "f1-score": 0.7586206896551724,
+      "support": 59.0
+    },
+    "TRANSFER_FRAUD": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 46.0
+    },
+    "accuracy": 0.7369668246445498,
+    "macro avg": {
+      "precision": 0.8120245933672875,
+      "recall": 0.7434465861437898,
+      "f1-score": 0.70452267494852,
+      "support": 422.0
+    },
+    "weighted avg": {
+      "precision": 0.812035785024121,
+      "recall": 0.7369668246445498,
+      "f1-score": 0.69802359315146,
+      "support": 422.0
+    }
+  },
+  "holdout": {
+    "ABUSIVE_ACCESS": {
+      "precision": 0.625,
+      "recall": 0.8333333333333334,
+      "f1-score": 0.7142857142857143,
+      "support": 6.0
+    },
+    "ELECTRONIC_THEFT": {
+      "precision": 0.75,
+      "recall": 0.5,
+      "f1-score": 0.6,
+      "support": 6.0
+    },
+    "MALWARE": {
+      "precision": 1.0,
+      "recall": 0.8333333333333334,
+      "f1-score": 0.9090909090909091,
+      "support": 6.0
+    },
+    "MOBILE_DEVICES": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 4.0
+    },
+    "PERSONAL_DATA": {
+      "precision": 1.0,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.8,
+      "support": 6.0
+    },
+    "PHISHING_SPOOFING": {
+      "precision": 0.8571428571428571,
+      "recall": 1.0,
+      "f1-score": 0.9230769230769231,
+      "support": 6.0
+    },
+    "SYSTEM_ATTACK": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1-score": 0.6666666666666666,
+      "support": 6.0
+    },
+    "TRANSFER_FRAUD": {
+      "precision": 1.0,
+      "recall": 0.3333333333333333,
+      "f1-score": 0.5,
+      "support": 6.0
+    },
+    "accuracy": 0.7608695652173914,
+    "macro avg": {
+      "precision": 0.8415178571428572,
+      "recall": 0.7708333333333334,
+      "f1-score": 0.7641400266400267,
+      "support": 46.0
+    },
+    "weighted avg": {
+      "precision": 0.8346273291925465,
+      "recall": 0.7608695652173914,
+      "f1-score": 0.753885245189593,
+      "support": 46.0
+    }
+  }
+}

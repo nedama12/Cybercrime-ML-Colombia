@@ -1,17 +1,89 @@
 {% extends 'base.html' %}
+{% from '_ui.html' import fold, pct, phase_pager %}
 {% block head %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>{% endblock %}
 {% block content %}
 <section class="portal-page container" id="top">
-  <div class="portal-page-heading"><p class="eyebrow">Data engineering · Exploration</p><h1>Processed <span>dataset.</span></h1><p>Summary from <code>data/processed/delitos_procesado.csv</code>.</p></div>
-  {% if not data.available %}<div class="portal-alert error">The processed CSV was not found.</div>{% else %}
-  <div class="portal-stat-grid three"><article class="portal-stat"><span>Records</span><strong>{{ '{:,}'.format(data.rows) }}</strong></article><article class="portal-stat"><span>Columns</span><strong>{{ data.column_count }}</strong></article><article class="portal-stat"><span>Exact duplicates</span><strong>{{ data.duplicates }}</strong></article></div>
-  <div class="portal-grid two-col"><article class="portal-panel"><p class="eyebrow">Target classes</p><h2>Distribution of {{ data.target }}</h2><div class="chart-wrap"><canvas id="classChart" aria-label="Distribution by category"></canvas></div></article><article class="portal-panel"><p class="eyebrow">Data quality</p><h2>Missing values</h2><p class="panel-note">Total missing values in file: <strong>{{ data.missing_total }}</strong></p><div class="table-wrap"><table class="portal-table"><thead><tr><th>Feature</th><th>Type</th><th>Missing</th><th>Unique values</th></tr></thead><tbody>{% for col in data.columns if col.missing > 0 %}<tr><td>{{ col.name }}</td><td>{{ col.dtype }}</td><td>{{ col.missing }}</td><td>{{ col.unique }}</td></tr>{% else %}<tr><td colspan="4">No missing values found.</td></tr>{% endfor %}</tbody></table></div></article></div>
-  <div class="portal-panel"><p class="eyebrow">Observed data dictionary</p><h2>Columns and types</h2><div class="table-wrap"><table class="portal-table"><thead><tr><th>Column</th><th>Detected type</th><th>Missing</th><th>Unique values</th></tr></thead><tbody>{% for col in data.columns %}<tr><td><code>{{ col.name }}</code></td><td>{{ col.dtype }}</td><td>{{ col.missing }}</td><td>{{ col.unique }}</td></tr>{% endfor %}</tbody></table></div></div>
-  <div class="portal-panel"><p class="eyebrow">Sample records</p><h2>First 10 rows</h2><div class="table-wrap"><table class="portal-table"><thead><tr>{% for col in data.columns %}<th>{{ col.name }}</th>{% endfor %}</tr></thead><tbody>{% for row in data.sample %}<tr>{% for col in data.columns %}<td>{{ row[col.name] }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div></div>
+  <div class="portal-page-heading"><p class="eyebrow">CRISP-ML · Phase 2</p><h1>Data <span>engineering.</span></h1><p>Selected sources and features, cleaning with before/after evidence, feature engineering and leakage-free partitions.</p></div>
+  {% if not data.available %}<div class="portal-alert error">The processed dataset was not found.</div>{% else %}
+  {% set raw = quality.raw|default({}) %}{% set done = quality.processed|default({}) %}
+  <div class="portal-stat-grid">
+    <article class="portal-stat"><span>Raw rows → clean rows</span><strong>{{ '{:,}'.format(raw.rows|default(0)) }} → {{ '{:,}'.format(done.rows|default(0)) }}</strong><small>22 rows without location removed</small></article>
+    <article class="portal-stat"><span>Cases kept</span><strong>{{ '{:,}'.format(done.total_cases|default(0)) }}</strong><small>of {{ '{:,}'.format(raw.total_cases|default(0)) }} ({{ '%.3f'|format(100 * done.total_cases|default(0) / (raw.total_cases|default(1))) }} %)</small></article>
+    <article class="portal-stat"><span>Exact duplicates</span><strong>{{ raw.exact_duplicates|default(0) }}</strong><small>before and after</small></article>
+    <article class="portal-stat"><span>Report classifier data</span><strong>{{ report_info.training_rows|default(0) + report_info.test_rows|default(0) }}</strong><small>seed reports + {{ report_info.holdout_rows|default(0) }} holdout</small></article>
+  </div>
+
+  {% call fold('Selected sources and features', kicker='2.1', open=true) %}
+    <ul>
+      <li><strong>Attorney General's Office cybercrime cases</strong>: the only official national source by department, year and legal article. Used for context, statistics and the location benchmark.</li>
+      <li><strong>Seed corpus of victim-style reports</strong>: the official data has no description of the incident, so the team wrote {{ report_info.templates|default(0) }} base phrases (English and Spanish) from the legal definitions of Law 1273 of 2009 and generated {{ report_info.training_rows|default(0) + report_info.test_rows|default(0) }} reports with varied banks, apps, amounts, openings and closings (<code>src/build_seed_corpus.py</code>, seed 42).</li>
+      <li><strong>Features of the report classifier</strong>: only what a citizen knows when reporting: the description, the channel and what was affected. Nothing that is known only after an investigation.</li>
+    </ul>
+  {% endcall %}
+
+  {% call fold('Cleaning: before and after', kicker='2.2', open=true) %}
+    <img class="figure-img" src="{{ url_for('report_figure', name='data-quality') }}" alt="Rows, missing cells and columns before and after cleaning" loading="lazy">
+    <div class="table-wrap" style="margin-top:12px"><table class="portal-table"><thead><tr><th>Issue found in the raw file</th><th>Amount</th><th>Treatment</th></tr></thead><tbody>
+      {% for column, count in raw.missing_as_sin_dato|default({})|dictsort %}<tr><td>"SIN DATO" (no data) in <code>{{ column }}</code></td><td>{{ count }}</td><td>{% if count == 22 %}Row removed (no location){% elif count > 600 %}Kept as null; imputed inside the pipeline{% else %}Converted to null{% endif %}</td></tr>{% endfor %}
+      <tr><td>Exact duplicate rows</td><td>{{ raw.exact_duplicates|default(0) }}</td><td>None found</td></tr>
+      <tr><td>Inconsistent place names (accents, case, punctuation)</td><td>{{ raw.department_spellings|default(0) }} departments, {{ '{:,}'.format(raw.municipality_spellings|default(0)) }} municipality names</td><td>Normalised, e.g. {{ (quality.inconsistencies.examples|default(['']))[-1] }}</td></tr>
+      <tr><td>Outliers in <code>total_cases</code> ({{ quality.outliers.rule|default('') }})</td><td>{{ '{:,}'.format(quality.outliers.rows|default(0)) }} rows ({{ pct(quality.outliers.share|default(0)) }}), max {{ '{:,}'.format(quality.outliers.max|default(0)) }}</td><td>{{ quality.outliers.decision|default('') }}</td></tr>
+      <tr><td>Incomplete year 2026</td><td>{{ '{:,}'.format(done.partial_year_rows|default(0)) }} rows</td><td>Flagged with <code>partial_year</code> and excluded from trends</td></tr>
+    </tbody></table></div>
+  {% endcall %}
+
+  {% call fold('All transformations and their justification', kicker='2.3') %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Element</th><th>Transformation</th><th>Justification</th></tr></thead><tbody>
+      {% for item in quality.transformations|default([]) %}<tr><td>{{ item[0] }}</td><td>{{ item[1] }}</td><td>{{ item[2] }}</td></tr>{% endfor %}
+    </tbody></table></div>
+  {% endcall %}
+
+  {% call fold('Feature engineering, encoding and scaling', kicker='2.4', id='preparation') %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Input</th><th>Transformation</th><th>Reason</th></tr></thead><tbody>
+      <tr><td><code>description</code></td><td>Word TF-IDF (1-2 grams, min_df 2, sublinear) + character TF-IDF (3-5 grams, max 20,000 features), accents removed, lower case</td><td>Captures key words and phrases; character n-grams tolerate typos and work in Spanish and English</td></tr>
+      <tr><td><code>channel</code></td><td>One-hot encoding, unknown values ignored</td><td>Nominal variable with 7 values</td></tr>
+      <tr><td>What was affected</td><td>Five 0/1 columns</td><td>Multi-select answer</td></tr>
+      <tr><td>Benchmark numeric fields</td><td>Median imputation + standard scaling</td><td>Robust to missing values; comparable scales</td></tr>
+      <tr><td>Benchmark categorical fields</td><td>Most-frequent imputation + one-hot encoding</td><td>Departments, municipalities and regional offices</td></tr>
+    </tbody></table></div>
+    <p style="margin-top:10px">TF-IDF already normalises each text vector to unit length, so no extra scaling is needed for the report classifier.</p>
+  {% endcall %}
+
+  {% call fold('Partitions and leakage control', kicker='2.5') %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Partition</th><th>Rows</th><th>Used for</th></tr></thead><tbody>
+      <tr><td>Training</td><td>{{ '{:,}'.format(report_info.training_rows|default(0)) }}</td><td>Fitting and 5-fold cross-validation (validation folds) for tuning</td></tr>
+      <tr><td>Test (unseen phrases)</td><td>{{ report_info.test_rows|default(0) }}</td><td>Final evaluation only</td></tr>
+      <tr><td>Realistic holdout</td><td>{{ report_info.holdout_rows|default(0) }}</td><td>Final evaluation only</td></tr>
+    </tbody></table></div>
+    <ul style="margin-top:10px">
+      <li>The split is grouped by base phrase (<code>template_id</code>): no phrase of the test split appears in training, so the score measures new wording and not memorised templates.</li>
+      <li>Vectorisers, encoders, imputers and scalers live inside a scikit-learn <code>Pipeline</code>, so they are fitted only on the training data of each fold.</li>
+      <li>Benchmark: <code>offense</code>, <code>article</code>, <code>law</code>, <code>is_aggravated</code> and <code>total_cases</code> are excluded because the target is derived from them; procedural stage columns are excluded because they are not known for a new case.</li>
+    </ul>
+  {% endcall %}
+
+  {% call fold('Cases per year and per category', kicker='Exploration') %}
+    <div style="height:280px"><canvas id="yearChart" aria-label="Cases per year"></canvas></div>
+    <div style="height:320px;margin-top:16px"><canvas id="classChart" aria-label="Rows per category"></canvas></div>
+  {% endcall %}
+
+  {% call fold('Processed columns', kicker='Dictionary') %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Column</th><th>Type</th><th>Missing</th><th>Unique values</th></tr></thead><tbody>{% for col in data.columns %}<tr><td><code>{{ col.name }}</code></td><td>{{ col.dtype }}</td><td>{{ col.missing }}</td><td>{{ col.unique }}</td></tr>{% endfor %}</tbody></table></div>
+  {% endcall %}
   {% endif %}
+  {{ phase_pager(('business', 'Phase 1 · Business'), ('models', 'Phase 3 · Model engineering')) }}
 </section>
 {% endblock %}
 {% block scripts %}{% if data.available %}<script>
+const grid = '#252a31', tick = '#aeb5be';
 const distribution = {{ data.distribution|tojson }};
-new Chart(document.getElementById('classChart'), {type:'bar',data:{labels:distribution.map(x=>x.category),datasets:[{label:'Records',data:distribution.map(x=>x.count),backgroundColor:'#39d9e8',borderRadius:4}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{color:'#252a31'},ticks:{color:'#aeb5be'}},y:{grid:{display:false},ticks:{color:'#d8dde3'}}}}});
+const years = {{ data.by_year|tojson }};
+let drawn = false;
+function draw() {
+  if (drawn) return; drawn = true;
+  new Chart(document.getElementById('yearChart'), {type:'line', data:{labels:years.map(x=>x.year), datasets:[{label:'Cases', data:years.map(x=>x.cases), borderColor:'#39d9e8', backgroundColor:'rgba(57,217,232,.12)', fill:true, tension:.25}]}, options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}, ticks:{color:tick}}, y:{beginAtZero:true, grid:{color:grid}, ticks:{color:tick}}}}});
+  new Chart(document.getElementById('classChart'), {type:'bar', data:{labels:distribution.map(x=>x.label), datasets:[{label:'Rows', data:distribution.map(x=>x.count), backgroundColor:'#39d9e8', borderRadius:4}]}, options:{indexAxis:'y', maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true, grid:{color:grid}, ticks:{color:tick}}, y:{grid:{display:false}, ticks:{color:'#d8dde3'}}}}});
+}
+document.getElementById('yearChart').closest('details').addEventListener('toggle', e => { if (e.target.open) draw(); });
+if (location.hash === '#preparation') document.getElementById('preparation').open = true;
 </script>{% endif %}{% endblock %}

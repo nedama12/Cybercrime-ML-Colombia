@@ -1,0 +1,31 @@
+{
+  "channel": {
+    "phone_call": 0.0669481302774427,
+    "sms_whatsapp": 0.10615199034981906,
+    "email": 0.11459589867310012,
+    "social_media": 0.13630880579010857,
+    "website_app": 0.22074788902291917,
+    "device": 0.1646562123039807,
+    "unknown": 0.19059107358262967
+  },
+  "affected": {
+    "money": 0.33896260554885405,
+    "account": 0.26839565741857657,
+    "personal_data": 0.38721351025331724,
+    "device": 0.2732207478890229,
+    "business_system": 0.17913148371531967
+  },
+  "predicted_category": {
+    "ABUSIVE_ACCESS": 0.12907117008443908,
+    "ELECTRONIC_THEFT": 0.12002412545235223,
+    "MALWARE": 0.12303980699638119,
+    "MOBILE_DEVICES": 0.12123039806996382,
+    "PERSONAL_DATA": 0.12907117008443908,
+    "PHISHING_SPOOFING": 0.1272617611580217,
+    "SYSTEM_ATTACK": 0.12123039806996382,
+    "TRANSFER_FRAUD": 0.12907117008443908
+  },
+  "description_length_mean": 97.45717732207478,
+  "mean_confidence": 0.989236053170458,
+  "rows": 1658
+}

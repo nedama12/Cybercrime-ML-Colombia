@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% from '_ui.html' import pct %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading"><p class="eyebrow">Analyst workspace · traceability</p><h1>Inference <span>history.</span></h1><p>Every prediction made by the classifier on the server: date, user, origin, result, confidence, model version and response time. The text of the description is not repeated here.</p></div>
+
+  <div class="panel-heading">
+    <nav class="filter-tabs" aria-label="Origin">{% for key, label in [('', 'All'), ('report', 'New reports'), ('edit', 'Edited reports'), ('demo', 'Public demo')] %}<a href="{{ url_for('inference_history', source=key) }}" {% if source == key %}aria-current="true"{% endif %}>{{ label }}</a>{% endfor %}</nav>
+    <p class="panel-note">Model versions used: {% for v in versions %}<code>{{ v.model_version }}</code> ({{ v.n }}){% if not loop.last %}, {% endif %}{% else %}none yet{% endfor %}</p>
+  </div>
+
+  <div class="portal-panel">
+    <div class="table-wrap"><table class="portal-table">
+      <thead><tr><th>#</th><th>Date (UTC)</th><th>User</th><th>Origin</th><th>Report</th><th>Result</th><th>Confidence</th><th>Review</th><th>Model version</th><th>ms</th></tr></thead>
+      <tbody>
+      {% for r in rows %}
+        <tr><td>{{ r.id }}</td><td>{{ r.created_at }}</td><td>{{ r.user_name or 'Anonymous' }}</td><td>{{ r.source }}</td><td>{{ r.report_id or '—' }}</td>
+          <td>{{ r.label }}</td><td>{{ pct(r.confidence) }}</td><td>{{ 'Analyst' if r.needs_review else 'Automatic' }}</td><td><code>{{ r.model_version }}</code></td><td>{{ '%.0f'|format(r.inference_ms) }}</td></tr>
+      {% else %}<tr><td colspan="10">No inferences yet.</td></tr>{% endfor %}
+      </tbody></table></div>
+    <p class="panel-note">Showing the latest 200 records. "Analyst" means the confidence was below the threshold and a person must decide the category.</p>
+  </div>
+</section>
+{% endblock %}

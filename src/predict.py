@@ -1,38 +1,41 @@
-"""Load the saved model pipeline and predict a cybercrime category."""
+"""Prediction helper for the aggregated location benchmark.
+
+This is not the incident narrative classifier (Astrith). It requires all features
+stored in the fitted scikit-learn pipeline.
+"""
+from __future__ import annotations
+
 from pathlib import Path
 
 import joblib
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-MODEL_PATH = ROOT / "models/best_model.joblib"
-INFO_PATH = ROOT / "models/best_model_info.json"
+MODEL_PATH = ROOT / "models" / "best_model.joblib"
 
 
 def predict_incident(incident: dict, model_path: str | Path = MODEL_PATH) -> dict:
-    """Return a predicted category and its per-class probability estimates."""
     if not isinstance(incident, dict) or not incident:
-        raise ValueError("incident must be a non-empty dictionary of model features.")
+        raise ValueError("incident must be a non-empty dictionary")
+
     model = joblib.load(model_path)
-    required = list(model.feature_names_in_)
-    missing = [field for field in required if field not in incident]
+    required = list(getattr(model, "feature_names_in_", []))
+    if not required:
+        raise ValueError("The saved model does not expose feature_names_in_")
+
+    missing = [name for name in required if name not in incident]
     if missing:
-        raise ValueError(f"Required features are missing: {missing}")
-    frame = pd.DataFrame([{field: incident[field] for field in required}], columns=required)
-    category = model.predict(frame)[0]
-    result = {"prediction": str(category)}
+        raise ValueError(f"Missing required fields: {missing}")
+
+    frame = pd.DataFrame([{name: incident[name] for name in required}], columns=required)
+    prediction = model.predict(frame)[0]
+    result = {"prediction": str(prediction)}
+
     if hasattr(model, "predict_proba"):
         probabilities = model.predict_proba(frame)[0]
+        labels = getattr(model, "classes_", range(len(probabilities)))
         result["probabilities"] = {
             str(label): float(probability)
-            for label, probability in zip(model.classes_, probabilities)
+            for label, probability in zip(labels, probabilities)
         }
     return result
-
-
-if __name__ == "__main__":
-    import json
-    import sys
-    if len(sys.argv) != 2:
-        raise SystemExit("Usage: python -m src.predict '{\"criminalidad\":...}'")
-    print(json.dumps(predict_incident(json.loads(sys.argv[1])), ensure_ascii=False, indent=2))

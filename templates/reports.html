@@ -1,10 +1,47 @@
 {% extends 'base.html' %}
+{% from '_ui.html' import fold, pct %}
 {% block content %}
 <section class="portal-page container" id="top">
-  <div class="portal-page-heading"><p class="eyebrow">Academic documentation</p><h1>Reports and <span>Conclusions.</span></h1><p>Summary based on the dataset and results available in this repository.</p></div>
-  <div class="portal-panel"><p class="eyebrow">Executive summary</p><h2>{{ data.rows }} rows processed · {{ info.algorithm|default('No model')|replace('_',' ')|title }}</h2><p>Three multiclass classifiers were trained using a shared stratified split. {{ info.target|default('categoria') }} is predicted from time and location features and the criminality indicator. The selected model macro F1 is {{ '%.4f'|format(info.metrics.get('f1_macro',0)|float) }}; which is low and should be read alongside per-class evaluation.</p></div>
-  <div class="portal-grid two-col"><article class="portal-panel"><p class="eyebrow">Conclusion</p><h2>Exploratory, not operational</h2><p>The models struggle to separate categories using the available features. Logistic Regression better recovers small categories at the cost of lower precision. Future validation requires incident-level examples and temporal or group-based evaluation.</p></article><article class="portal-panel"><p class="eyebrow">Limitations</p><ul><li>Aggregated data, not independent records of individual incidents.</li><li>Imbalanced distribution and small minority classes.</li><li>Label created using an approximate mapping of legal articles.</li><li>Logistic Regression convergence warning.</li><li>The random split does not measure generalization to new territories or periods.</li><li>The phishing dataset described in README is not included.</li></ul></article></div>
-  <div class="portal-panel"><p class="eyebrow">Available artifacts</p><div class="download-list"><a href="{{ url_for('report_file', filename='MODEL_ENGINEERING_REPORT.md') }}">Model Engineering Report <span>Download Markdown ↗</span></a><a href="{{ url_for('report_file', filename='model_comparison.csv') }}">Metric comparison <span>Download CSV ↗</span></a><a href="{{ url_for('comparison_image') }}">Comparison chart <span>Open PNG ↗</span></a>{% for model in ['decision_tree','random_forest','logistic_regression'] %}<a href="{{ url_for('confusion_image', model=model) }}">Confusion matrix · {{ model|replace('_',' ')|title }} <span>Open PNG ↗</span></a><a href="{{ url_for('report_file', filename='classification_reports/' ~ model ~ '.json') }}">Classification Report · {{ model|replace('_',' ')|title }} <span>Download JSON ↗</span></a>{% endfor %}</div></div>
+  <div class="portal-page-heading"><p class="eyebrow">Academic documentation</p><h1>Project <span>conclusions.</span></h1><p>The main results in short. Open a section to read more.</p></div>
+
+  <div class="portal-stat-grid three">
+    <article class="portal-stat"><span>Selected model · realistic holdout accuracy</span><strong>{{ pct(report_info.metrics.holdout_accuracy|default(0)) }}</strong><small>{{ report_info.algorithm|default('')|replace('_',' ')|title }}</small></article>
+    <article class="portal-stat"><span>Location benchmark · F1 macro</span><strong>{{ '%.2f'|format(info.metrics.f1_macro|default(0)|float) }}</strong><small>place and year are not enough</small></article>
+    <article class="portal-stat"><span>Official cases analysed</span><strong>{{ '{:,}'.format(data.total_cases|default(0)) }}</strong><small>{{ data.years|default('') }}</small></article>
+  </div>
+
+  {% call fold('Conclusion', kicker='Summary', open=true) %}
+    <p>The type of cybercrime cannot be inferred from where and when a case was registered, but it can be identified from a short description of what the victim experienced. The platform therefore asks citizens three simple questions, classifies the report, gives practical steps and keeps every report for analyst review. Each confirmed report becomes new training data.</p>
+  {% endcall %}
+
+  {% call fold('Limitations', kicker='What to keep in mind') %}
+    <ul>
+      <li>The report classifier was trained on a seed corpus written by the team, not on real victim reports. The realistic holdout is small ({{ report_info.holdout_rows|default(0) }} reports).</li>
+      <li>The official data is aggregated: each row is a group of cases, not an individual incident.</li>
+      <li>The categories come from an approximate mapping of legal articles, and the classes are imbalanced.</li>
+      <li>The platform does not replace a criminal complaint; it helps citizens prepare one.</li>
+    </ul>
+  {% endcall %}
+
+  {% call fold('Next steps', kicker='Improvement plan') %}
+    <ul>
+      <li>Retrain monthly with analyst-confirmed reports and track agreement between model and analysts.</li>
+      <li>Compare regional patterns from citizen reports with the official yearly figures.</li>
+      <li>Validate the categories and wording with cybercrime specialists.</li>
+    </ul>
+  {% endcall %}
+
+  {% call fold('Downloadable files', kicker='Artifacts') %}
+    <div class="download-list">
+      <a href="{{ url_for('report_file', filename='MODEL_ENGINEERING_REPORT.md') }}">Model Engineering report <span>Download Markdown ↗</span></a>
+      <a href="{{ url_for('report_file', filename='report_classifier/model_comparison.csv') }}">Report classifier comparison <span>Download CSV ↗</span></a>
+      <a href="{{ url_for('report_file', filename='report_classifier/experiments.csv') }}">Experiment log (grid search) <span>Download CSV ↗</span></a>
+      <a href="{{ url_for('report_file', filename='data_quality.json') }}">Data quality before/after <span>Open JSON ↗</span></a>
+      <a href="{{ url_for('report_file', filename='monitoring/monitoring_log.csv') }}">Monitoring log (simulated data) <span>Download CSV ↗</span></a>
+      <a href="{{ url_for('report_file', filename='model_comparison.csv') }}">Location benchmark comparison <span>Download CSV ↗</span></a>
+      <a href="{{ url_for('comparison_image') }}">Location benchmark chart <span>Open PNG ↗</span></a>
+    </div>
+  {% endcall %}
 </section>
 <section class="portal-page container"><div class="portal-panel"><div class="panel-heading"><div><p class="eyebrow">Live application activity</p><h2>Recorded analysis activity</h2></div><a class="button button-primary" href="{{ url_for('export_activity_report') }}">Export activity CSV</a></div><div class="portal-stat-grid three"><article class="portal-stat"><span>Total analyses</span><strong>{{ activity.total_analyses }}</strong><small>Saved prediction records</small></article><article class="portal-stat"><span>Phishing checks</span><strong>{{ activity.phishing_count }}</strong><small>Saved URL-text model queries</small></article><article class="portal-stat"><span>Cybercrime classifications</span><strong>{{ activity.crime_count }}</strong><small>Saved aggregated-record model queries</small></article></div><p class="panel-note">Indicators are calculated from saved prediction history. No saved records means no activity is available. Bars show relative counts within each table, not rates or population risk.</p></div>
 <div class="portal-grid two-col"><article class="portal-panel"><p class="eyebrow">Cybercrime output categories</p><h2>Saved category estimates</h2>{% if activity.categories %}{% for item in activity.categories %}<div class="report-bar-row"><span>{{ item.name }}</span><strong>{{ item.count }}</strong><div class="report-bar"><i style="width:{{ item.percent }}%"></i></div></div>{% endfor %}{% else %}<p>No cybercrime prediction records yet.</p>{% endif %}</article><article class="portal-panel"><p class="eyebrow">Recent activity</p><h2>Analyses by month</h2>{% if activity.months %}{% for item in activity.months %}<div class="report-bar-row"><span>{{ item.month }}</span><strong>{{ item.count }}</strong><div class="report-bar"><i style="width:{{ item.percent }}%"></i></div></div>{% endfor %}{% else %}<p>No analysis history yet.</p>{% endif %}</article></div>

@@ -1,13 +1,14 @@
-"""Safe command-line entry point for cybercrime model experiments.
+"""Safe entry point for the leakage-aware location benchmark experiment.
 
-Production artifacts are never overwritten by this command. Candidates and
-evaluation files are written to the isolated crime experiment locations.
+This command delegates to src.experiment_crime. Candidate artifacts and evaluation
+outputs are written according to that module; it does not promote a candidate model.
+It is separate from the incident narrative classifier (Astrith).
 """
 from __future__ import annotations
 
 
 def main() -> None:
-    """Run the leakage-aware experiment without promoting its candidate."""
+    """Run the benchmark experiment without replacing the active production model."""
     from src.experiment_crime import main as run_experiment
 
     run_experiment()

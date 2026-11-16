@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% from '_ui.html' import fold, pct, phase_pager %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading"><p class="eyebrow">CRISP-ML · Phase 5</p><h1>Model <span>deployment.</span></h1><p>Saved artifacts, a working demo, the input/output contract, how to run it, user instructions and the operating procedures.</p></div>
+
+  {% call fold('Try the model', kicker='5.1 · Live demo', open=true) %}
+    <p>Describe an incident and the saved model classifies it. Nothing is stored here; the full flow with history is in <a class="portal-text-link" style="margin:0" href="{{ url_for('report_intro') }}">Report an incident</a>.</p>
+    {% if demo_error %}<div class="portal-alert error">{{ demo_error }}</div>{% endif %}
+    <form method="post" action="{{ url_for('deployment') }}#demo-result" class="report-step" style="margin-top:10px">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div class="question"><label for="demo-description">What happened?</label>
+        <textarea id="demo-description" name="description" minlength="15" maxlength="600" required placeholder="Example: someone logged into my Instagram and changed the password">{{ demo_input.description|default('') }}</textarea></div>
+      <fieldset class="question"><legend>How did it start?</legend><div class="choice-grid">{% for key, label in channels.items() %}<label class="choice"><input type="radio" name="channel" value="{{ key }}" required {% if demo_input.channel == key %}checked{% endif %}><span>{{ label }}</span></label>{% endfor %}</div></fieldset>
+      <fieldset class="question"><legend>What was affected?</legend><div class="choice-grid">{% for key, label in affected.items() %}<label class="choice"><input type="checkbox" name="affected" value="{{ key }}" {% if key in demo_input.affected|default([]) %}checked{% endif %}><span>{{ label }}</span></label>{% endfor %}</div></fieldset>
+      <button class="button button-primary" type="submit">Classify <span aria-hidden="true">↗</span></button>
+    </form>
+    {% if demo %}
+      {% set info = category_info(None if demo.needs_review else demo.category) %}
+      <div class="result-card" id="demo-result" style="margin-top:14px">
+        <p class="eyebrow">Model output</p>
+        <h2>{{ info.label }}</h2>
+        <p>{{ info.summary }}</p>
+        <div class="confidence"><div class="bar"><i style="width: {{ (demo.confidence*100)|round(0) }}%"></i></div><strong>{{ pct(demo.confidence) }}</strong></div>
+        <p class="result-meta">Predicted: {{ category_info(demo.category).label }} · {% for alt in demo.alternatives %}{{ category_info(alt.category).label }} {{ pct(alt.probability) }}{% if not loop.last %}, {% endif %}{% endfor %} · {{ demo.model_version }} · {{ '%.0f'|format(demo.inference_ms) }} ms</p>
+      </div>
+    {% endif %}
+  {% endcall %}
+
+  {% call fold('Saved model and preprocessing', kicker='5.2') %}
+    <p>The whole scikit-learn <code>Pipeline</code> (TF-IDF vectorisers, one-hot encoder and classifier) is saved in a single file, so the app always applies the same preprocessing as in training.</p>
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Artifact</th><th>Size</th><th>Content</th></tr></thead><tbody>
+      {% for a in artifacts %}<tr><td><code>{{ a.name }}</code></td><td>{{ a.kb }} KB</td><td>{% if 'report_classifier.joblib' in a.name %}Selected pipeline ({{ report_info.algorithm|default('')|replace('_',' ') }}){% elif 'info' in a.name %}Version, parameters, metrics, threshold{% elif 'reference' in a.name %}Training distributions for drift detection{% else %}Location benchmark pipeline{% endif %}</td></tr>{% endfor %}
+    </tbody></table></div>
+  {% endcall %}
+
+  {% call fold('Inputs and outputs', kicker='5.3') %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Field</th><th>Type</th><th>Rule</th></tr></thead><tbody>
+      <tr><td><code>description</code></td><td>text</td><td>15-600 characters, English or Spanish</td></tr>
+      <tr><td><code>channel</code></td><td>one of {{ channels|length }}</td><td>{{ channels.keys()|join(', ') }}</td></tr>
+      <tr><td><code>affected</code></td><td>list</td><td>any of {{ affected.keys()|join(', ') }}</td></tr>
+      <tr><td><strong>Output</strong> <code>category</code></td><td>label</td><td>one of {{ report_info.labels|default([])|length }} categories</td></tr>
+      <tr><td><code>confidence</code></td><td>0-1</td><td>probability of the predicted category</td></tr>
+      <tr><td><code>needs_review</code></td><td>bool</td><td>true when confidence &lt; {{ report_info.low_confidence_threshold|default(0.45) }}</td></tr>
+      <tr><td><code>alternatives</code>, <code>model_version</code></td><td>list, text</td><td>next two categories with probability; algorithm@version</td></tr>
+    </tbody></table></div>
+  {% endcall %}
+
+  {% call fold('Dependencies and how to run', kicker='5.4') %}
+    <div class="feature-chips">{% for r in requirements %}<code>{{ r }}</code>{% endfor %}</div>
+    <pre class="quote">python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python app.py                      # http://127.0.0.1:5000
+python -m src.train_report_model   # retrain the selected model
+python -m unittest discover -s tests</pre>
+    <p>Production (Render): <code>gunicorn app:app</code> with <code>APP_ENV=production</code>, <code>FLASK_SECRET_KEY</code>, <code>COOKIE_SECURE=1</code>, <code>BEHIND_PROXY=1</code> and <code>ANALYST_EMAILS</code> (see <code>render.yaml</code>).</p>
+  {% endcall %}
+
+  {% call fold('Initial user instructions', kicker='5.5') %}
+    <ol>
+      <li>Create an account (name, email and a password with letters and numbers) or log in.</li>
+      <li>Open <em>Report an incident</em> and answer the three steps: when and where, how it happened, in your own words.</li>
+      <li>Read the result: type of incident, confidence, first steps and official channels. Answer "Does this describe what happened to you?".</li>
+      <li>Follow the status in <em>Dashboard → My reports</em>. Analysts use <em>Review</em> to confirm the category and close the case.</li>
+    </ol>
+  {% endcall %}
+
+  {% call fold('Integration plan with the information system (Activity 2)', kicker='5.6') %}
+    <ul>
+      <li><strong>Roles:</strong> citizen and analyst already exist; an administrator role will manage users and model versions.</li>
+      <li><strong>Persistent database:</strong> move from SQLite to PostgreSQL on Render with the same tables (users, incident_reports, login_attempts).</li>
+      <li><strong>Workflow:</strong> received → in review → closed, already implemented; Activity 2 adds case assignment to analysts and a CRUD of categories and first steps.</li>
+      <li><strong>Inference history:</strong> each report already stores date, user, prediction, confidence, model version and inference time; it will feed the monitoring dashboard.</li>
+      <li><strong>Model service:</strong> <code>src/report_model.py</code> is the single entry point, so a new version only replaces the joblib file and its info JSON.</li>
+    </ul>
+  {% endcall %}
+
+  {% call fold('Monitoring, incident notification and user feedback procedures', kicker='5.7') %}
+    <div class="table-wrap"><table class="portal-table"><thead><tr><th>Procedure</th><th>How</th><th>Responsible</th></tr></thead><tbody>
+      <tr><td>Monitoring</td><td>Every prediction is logged with confidence, version and inference time; weekly indicators and drift (Phase 6)</td><td>Model engineer</td></tr>
+      <tr><td>Citizen feedback</td><td>"Yes / Not really" after each report; disagreement is highlighted in Review</td><td>Analyst</td></tr>
+      <tr><td>Analyst feedback</td><td>Confirm or correct the category and add a note for the citizen</td><td>Analyst</td></tr>
+      <tr><td>Incident notification</td><td>Application errors are logged by gunicorn on Render; an alert in Phase 6 or a failure opens an incident with severity (high: platform down or wrong advice; medium: drift alert; low: visual issue), owner and fix date</td><td>Application engineer</td></tr>
+      <tr><td>Rollback</td><td>Restore the previous <code>report_classifier.joblib</code> and info JSON from Git and redeploy</td><td>Model engineer</td></tr>
+    </tbody></table></div>
+  {% endcall %}
+
+  {{ phase_pager(('evaluation', 'Phase 4 · Evaluation'), ('monitoring', 'Phase 6 · Monitoring')) }}
+</section>
+{% endblock %}

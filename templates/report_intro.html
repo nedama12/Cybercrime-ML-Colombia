@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% from '_ui.html' import fold %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading">
+    <p class="eyebrow">Before you start</p>
+    <h1>Report an <span>incident.</span></h1>
+    <p class="lead">Tell us what happened in your own words. We will identify the type of cybercrime, give you the first steps to protect yourself and keep your report so an analyst can review it.</p>
+  </div>
+  <div class="intro-grid">
+    <div>
+      <span class="time-pill">⏱ About 90 seconds · 3 short steps</span>
+      <ol class="step-list">
+        {% if not current_user %}<li class="account-step"><div><strong>First: log in or create a free account</strong><span>About 30 seconds. It lets you follow your report and receive the analyst's answer.</span></div></li>{% endif %}
+        <li><div><strong>When and where</strong><span>The date and the department where it happened.</span></div></li>
+        <li><div><strong>How it happened</strong><span>How they reached you and what was affected.</span></div></li>
+        <li><div><strong>In your own words</strong><span>One or two sentences. No legal terms needed.</span></div></li>
+      </ol>
+      <div class="actions-row">
+        {% if current_user %}
+          <a class="button button-primary" href="{{ url_for('report_new') }}">Start the report <span aria-hidden="true">↗</span></a>
+        {% else %}
+          <a class="button button-primary" href="{{ url_for('register', next=url_for('report_new')) }}">Create an account and start <span aria-hidden="true">↗</span></a>
+          <a class="portal-text-link" href="{{ url_for('login', next=url_for('report_new')) }}">I already have an account →</a>
+        {% endif %}
+      </div>
+    </div>
+    <aside class="portal-panel" style="margin-top:0">
+      <p class="eyebrow">Have this at hand</p>
+      <ul class="checklist">
+        <li>The approximate date</li>
+        <li>The city or department</li>
+        <li>How they contacted you (call, message, email…)</li>
+        <li>The amount lost, if any (optional)</li>
+      </ul>
+      <p class="panel-note" style="margin-top:12px">You do not need documents or screenshots to start. Keep them for a formal complaint.</p>
+    </aside>
+  </div>
+
+  <div style="margin-top:28px">
+    {% call fold('What happens with my report?', kicker='After you send it') %}
+      <p>You receive a reference number, the type of incident identified and practical steps. An analyst reviews the report, confirms the category and closes it. You can follow its status in <em>My reports</em>.</p>
+    {% endcall %}
+    {% call fold('Is this an official criminal complaint?', kicker='Important') %}
+      <p>No. This is an academic platform that helps you understand and document what happened. To open a criminal investigation you must file a complaint with the authorities. At the end we show you the official channels and a summary you can copy, so you do not have to start from scratch.</p>
+    {% endcall %}
+    {% call fold('Who can see my information?', kicker='Privacy') %}
+      <p>Only you and the analysts of the platform. Your name and email are never shown in statistics. Do not write passwords, card numbers or security codes in the description. Your data is processed under Law 1581 of 2012.</p>
+    {% endcall %}
+    {% call fold('Is it an emergency?', kicker='Right now') %}
+      <p>If someone is in danger, call <strong>123</strong>. If money is leaving your account, call your bank first to block it, then come back.</p>
+    {% endcall %}
+  </div>
+</section>
+{% endblock %}

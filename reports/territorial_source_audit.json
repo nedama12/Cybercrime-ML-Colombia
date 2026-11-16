@@ -1,0 +1,24 @@
+{
+  "crime_workbook_available": true,
+  "crime_source_rows": 66422,
+  "crime_source_columns": [
+    "CRIMINALIDAD",
+    "ES_ARCHIVO",
+    "ES_PRECLUSIÓN",
+    "ESTADO",
+    "ETAPA_CASO",
+    "LEY",
+    "PAÍS_HECHO",
+    "DEPARTAMENTO_HECHO",
+    "MUNICIPIO_HECHO",
+    "SECCIONAL",
+    "AÑO_HECHOS",
+    "AÑO_ENTRADA",
+    "AÑO_DENUNCIA",
+    "DELITO",
+    "GRUPO_DELITO",
+    "CONSUMADO",
+    "TOTAL_PROCESOS"
+  ],
+  "population_workbook_available": true
+}

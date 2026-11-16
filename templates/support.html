@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% from '_ui.html' import fold %}
+{% block content %}
+<section class="portal-page container" id="top" style="max-width:900px">
+  <div class="portal-page-heading"><p class="eyebrow">Help and feedback</p><h1>Tell us what <span>went wrong.</span></h1><p>Use this form if a classification looks wrong, the platform shows an error, you want to access, correct or delete your data, or you have a suggestion. An analyst answers here.</p></div>
+
+  <div class="portal-panel">
+    <form method="post" action="{{ url_for('support') }}" class="support-form" data-once>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div class="two-fields">
+        <div class="question"><label for="kind">Type of request</label>
+          <select id="kind" name="kind" required><option value="">Choose…</option>{% for key, label in kinds.items() %}<option value="{{ key }}" {% if form.kind == key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+        <div class="question"><label for="report_id">Related report <small>(optional)</small></label>
+          <select id="report_id" name="report_id"><option value="">None</option>{% for r in my_reports %}<option value="{{ r.id }}" {% if form.report_id|string == r.id|string %}selected{% endif %}>{{ r.reference }}</option>{% endfor %}</select></div>
+      </div>
+      <div class="question"><label for="subject">Subject</label><input id="subject" name="subject" required minlength="5" maxlength="120" value="{{ form.subject|default('') }}"></div>
+      <div class="question"><label for="message">What happened? Include the page, what you did and the message you saw.</label>
+        <textarea id="message" name="message" required minlength="15" maxlength="1500">{{ form.message|default('') }}</textarea></div>
+      <p class="privacy-note">Never include passwords, card numbers, verification codes or cookies.</p>
+      <button class="button button-primary" type="submit">Send request <span aria-hidden="true">↗</span></button>
+    </form>
+  </div>
+
+  <div class="portal-panel">
+    <p class="eyebrow">{{ tickets|length }} request{{ '' if tickets|length == 1 else 's' }}</p><h2>Your requests</h2>
+    {% for t in tickets %}
+      <article class="report-row"><div>
+        <h3>#{{ t.id }} · {{ t.subject }}</h3>
+        <p>{{ kinds.get(t.kind, t.kind) }} · sent {{ t.created_at }}{% if t.resolved_at %} · resolved {{ t.resolved_at }}{% endif %}</p>
+        {% if t.staff_response %}<p class="quote">Answer: {{ t.staff_response }}</p>{% endif %}
+      </div><div class="actions-row"><span class="status-badge status-{{ 'closed' if t.status == 'resolved' else ('in_review' if t.status == 'in_progress' else 'received') }}">{{ ticket_statuses.get(t.status) }}</span></div></article>
+    {% else %}<p>You have not sent any request.</p>{% endfor %}
+  </div>
+</section>
+{% endblock %}

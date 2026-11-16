@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% from '_ui.html' import fold, status_badge, pct %}
+{% block content %}
+<section class="portal-page container" id="top">
+  <div class="portal-page-heading"><p class="eyebrow">Analyst workspace</p><h1>Review <span>reports.</span></h1><p>Reports are ordered by priority: high when the classifier is not confident, the citizen disagrees, the loss is one million pesos or more, or a company system was affected. Confirm or correct the category, add a note for the citizen and close the case. Confirmed reports become training data.</p></div>
+  <p class="actions-row" style="margin:-6px 0 18px"><a class="portal-text-link" style="margin:0" href="{{ url_for('indicators') }}">Indicators →</a><a class="portal-text-link" style="margin:0" href="{{ url_for('inference_history') }}">Inference history →</a><a class="portal-text-link" style="margin:0" href="{{ url_for('support_manage') }}">Support desk →</a></p>
+
+  <div class="portal-stat-grid">
+    <article class="portal-stat"><span>Reports received</span><strong>{{ stats.total or 0 }}</strong><small>all time</small></article>
+    <article class="portal-stat"><span>Average time to report</span><strong>{% if stats.avg_duration %}{{ (stats.avg_duration|int) // 60 }}:{{ '%02d'|format((stats.avg_duration|int) % 60) }}{% else %}—{% endif %}</strong><small>goal: under 1:30</small></article>
+    <article class="portal-stat"><span>Analyst agreement</span><strong>{% if stats.confirmed %}{{ pct(stats.matches / stats.confirmed) }}{% else %}—{% endif %}</strong><small>{{ stats.confirmed or 0 }} confirmed reports</small></article>
+    <article class="portal-stat"><span>Low-confidence share</span><strong>{% if stats.total %}{{ pct((stats.low_confidence or 0) / stats.total) }}{% else %}—{% endif %}</strong><small>sent to manual review</small></article>
+  </div>
+
+  {% call fold('Model monitoring', kicker=model.algorithm|default('')|replace('_',' ')|title ~ ' · version ' ~ model.version|default('-')) %}
+    <div class="mini-metrics">
+      <div><span>Average confidence</span><strong>{{ pct(stats.avg_confidence or 0) }}</strong></div>
+      <div><span>Average inference time</span><strong>{{ '%.0f'|format(stats.avg_inference or 0) }} ms</strong></div>
+      <div><span>Citizen agreement</span><strong>{% if stats.agreement is not none %}{{ pct(stats.agreement) }}{% else %}—{% endif %}</strong></div>
+      <div><span>Holdout accuracy at training</span><strong>{{ pct(model.metrics.holdout_accuracy|default(0)) }}</strong></div>
+    </div>
+    <p class="panel-note" style="margin-top:12px">If analyst agreement drops below 80 % or the low-confidence share rises above 25 %, retrain with <code>python -m src.train_report_model --include-confirmed</code>.</p>
+  {% endcall %}
+
+  <nav class="filter-tabs" aria-label="Filter by status">
+    {% for key, label in [('open','Open'), ('received','Received'), ('in_review','In review'), ('closed','Closed'), ('all','All')] %}
+      <a href="{{ url_for('review', status=key, category=category, q=search) }}" {% if status == key %}aria-current="true"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </nav>
+  <form class="review-filter" method="get" action="{{ url_for('review') }}">
+    <input type="hidden" name="status" value="{{ status }}">
+    <select name="category" aria-label="Category"><option value="">All categories</option>{% for key, item in CATEGORY_INFO.items() %}<option value="{{ key }}" {% if category == key %}selected{% endif %}>{{ item.label }}</option>{% endfor %}</select>
+    <input name="q" value="{{ search }}" maxlength="60" placeholder="Search text, department or reference" aria-label="Search">
+    <button class="button button-secondary" type="submit">Filter</button>
+  </form>
+
+  {% for r in reports %}
+    <article class="portal-panel" style="margin:10px 0">
+      <div class="panel-heading">
+        <div><p class="eyebrow"><span class="priority priority-{{ r.priority }}">{{ r.priority_label }} priority</span> {{ r.reference }} · {{ r.created_at }} · {{ r.reporter }}</p>
+          <h3 style="margin:0">{{ r.predicted_info.label }} <small class="panel-note">{{ pct(r.confidence) }}{% if r.needs_review %} · low confidence{% endif %}{% if r.user_agrees == 0 %} · citizen disagrees{% endif %}</small></h3></div>
+        {{ status_badge(r) }}
+      </div>
+      <p class="quote">{{ r.description }}</p>
+      <p style="margin-top:8px">{% for a in r.affected_list %}<span class="tag">{{ a }}</span>{% endfor %}<span class="tag">{{ r.channel_label }}</span><span class="tag">{{ r.department_label }}</span>{% if r.amount_lost %}<span class="tag">COP {{ '{:,}'.format(r.amount_lost) }}</span>{% endif %}</p>
+      <form class="review-form" method="post" action="{{ url_for('review_update', report_id=r.id, status=status) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <select name="status" aria-label="Status">{% for key, label in statuses.items() %}<option value="{{ key }}" {% if r.status == key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+        <select name="confirmed_category" aria-label="Confirmed category"><option value="">Category not confirmed</option>{% for key, item in CATEGORY_INFO.items() %}<option value="{{ key }}" {% if (r.confirmed_category or '') == key %}selected{% endif %}>{{ item.label }}</option>{% endfor %}</select>
+        <input name="analyst_note" maxlength="500" placeholder="Note for the citizen (optional)" value="{{ r.analyst_note }}">
+        <button class="button button-primary" type="submit">Save</button>
+      </form>
+      <details class="history-details"><summary>History ({{ r.events|length }}) · model {{ r.model_version }}</summary>
+        <ul class="event-list">{% for e in r.events %}<li><span>{{ e.created_at }}</span> {{ e.label }}{% if e.detail %}: {{ e.detail }}{% endif %} <small>· {{ e.actor }}</small></li>{% endfor %}</ul>
+        {% if is_admin %}
+        <form class="review-form pair" method="post" action="{{ url_for('review_delete', report_id=r.id) }}" onsubmit="return confirm('Delete this report permanently?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <input name="reason" maxlength="200" required minlength="5" placeholder="Reason for deleting (spam, duplicate…)" aria-label="Reason">
+          <button class="button button-secondary danger" type="submit">Delete report</button>
+        </form>{% endif %}
+      </details>
+    </article>
+  {% else %}
+    <div class="portal-panel empty-history"><h2>No reports in this view.</h2></div>
+  {% endfor %}
+</section>
+{% endblock %}

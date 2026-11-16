@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: cybercrime-colombia
+    runtime: python
+    # A persistent disk needs a paid instance (starter or higher). On the free plan the
+    # SQLite file is lost when the service restarts or is redeployed.
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 2 --timeout 90
+    healthCheckPath: /healthz
+    disk:
+      name: cybercrime-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: COOKIE_SECURE
+        value: "1"
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: USER_DB_PATH
+        value: /var/data/cybercrime.sqlite3
+      - key: ANALYST_EMAILS
+        sync: false
+      - key: ADMIN_EMAILS
+        sync: false
+      - key: BEHIND_PROXY
+        value: "1"

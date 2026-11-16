@@ -1,0 +1,148 @@
+{
+  "raw": {
+    "rows": 66422,
+    "columns": 17,
+    "total_cases": 565082,
+    "missing_as_sin_dato": {
+      "PA\u00cdS_HECHO": 22,
+      "DEPARTAMENTO_HECHO": 22,
+      "MUNICIPIO_HECHO": 22,
+      "SECCIONAL": 657,
+      "A\u00d1O_DENUNCIA": 20
+    },
+    "exact_duplicates": 0,
+    "department_spellings": 33,
+    "municipality_spellings": 1025,
+    "text_with_extra_spaces": 0
+  },
+  "processed": {
+    "rows": 66400,
+    "columns": 20,
+    "total_cases": 565050,
+    "missing": {
+      "regional_office": 656,
+      "article": 329
+    },
+    "exact_duplicates": 0,
+    "departments": 33,
+    "municipalities": 1106,
+    "partial_year_rows": 2696,
+    "categories": {
+      "ELECTRONIC_THEFT": 20473,
+      "ABUSIVE_ACCESS": 15990,
+      "PERSONAL_DATA": 12911,
+      "PHISHING_SPOOFING": 5694,
+      "TRANSFER_FRAUD": 4921,
+      "SYSTEM_ATTACK": 4725,
+      "MALWARE": 982,
+      "MOBILE_DEVICES": 375,
+      "UNSPECIFIED": 329
+    },
+    "sin_dato_cells": 0
+  },
+  "outliers": {
+    "rule": "total_cases > Q3 + 1.5 x IQR",
+    "q1": 1.0,
+    "q3": 3.0,
+    "upper_fence": 6.0,
+    "rows": 7913,
+    "share": 0.11917168674698796,
+    "max": 14497,
+    "top": [
+      {
+        "department": "BOGOT\u00c1, D. C.",
+        "report_year": 2025,
+        "category": "ELECTRONIC_THEFT",
+        "total_cases": 14497
+      },
+      {
+        "department": "BOGOT\u00c1, D. C.",
+        "report_year": 2023,
+        "category": "ELECTRONIC_THEFT",
+        "total_cases": 8487
+      },
+      {
+        "department": "BOGOT\u00c1, D. C.",
+        "report_year": 2024,
+        "category": "ELECTRONIC_THEFT",
+        "total_cases": 8463
+      },
+      {
+        "department": "BOGOT\u00c1, D. C.",
+        "report_year": 2022,
+        "category": "ELECTRONIC_THEFT",
+        "total_cases": 7731
+      },
+      {
+        "department": "BOGOT\u00c1, D. C.",
+        "report_year": 2024,
+        "category": "ELECTRONIC_THEFT",
+        "total_cases": 5682
+      }
+    ],
+    "decision": "Kept: they are real aggregated counts (mainly electronic theft in Bogota), not entry errors. They are only used as weights in statistics."
+  },
+  "inconsistencies": {
+    "examples": [
+      "Amazonas -> AMAZONAS",
+      "Antioquia -> ANTIOQUIA",
+      "Arauca -> ARAUCA",
+      "Archipi\u00e9lago de San Andr\u00e9s, Providencia y Santa Catalina -> ARCHIPIELAGO DE SAN ANDRES PROVIDENCIA Y SANTA CATALINA",
+      "Atl\u00e1ntico -> ATLANTICO",
+      "BOGOT\u00c1, D. C. -> BOGOTA D C"
+    ],
+    "decision": "Accents, case and punctuation removed to obtain one spelling per department."
+  },
+  "transformations": [
+    [
+      "Non-numeric years and counts",
+      "Converted to integers; invalid values become null",
+      "Allows numeric analysis"
+    ],
+    [
+      "'SIN DATO' (no data)",
+      "Converted to null",
+      "Missing values become explicit"
+    ],
+    [
+      "Rows without department or municipality (22)",
+      "Dropped",
+      "Location is required for every analysis"
+    ],
+    [
+      "GRUPO_DELITO, CONSUMADO, PAIS_HECHO",
+      "Dropped",
+      "Constant or empty columns with no information"
+    ],
+    [
+      "Department and municipality names",
+      "Normalised (no accents, upper case)",
+      "One spelling per place, join with DANE"
+    ],
+    [
+      "Offense text",
+      "Article extracted (269A-269J, Law 1453 art. 105)",
+      "Basis of the target"
+    ],
+    [
+      "Article",
+      "Mapped to 9 categories",
+      "Target variable of the benchmark"
+    ],
+    [
+      "SI/NO, ACTIVO/INACTIVO",
+      "Encoded as 1/0",
+      "Binary features"
+    ],
+    [
+      "Year 2026",
+      "Flagged with partial_year",
+      "Incomplete year must not distort trends"
+    ],
+    [
+      "Column names",
+      "Translated to English snake_case",
+      "Consistent naming"
+    ]
+  ]
+}

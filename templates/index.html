@@ -1,27 +1,56 @@
 {% extends 'base.html' %}
+{% from '_ui.html' import fold %}
 {% block content %}
 <section class="hero container" id="top">
   <div class="hero-copy">
     <p class="eyebrow"><span class="status-dot"></span> Academic project <span class="eyebrow-rule"></span> Colombia</p>
-    <h1>Data-Driven <span>Cybercrime Analysis</span></h1>
-    <p class="hero-subtitle">Machine Learning to classify cybercrime categories reported in Colombia.</p>
-    <p class="hero-description">Explore the dataset processed by Data Engineering, compare three machine learning algorithms, and test the prediction pipeline using available features.</p>
-    <a class="button button-primary" href="{{ url_for('dashboard') }}">Open Dashboard <span aria-hidden="true">↗</span></a>
+    <h1>Cybercrime analysis <span>with data.</span></h1>
+    <p class="hero-subtitle">Report what happened to you in about 90 seconds. We identify the type of cybercrime and tell you what to do next.</p>
+    <p class="hero-description">Every report joins {{ '{:,}'.format(data.total_cases|default(0)) }} cases registered by the Attorney General's Office and helps show where and how cybercrime is changing in Colombia.</p>
+    <div class="actions-row">
+      <a class="button button-primary" href="{{ url_for('report_intro') }}">Report an incident <span aria-hidden="true">↗</span></a>
+      <a class="portal-text-link" href="{{ url_for('dashboard') }}">Open dashboard →</a>
+    </div>
   </div>
-  <div class="hero-visual" aria-hidden="true"><div class="visual-glow"></div><div class="data-orbit orbit-one"></div><div class="data-orbit orbit-two"></div><div class="visual-core"><span class="core-symbol">⌘</span><span class="core-label">DATA<br>AND MODELS</span></div><span class="orbit-node node-one"></span><span class="orbit-node node-two"></span><span class="orbit-node node-three"></span><div class="visual-caption"><span class="caption-line"></span> Evidence for exploring patterns</div><div class="visual-grid"></div></div>
-  <div class="hero-index"><span>01</span><span class="index-line"></span><span>MODEL ENGINEERING</span></div>
+  <div class="hero-visual" aria-hidden="true"><div class="visual-glow"></div><div class="data-orbit orbit-one"></div><div class="data-orbit orbit-two"></div><div class="visual-core"><span class="core-symbol">⌘</span><span class="core-label">DATA<br>AND MODELS</span></div><span class="orbit-node node-one"></span><span class="orbit-node node-two"></span><span class="orbit-node node-three"></span><div class="visual-caption"><span class="caption-line"></span> Evidence to explore patterns</div><div class="visual-grid"></div></div>
+  <div class="hero-index"><span>01</span><span class="index-line"></span><span>INCIDENT REPORTING</span></div>
 </section>
-<section class="section about-section"><div class="container section-grid"><div class="section-heading"><p class="eyebrow">01 / The problem</p><h2>Understanding a <span>changing landscape.</span></h2></div><div class="about-content"><p class="project-title">Exploratory classification of cybercrime categories using supervised learning.</p><div class="card problem-card"><span class="card-kicker">Project goal</span><p>Prepare, train, and evaluate classifiers using processed cybercrime records. The results support the study of historical patterns and classification limits given the available fields.</p></div><div class="card objective-card"><span class="card-icon">◎</span><div><span class="card-kicker">Scope of this project</span><p>Compare Decision Tree, Random Forest, and Logistic Regression, document their metrics, and provide a pipeline ready for integration.</p></div></div></div></div></section>
-<section class="section objectives-section"><div class="container"><div class="section-heading heading-row"><div><p class="eyebrow">02 / Explore the project</p><h2>From dataset to <span>prediction.</span></h2></div><p class="heading-note">Explore the data and artifacts generated during training.</p></div><div class="portal-link-grid">
-  <a class="portal-card" href="{{ url_for('dataset') }}"><span>01</span><h3>Dataset</h3><p>Records, columns, missing values, and category distribution.</p><b>Explore data ↗</b></a>
-  <a class="portal-card" href="{{ url_for('preprocessing') }}"><span>02</span><h3>Data Preparation</h3><p>Features, pipelines, data split, and class imbalance handling.</p><b>View process ↗</b></a>
-  <a class="portal-card" href="{{ url_for('models') }}"><span>03</span><h3>Models</h3><p>Descriptions, configuration, and individual classifiers.</p><b>Explore models ↗</b></a>
-  <a class="portal-card" href="{{ url_for('evaluation') }}"><span>04</span><h3>Evaluation</h3><p>Comparative metrics, reports, and confusion matrices.</p><b>View results ↗</b></a>
-  <a class="portal-card" href="{{ url_for('prediction') }}"><span>05</span><h3>Prediction</h3><p>Use the saved pipeline to classify an input.</p><b>Try the model ↗</b></a>
-  <a class="portal-card" href="{{ url_for('reports') }}"><span>06</span><h3>Reports</h3><p>Conclusions, limitations, and downloadable artifacts.</p><b>Read reports ↗</b></a>
-</div></div></section>
-<section class="section model-selection-section"><div class="container"><div class="section-heading heading-row"><div><p class="eyebrow">Choose a model</p><h2>Two independent <span>analyses.</span></h2></div><p class="heading-note">Each model uses its own dataset and input contract.</p></div><div class="model-choice-grid"><a class="portal-card model-choice" href="{{ url_for('prediction', model='cybercrime') }}"><span>01</span><h3>Cybercrime Analysis</h3><p>Classify Colombian cybercrime records using the saved incident feature pipeline.</p><b>Open Cybercrime Analysis →</b></a><a class="portal-card model-choice" href="{{ url_for('prediction', model='phishing') }}"><span>02</span><h3>Phishing Detection</h3><p>Estimate phishing risk from a URL string without opening the site or reading its page.</p><b>Open Phishing Detection →</b></a></div></div></section>
-<section class="section model-selection-section"><div class="container"><div class="section-heading"><p class="eyebrow">Practical support</p><h2>Need help with a <span>security incident?</span></h2><p>Use the rule-based assistant for prevention and first-response guidance.</p><a class="button button-primary" href="{{ url_for('cybersecurity_assistant') }}">Open Intelligent Cybersecurity Assistant <span aria-hidden="true">↗</span></a></div></div></section>
-<section class="section about-section"><div class="container section-grid"><div class="section-heading"><p class="eyebrow">About the project</p><h2>Evidence for analysis, <span>guidance for action.</span></h2></div><div class="about-content"><p class="project-title">A research platform for Colombian cybercrime records and practical cybersecurity education.</p><div class="card problem-card"><span class="card-kicker">Problem and justification</span><p>Cybercrime records are difficult to interpret and aggregate categories do not explain what an individual should do during an incident. This project explores the available data while making defensive first steps easier to find.</p></div><div class="card objective-card"><span class="card-icon" aria-hidden="true">◎</span><div><span class="card-kicker">General objective</span><p>Analyze cybercrime information in Colombia, examine temporal and territorial patterns, evaluate supported ML tasks, detect suspicious URL patterns, and provide practical prevention and response guidance.</p></div></div><div class="card objective-card"><span class="card-icon" aria-hidden="true">＋</span><div><span class="card-kicker">Specific objectives</span><p>Explore available records; identify geographic and temporal patterns; evaluate crime-category classification honestly; analyze URL text for phishing indicators; visualize findings; and guide users through common security situations.</p></div></div></div></div></section>
-<section class="section methodology-section"><div class="container methodology-layout"><div><p class="eyebrow">Data, methods and architecture</p><h2>How the <span>platform works.</span></h2><p class="method-intro">Flask serves focused modules backed by existing processed data, persisted model pipelines, and a transparent rules engine.</p></div><div class="method-steps"><article class="method-step"><span class="step-number">01</span><div><h3>Data and methods</h3><p>Processed Colombian cybercrime process records support descriptive analysis and an experimental category classifier. A separate UCI PhiUSIIL dataset supports URL-text phishing model training. Territorial views use processed report-year rates where matched. The workflow is CRISP-ML(Q)-inspired: problem/data understanding, preparation, model development, evaluation, and deployment; ongoing monitoring and formal governance remain future work.</p></div></article><article class="method-step"><span class="step-number">02</span><div><h3>Technologies</h3><p>Python, Flask, pandas, scikit-learn, SQLite, joblib, and Matplotlib power the web application, analysis, persisted models, account history, and plots.</p></div></article><article class="method-step"><span class="step-number">03</span><div><h3>System architecture and workflow</h3><p>Browser form → Flask route → existing ML pipeline or rule-based guidance engine → rendered result. The assistant uses no external AI service and does not persist a situation description.</p></div></article><article class="method-step"><span class="step-number">04</span><div><h3>Limitations and interpretation</h3><p>The cybercrime classifier has low macro F1 (legacy test score about 0.118) because aggregate fields lack conduct details. Its labels are not legal conclusions. Territorial counts are recorded processes, not prevalence; forecasts are exploratory. URL scores cannot inspect site content.</p></div></article></div></div></section>
+
+<section class="section about-section"><div class="container section-grid">
+  <div class="section-heading"><p class="eyebrow">01 / The problem</p><h2>Understanding a <span>changing</span> landscape.</h2></div>
+  <div class="about-content">
+    <p class="project-title">Many victims never report a cybercrime because they do not know what it is called or where to start.</p>
+    {% call fold('What does this platform do?', kicker='Purpose', open=true) %}
+      <p>It turns a short description written by the victim into the legal category of the incident (Law 1273 of 2009), gives practical first steps and keeps the report so an analyst can review it.</p>
+    {% endcall %}
+    {% call fold('Why is your report important?', kicker='Your contribution') %}
+      <p>Official statistics count cases, but they do not say how people are attacked. Your report adds the channel, what was affected and your own words. Confirmed reports also train the classifier, so it gets better for the next person.</p>
+    {% endcall %}
+    {% call fold('Who built it?', kicker='Team') %}
+      <p>A three-member academic team: Data Engineering (Attorney General's Office and DANE data), Model Engineering (Decision Tree, Random Forest and Logistic Regression) and Application Engineering (accounts, reports, review workflow and deployment).</p>
+    {% endcall %}
+  </div>
+</div></section>
+
+<section class="section objectives-section"><div class="container">
+  <div class="section-heading heading-row"><div><p class="eyebrow">02 / CRISP-ML</p><h2>Six phases, from the problem to <span>monitoring.</span></h2></div><p class="heading-note">Each phase shows the real work, decisions, results and evidence.</p></div>
+  <div class="portal-link-grid">
+    <a class="portal-card" href="{{ url_for('business') }}"><span>PHASE 1</span><h3>Business and data understanding</h3><p>Problem, stakeholders, objectives, data and success criteria.</p><b>Open phase ↗</b></a>
+    <a class="portal-card" href="{{ url_for('dataset') }}"><span>PHASE 2</span><h3>Data engineering</h3><p>Cleaning with before/after evidence, features and partitions.</p><b>Open phase ↗</b></a>
+    <a class="portal-card" href="{{ url_for('models') }}"><span>PHASE 3</span><h3>Model engineering</h3><p>Three algorithms, tuning with grouped cross-validation, experiment log.</p><b>Open phase ↗</b></a>
+    <a class="portal-card" href="{{ url_for('evaluation') }}"><span>PHASE 4</span><h3>Model evaluation</h3><p>Metrics, overfitting analysis and final independent test.</p><b>Open phase ↗</b></a>
+    <a class="portal-card" href="{{ url_for('deployment') }}"><span>PHASE 5</span><h3>Deployment</h3><p>Saved pipeline, live demo, inputs, outputs and procedures.</p><b>Open phase ↗</b></a>
+    <a class="portal-card" href="{{ url_for('monitoring') }}"><span>PHASE 6</span><h3>Monitoring and maintenance</h3><p>Indicators, drift detection and a simulated monitoring test.</p><b>Open phase ↗</b></a>
+  </div>
+  <p style="margin-top:22px"><a class="portal-text-link" href="{{ url_for('reports') }}">Read the conclusions →</a></p>
+</div></section>
+
+<section class="section objectives-section" id="information-system"><div class="container">
+  <div class="section-heading heading-row"><div><p class="eyebrow">03 / Information system</p><h2>From the model to a <span>managed process.</span></h2></div><p class="heading-note">Accounts and roles, the report lifecycle, analyst review, indicators and monitoring. Operational modules require an account.</p></div>
+  <div class="portal-link-grid">
+    <a class="portal-card" href="{{ url_for('system_design') }}"><span>DESIGN</span><h3>System design</h3><p>Users, processes, rules, architecture, data model and the role of the model.</p><b>Open ↗</b></a>
+    <a class="portal-card" href="{{ url_for('user_help') }}"><span>MANUAL</span><h3>User manual and training</h3><p>Guides for citizens, analysts and administrators, and the feedback procedures.</p><b>Open ↗</b></a>
+    <a class="portal-card" href="{{ url_for('dashboard') }}"><span>MODULES</span><h3>Operational modules</h3><p>Reports, review queue, indicators, territorial analysis, support and operations.</p><b>Log in ↗</b></a>
+  </div>
+</div></section>
 {% endblock %}
