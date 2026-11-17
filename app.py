@@ -505,10 +505,10 @@ def role_required(*roles: str):
     return decorator
 
 
-    # TEMPORARY: Disable role restrictions for project demonstration.
-    # Any authenticated user can access staff and administrator sections.
-    staff_required = login_required
-    admin_required = login_required
+# TEMPORARY: role restrictions disabled for the project demonstration.
+# Login is still required; restore role_required before public production use.
+staff_required = login_required
+admin_required = login_required
 
 
 def initial_role(email: str) -> str:
