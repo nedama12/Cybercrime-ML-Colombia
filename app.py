@@ -1,4 +1,4 @@
-﻿"""Cybercrime Colombia: web information system for citizen cybercrime reports.
+"""Cybercrime Colombia: web information system for citizen cybercrime reports.
 
 Citizens register, report a cybercrime incident in about 90 seconds, receive the
 category identified by the report classifier and clear next steps. Analysts
@@ -138,6 +138,27 @@ def connect_db():
 
 _READY_DATABASES: set[str] = set()
 
+# Existing project accounts that must have administrator access.
+# This list is applied only to accounts already present in the database.
+PROJECT_ADMIN_EMAILS = (
+    "neiderfelipe2003@gmail.com",
+    "astrithdrincon@ucundinamarca.edu.co",
+    "nicolasuchuvo123@gmail.com",
+)
+
+
+def promote_project_admins() -> None:
+    """Promote the specified existing accounts once during database initialization."""
+    with connect_db() as connection:
+        for email in PROJECT_ADMIN_EMAILS:
+            changed = connection.execute(
+                "UPDATE users SET role = 'admin', session_version = session_version + 1 "
+                "WHERE email = ? COLLATE NOCASE AND role != 'admin'",
+                (email,),
+            ).rowcount
+            if changed:
+                logger.info("Project administrator role granted to existing account: %s", email)
+
 
 def ensure_database() -> None:
     """Create or migrate the schema once per process and database file."""
@@ -145,6 +166,7 @@ def ensure_database() -> None:
     if key in _READY_DATABASES and USER_DB_PATH.exists():
         return
     create_schema()
+    promote_project_admins()
     _READY_DATABASES.add(key)
 
 
