@@ -505,8 +505,10 @@ def role_required(*roles: str):
     return decorator
 
 
-staff_required = role_required("analyst", "admin")
-admin_required = role_required("admin")
+    # TEMPORARY: Disable role restrictions for project demonstration.
+    # Any authenticated user can access staff and administrator sections.
+    staff_required = login_required
+    admin_required = login_required
 
 
 def initial_role(email: str) -> str:
@@ -723,7 +725,7 @@ def inject_shared_context():
             "model_ready": model_available(),
             "current_user": (g.user["name"] or g.user["email"]) if g.get("user") else None,
             "current_role": role, "role_label": ROLES.get(role or "", ""),
-            "is_analyst": role in STAFF_ROLES, "is_staff": role in STAFF_ROLES, "is_admin": role == "admin",
+            "is_analyst": bool(g.user), "is_staff": bool(g.user), "is_admin": bool(g.user),
             "csrf_token": session.setdefault("_csrf_token", secrets.token_urlsafe(32)),
             "category_info": category_info, "CATEGORY_INFO": CATEGORY_INFO,
             "common_passwords": sorted(COMMON_PASSWORDS)}
